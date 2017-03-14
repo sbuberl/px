@@ -1,9 +1,3 @@
-/*
- * Statement.cpp
- *
- *  Created on: Feb 6, 2011
- *      Author: steve
- */
 
 #include <ast/Visitor.h>
 #include <ast/Statement.h>

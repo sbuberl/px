@@ -31,14 +31,12 @@
     <ClInclude Include="include\Scanner.h" />
     <ClInclude Include="include\SourcePosition.h" />
     <ClInclude Include="include\Symbol.h" />
-    <ClInclude Include="include\Types\Types.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="test.px">
       <DeploymentContent>true</DeploymentContent>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="include\Keywords.def" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AST\Declaration.cpp" />

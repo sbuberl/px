@@ -1,9 +1,3 @@
-/*
- * PxRuntime.cpp
- *
- *  Created on: Jun 12, 2010
- *      Author: steve
- */
 
 #include <stdio.h>
 

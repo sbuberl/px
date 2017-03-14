@@ -1,9 +1,3 @@
-/*
- * Parser.cpp
- *
- *  Created on: Dec 13, 2009
- *      Author: steve
- */
 
 #include <iostream>
 #include <sstream>

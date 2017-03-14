@@ -1,9 +1,3 @@
-/*
- * Expression.c
- *
- *  Created on: Oct 26, 2010
- *      Author: steve
- */
 
 #include <ast/Expression.h>
 #include <ast/Visitor.h>

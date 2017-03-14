@@ -9,8 +9,6 @@ do { \
 	return TokenType:: tok ; \
 } while( false )
 
-#define KEYWORD(tok, type)  keywords[(tok)] = (TokenType:: type);
-
 namespace px {
 
 	std::unordered_map<std::string, TokenType> Scanner::keywords = {

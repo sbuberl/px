@@ -1,9 +1,3 @@
-/*
- * Literal.cpp
- *
- *  Created on: Oct 26, 2010
- *      Author: steve
- */
 
 #include <ast/Visitor.h>
 #include <ast/Literal.h>
