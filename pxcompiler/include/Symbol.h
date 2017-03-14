@@ -58,6 +58,7 @@ namespace px
     public:
         static Type * const OBJECT;
         static Type * const VOID;
+        static Type * const BOOL;
         static Type * const INT8;
         static Type * const INT16;
         static Type * const INT32;
@@ -70,10 +71,11 @@ namespace px
         {
             NONE = 0,
             BUILTIN = 0x08,
-            BUILTIN_INT = 0x09,
-            BUILTIN_FLOAT = 0x0a,
-            BUILTIN_STRING = 0x0b,
-            BUILTIN_VOID = 0x0c,
+            BUILTIN_BOOL = 0x09,
+            BUILTIN_INT,
+            BUILTIN_FLOAT,
+            BUILTIN_STRING,
+            BUILTIN_VOID,
             ABSTRACT = 0x10,
             SEALED = 0x20,
         };
@@ -184,6 +186,7 @@ namespace px
         {
             addSymbol(Type::OBJECT);
             addSymbol(Type::VOID);
+            addSymbol(Type::BOOL);
             addSymbol(Type::INT8);
             addSymbol(Type::INT16);
             addSymbol(Type::INT32);

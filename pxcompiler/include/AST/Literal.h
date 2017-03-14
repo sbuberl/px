@@ -21,6 +21,19 @@ namespace px
             Literal(Type *type, const std::string l) : Expression(type), literal(l) {}
 		};
 
+		class BoolLiteral : public Literal
+		{
+		public:
+			const bool value;
+
+			BoolLiteral(const std::string &l)
+				: Literal(Type::BOOL, l), value(l == "true")
+			{
+			}
+
+			void *accept(Visitor &visitor) override;
+		};
+
 		class IntegerLiteral : public Literal
 		{
 		public:

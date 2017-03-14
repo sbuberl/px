@@ -15,6 +15,7 @@ namespace px {
 		void analyze(ast::AST *ast);
 		void *visit(ast::AssignmentExpression &a) override;
 		void *visit(ast::BinaryOpExpression &e) override;
+		void *visit(ast::BoolLiteral &b) override;
 		void *visit(ast::BlockStatement &s) override;
 		void *visit(ast::CastExpression &f) override;
 		void *visit(ast::DeclarationStatement &d) override;

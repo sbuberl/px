@@ -64,6 +64,11 @@ namespace px
 		return nullptr;
 	}
 
+	void* ContextAnalyzer::visit(ast::BoolLiteral &b)
+	{
+		return nullptr;
+	}
+
 	void* ContextAnalyzer::visit(ast::CastExpression &c)
 	{
 		c.expression->accept(*this);

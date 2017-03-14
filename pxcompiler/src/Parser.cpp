@@ -400,6 +400,10 @@ namespace px {
 		case TokenType::STRING:
             value.reset(new StringLiteral{currentToken.str});
 			break;
+		case TokenType::KW_TRUE:
+        case TokenType::KW_FALSE:
+			value.reset(new BoolLiteral{ currentToken.str });
+			break;
 		default:
 			// TODO parse error
 			return value;
