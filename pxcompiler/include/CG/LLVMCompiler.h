@@ -14,38 +14,38 @@
 
 namespace px {
 
-	class LLVMCompiler : public ast::Visitor
-	{
-		llvm::LLVMContext context;
-		llvm::IRBuilder<> builder;
+    class LLVMCompiler : public ast::Visitor
+    {
+        llvm::LLVMContext context;
+        llvm::IRBuilder<> builder;
         std::unique_ptr<llvm::Module> module;
-		px::Function *currentFunction;
+        px::Function *currentFunction;
 
-		class LLVMFunctionData : public OtherSymbolData
-		{
-		public:
-			std::map<std::string, llvm::AllocaInst*> variables;
-			virtual ~LLVMFunctionData() { }
-		};
+        class LLVMFunctionData : public OtherSymbolData
+        {
+        public:
+            std::map<std::string, llvm::AllocaInst*> variables;
+            virtual ~LLVMFunctionData() {}
+        };
 
-	    llvm::Type *pxTypeToLlvmType(Type *type);
+        llvm::Type *pxTypeToLlvmType(Type *type);
 
-	public:
-		LLVMCompiler();
-		void compile(ast::AST *ast);
-		virtual void *visit(ast::BinaryOpExpression &f);
-		virtual void *visit(ast::BlockStatement &s);
-		virtual void *visit(ast::CastExpression &c);
-		virtual void *visit(ast::DeclarationStatement &d);
-		virtual void *visit(ast::ExpressionStatement &s);
-		virtual void *visit(ast::FunctionDeclaration &f);
-		virtual void *visit(ast::IntegerLiteral &i);
-		virtual void *visit(ast::FloatLiteral &f);
-		virtual void *visit(ast::ReturnStatement &s);
-		virtual void *visit(ast::StringLiteral &s);
-		virtual void *visit(ast::UnaryOpExpression &e);
-		virtual void *visit(ast::VariableExpression &v);
-	};
+    public:
+        LLVMCompiler();
+        void compile(ast::AST *ast);
+        virtual void *visit(ast::BinaryOpExpression &f);
+        virtual void *visit(ast::BlockStatement &s);
+        virtual void *visit(ast::CastExpression &c);
+        virtual void *visit(ast::DeclarationStatement &d);
+        virtual void *visit(ast::ExpressionStatement &s);
+        virtual void *visit(ast::FunctionDeclaration &f);
+        virtual void *visit(ast::IntegerLiteral &i);
+        virtual void *visit(ast::FloatLiteral &f);
+        virtual void *visit(ast::ReturnStatement &s);
+        virtual void *visit(ast::StringLiteral &s);
+        virtual void *visit(ast::UnaryOpExpression &e);
+        virtual void *visit(ast::VariableExpression &v);
+    };
 
 }
 

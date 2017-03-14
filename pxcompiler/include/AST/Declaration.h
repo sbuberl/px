@@ -9,26 +9,24 @@
 
 namespace px
 {
-namespace ast
-{
+    namespace ast
+    {
+        class FunctionDeclaration : public AST
+        {
+        public:
+            const std::string name;
+            const std::string returnTypeName;
+            std::unique_ptr<BlockStatement> block;
+            Function *function;
 
-	class FunctionDeclaration : public AST
-	{
-	public:
-		const std::string name;
-		const std::string returnTypeName;
-		std::unique_ptr<BlockStatement> block;
-		Function *function;
+            FunctionDeclaration(const std::string &fname, const std::string &retTypeName, std::unique_ptr<BlockStatement> stmts)
+                : name(fname), returnTypeName(retTypeName), block(std::move(stmts)), function(nullptr)
+            {
+            }
 
-		FunctionDeclaration(const std::string &fname, const std::string &retTypeName, std::unique_ptr<BlockStatement> stmts)
-			: name(fname), returnTypeName(retTypeName), block(std::move(stmts)), function(nullptr)
-		{
-		}
-
-        void *accept(Visitor &visitor) override;
-	};
-
-}
+            void *accept(Visitor &visitor) override;
+        };
+    }
 }
 
 #endif

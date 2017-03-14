@@ -4,17 +4,17 @@
 
 namespace px
 {
-namespace ast
-{
-	void *AssignmentExpression::accept(Visitor &visitor) { return visitor.visit(*this); }
+    namespace ast
+    {
+        void *AssignmentExpression::accept(Visitor &visitor) { return visitor.visit(*this); }
 
-	void *BinaryOpExpression::accept(Visitor &visitor) {	return visitor.visit(*this); }
+        void *BinaryOpExpression::accept(Visitor &visitor) { return visitor.visit(*this); }
 
-	void *CastExpression::accept(Visitor &visitor) {	return visitor.visit(*this); }
+        void *CastExpression::accept(Visitor &visitor) { return visitor.visit(*this); }
 
-	void *UnaryOpExpression::accept(Visitor &visitor) {	return visitor.visit(*this); }
+        void *UnaryOpExpression::accept(Visitor &visitor) { return visitor.visit(*this); }
 
-	void *VariableExpression::accept(Visitor &visitor) { return visitor.visit(*this); }
-}
+        void *VariableExpression::accept(Visitor &visitor) { return visitor.visit(*this); }
+    }
 }
 

@@ -3,10 +3,10 @@
 
 extern "C" void printFloat(float f)
 {
-	printf("%f", f);
+    printf("%f", f);
 }
 
 extern "C" void printInt(int i)
 {
-	printf("%d", i);
+    printf("%d", i);
 }

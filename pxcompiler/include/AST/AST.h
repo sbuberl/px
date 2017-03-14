@@ -6,18 +6,18 @@
 
 namespace px
 {
-	namespace ast
-	{
-		class Visitor;
+    namespace ast
+    {
+        class Visitor;
 
-		class AST
-		{
-		public:
-			AST() = default;
-			virtual ~AST() = default;
-			virtual void *accept(Visitor &visitor) = 0;
-		};
-	}
+        class AST
+        {
+        public:
+            AST() = default;
+            virtual ~AST() = default;
+            virtual void *accept(Visitor &visitor) = 0;
+        };
+    }
 }
 
 #endif

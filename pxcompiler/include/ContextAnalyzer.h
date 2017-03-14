@@ -7,31 +7,31 @@
 
 namespace px {
 
-	class ContextAnalyzer : public ast::Visitor
-	{
-	public:
-		ContextAnalyzer(SymbolTable *globals);
+    class ContextAnalyzer : public ast::Visitor
+    {
+    public:
+        ContextAnalyzer(SymbolTable *globals);
 
-		void analyze(ast::AST *ast);
-		void *visit(ast::AssignmentExpression &a) override;
-		void *visit(ast::BinaryOpExpression &e) override;
-		void *visit(ast::BoolLiteral &b) override;
-		void *visit(ast::BlockStatement &s) override;
-		void *visit(ast::CastExpression &f) override;
-		void *visit(ast::DeclarationStatement &d) override;
-		void *visit(ast::ExpressionStatement &s) override;
-		void *visit(ast::FloatLiteral &f) override;
-		void *visit(ast::FunctionDeclaration &f) override;
-		void *visit(ast::IntegerLiteral &i) override;
-		void *visit(ast::ReturnStatement &s) override;
-		void *visit(ast::StringLiteral &s) override;
-		void *visit(ast::UnaryOpExpression &e) override;
-		void *visit(ast::VariableExpression &v) override;
+        void analyze(ast::AST *ast);
+        void *visit(ast::AssignmentExpression &a) override;
+        void *visit(ast::BinaryOpExpression &e) override;
+        void *visit(ast::BoolLiteral &b) override;
+        void *visit(ast::BlockStatement &s) override;
+        void *visit(ast::CastExpression &f) override;
+        void *visit(ast::DeclarationStatement &d) override;
+        void *visit(ast::ExpressionStatement &s) override;
+        void *visit(ast::FloatLiteral &f) override;
+        void *visit(ast::FunctionDeclaration &f) override;
+        void *visit(ast::IntegerLiteral &i) override;
+        void *visit(ast::ReturnStatement &s) override;
+        void *visit(ast::StringLiteral &s) override;
+        void *visit(ast::UnaryOpExpression &e) override;
+        void *visit(ast::VariableExpression &v) override;
 
-	private:
-		SymbolTable *_globals;
-		SymbolTable *_currentScope;
-	};
+    private:
+        SymbolTable *_globals;
+        SymbolTable *_currentScope;
+    };
 
 }
 

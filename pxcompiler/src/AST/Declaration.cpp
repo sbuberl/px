@@ -4,8 +4,8 @@
 
 namespace px
 {
-namespace ast
-{
-	void *FunctionDeclaration::accept(Visitor &visitor) {	return visitor.visit(*this); }
-}
+    namespace ast
+    {
+        void *FunctionDeclaration::accept(Visitor &visitor) { return visitor.visit(*this); }
+    }
 }
