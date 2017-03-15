@@ -208,6 +208,7 @@ namespace px
             addSymbol(Type::INT64);
             addSymbol(Type::FLOAT32);
             addSymbol(Type::FLOAT64);
+            addSymbol(Type::STRING);
         }
 
     private:

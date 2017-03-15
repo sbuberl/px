@@ -139,6 +139,19 @@ namespace px {
 
             return TokenType::IDENTIFIER;
         }
+        else if (current == '"')
+        {
+            current = source[++peekPos.location.pos];
+            while (current != '"')
+            {
+                token.push_back(current);
+                current = source[++peekPos.location.pos];
+            }
+
+            ++peekPos.location.pos;
+
+            return TokenType::STRING;
+        }
         else
         {
             switch (current)
