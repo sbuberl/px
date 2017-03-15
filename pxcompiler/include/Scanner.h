@@ -108,6 +108,8 @@ namespace px {
             }
         };
 
+        char nextCharacter();
+
         static std::unordered_map<std::string, TokenType> keywords;
 
         std::string source;

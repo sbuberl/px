@@ -5,7 +5,7 @@
 #define RETURN_OP(tok, length) \
 do { \
     token = current; \
-    peekPos.location.pos += (length);	\
+    peekPos.location.advance(length);	\
     return TokenType:: tok ; \
 } while( false )
 
@@ -85,20 +85,28 @@ namespace px {
         return token;
     }
 
+    char Scanner::nextCharacter()
+    {
+        peekPos.location.advance();
+        return source[peekPos.location.fileOffset];
+    }
+
     TokenType Scanner::scan()
     {
         char current;
         std::string &token = peekPos.token.str;
 
-        if (peekPos.location.pos >= length)
+        if (peekPos.location.fileOffset >= length)
             return TokenType::END_FILE;
 
-        current = source[peekPos.location.pos];
+        current = source[peekPos.location.fileOffset];
         while (isspace(current))
         {
             if (current == '\n')
-                peekPos.location.line++;
-            current = source[++peekPos.location.pos];
+            {
+                peekPos.location.nextLine();
+            }
+            current = nextCharacter();
         }
 
         if (isdigit(current))
@@ -106,7 +114,7 @@ namespace px {
             do
             {
                 token.push_back(current);
-                current = source[++peekPos.location.pos];
+                current = nextCharacter();
             } while (isdigit(current));
 
             if (current == '.')
@@ -114,7 +122,7 @@ namespace px {
                 do
                 {
                     token.push_back(current);
-                    current = source[++peekPos.location.pos];
+                    current = nextCharacter();
                 } while (isdigit(current));
 
                 return TokenType::FLOAT;
@@ -127,7 +135,7 @@ namespace px {
             do
             {
                 token.push_back(current);
-                current = source[++peekPos.location.pos];
+                current = nextCharacter();
             } while (isalnum(current) || current == '_');
 
 
@@ -141,14 +149,14 @@ namespace px {
         }
         else if (current == '"')
         {
-            current = source[++peekPos.location.pos];
+            current = nextCharacter();
             while (current != '"')
             {
                 token.push_back(current);
-                current = source[++peekPos.location.pos];
+                current = nextCharacter();
             }
 
-            ++peekPos.location.pos;
+            nextCharacter();
 
             return TokenType::STRING;
         }
@@ -172,7 +180,7 @@ namespace px {
                 case '^':	RETURN_OP(OP_BIT_XOR, 1);
                 case '=':
                 {
-                    char next = source[peekPos.location.pos + 1];
+                    char next = source[peekPos.location.fileOffset + 1];
                     if (next == '=')
                         RETURN_OP(OP_EQUALS, 2);
                     else
@@ -180,7 +188,7 @@ namespace px {
                 }
                 case '!':
                 {
-                    char next = source[peekPos.location.pos + 1];
+                    char next = source[peekPos.location.fileOffset + 1];
                     if (next == '=')
                         RETURN_OP(OP_NOT_EQUAL, 2);
                     else
@@ -188,7 +196,7 @@ namespace px {
                 }
                 case '<':
                 {
-                    char next = source[peekPos.location.pos + 1];
+                    char next = source[peekPos.location.fileOffset + 1];
                     if (next == '<')
                         RETURN_OP(OP_LEFT_SHIFT, 2);
                     else if (next == '=')
@@ -198,7 +206,7 @@ namespace px {
                 }
                 case '>':
                 {
-                    char next = source[peekPos.location.pos + 1];
+                    char next = source[peekPos.location.fileOffset + 1];
                     if (next == '>')
                         RETURN_OP(OP_RIGHT_SHIFT, 2);
                     else if (next == '=')
@@ -208,7 +216,7 @@ namespace px {
                 }
                 case '&':
                 {
-                    char next = source[peekPos.location.pos + 1];
+                    char next = source[peekPos.location.fileOffset + 1];
                     if (next == '&')
                         RETURN_OP(OP_AND, 2);
                     else
@@ -216,7 +224,7 @@ namespace px {
                 }
                 case '|':
                 {
-                    char next = source[peekPos.location.pos + 1];
+                    char next = source[peekPos.location.fileOffset + 1];
                     if (next == '|')
                         RETURN_OP(OP_OR, 2);
                     else
