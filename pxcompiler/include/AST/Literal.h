@@ -37,10 +37,10 @@ namespace px
         class IntegerLiteral : public Literal
         {
         public:
-            const long value;
+            const int32_t value;
 
-            IntegerLiteral(const std::string &l)
-                : Literal(Type::INT32, l), value(std::stol(l))
+            IntegerLiteral(const std::string &l, int32_t v)
+                : Literal(Type::INT32, l), value(v)
             {
             }
 

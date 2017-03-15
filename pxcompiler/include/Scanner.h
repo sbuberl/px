@@ -11,7 +11,7 @@ namespace px {
 
     enum class TokenType
     {
-        BAD, END_FILE, IDENTIFIER, INTEGER, FLOAT, STRING,
+        BAD, END_FILE, IDENTIFIER, INTEGER, HEX_INT, BINARY_INT, OCTAL_INT, FLOAT, STRING,
         KW_ABSTRACT,
         KW_AS,
         KW_BREAK,

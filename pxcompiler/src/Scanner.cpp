@@ -111,6 +111,43 @@ namespace px {
 
         if (isdigit(current))
         {
+            if (current == '0')
+            {
+                char next = source[peekPos.location.fileOffset + 1];
+                switch (next)
+                {
+                    case 'x':
+                        nextCharacter();
+                        current = nextCharacter();
+                        while (std::isxdigit(current))
+                        {
+                            token.push_back(current);
+                            current = nextCharacter();
+                        }
+                        return TokenType::HEX_INT;
+                    case 'b':
+                        nextCharacter();
+                        current = nextCharacter();
+                        while ( current == '0' || current == '1' )
+                        {
+                            token.push_back(current);
+                            current = nextCharacter();
+                        }
+                        return TokenType::BINARY_INT;
+                    case 'o':
+                        nextCharacter();
+                        current = nextCharacter();
+                        while (current >= '0' && current <= '7')
+                        {
+                            token.push_back(current);
+                            current = nextCharacter();
+                        }
+                        return TokenType::OCTAL_INT;
+                    default:
+                        break;
+                }
+            }
+
             do
             {
                 token.push_back(current);

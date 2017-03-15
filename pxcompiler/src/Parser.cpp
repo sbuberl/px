@@ -386,13 +386,28 @@ namespace px {
     std::unique_ptr<Expression> Parser::parseValue()
     {
         std::unique_ptr<Expression> value = nullptr;
+        int32_t i32Literal;
+
         switch (currentToken.type)
         {
             case TokenType::IDENTIFIER:
                 value.reset(new VariableExpression{ currentToken.str });
                 break;
             case TokenType::INTEGER:
-                value.reset(new IntegerLiteral{ currentToken.str });
+                i32Literal = std::stoi(currentToken.str);
+                value.reset(new IntegerLiteral{ currentToken.str, i32Literal });
+                break;
+            case TokenType::HEX_INT:
+                i32Literal = std::stoi(currentToken.str, nullptr, 16);
+                value.reset(new IntegerLiteral{ currentToken.str, i32Literal });
+                break;
+            case TokenType::BINARY_INT:
+                i32Literal = std::stoi(currentToken.str, nullptr, 2);
+                value.reset(new IntegerLiteral{ currentToken.str, i32Literal });
+                break;
+            case TokenType::OCTAL_INT:
+                i32Literal = std::stoi(currentToken.str, nullptr, 8);
+                value.reset(new IntegerLiteral{ currentToken.str, i32Literal });
                 break;
             case TokenType::FLOAT:
                 value.reset(new FloatLiteral{ currentToken.str });

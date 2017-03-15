@@ -1,5 +1,6 @@
 int32 i = 7;
 i + 4.0 as int32;
 string s = "hello world";
+0x10ADF + 0b10101001 + 0o15675;
 bool b = true;
 return i;
