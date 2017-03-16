@@ -40,12 +40,12 @@ namespace px
             {
                 b.type = leftType;
             }
-            else if (leftType->isBuiltinFloat())
+            else if (leftType->isFloat())
             {
                 b.type = leftType;
                 b.right = std::make_unique<ast::CastExpression>(leftType, std::move(b.right));
             }
-            else if (rightType->isBuiltinFloat())
+            else if (rightType->isFloat())
             {
                 b.type = rightType;
                 b.left = std::make_unique<ast::CastExpression>(rightType, std::move(b.left));

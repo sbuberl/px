@@ -63,6 +63,10 @@ namespace px
         static Type * const INT16;
         static Type * const INT32;
         static Type * const INT64;
+        static Type * const UINT8;
+        static Type * const UINT16;
+        static Type * const UINT32;
+        static Type * const UINT64;
         static Type * const FLOAT32;
         static Type * const FLOAT64;
         static Type * const STRING;
@@ -73,6 +77,7 @@ namespace px
             BUILTIN = 0x08,
             BUILTIN_BOOL = 0x09,
             BUILTIN_INT,
+            BUILTIN_UINT,
             BUILTIN_FLOAT,
             BUILTIN_STRING,
             BUILTIN_VOID,
@@ -102,27 +107,32 @@ namespace px
             return (flags & builtinFlag) == builtinFlag;
         }
 
-        bool isVoidType() const
+        bool isVoid() const
         {
             return isBuiltin(BUILTIN_VOID);
         }
 
-        bool isBoolType() const
+        bool isBool() const
         {
             return isBuiltin(BUILTIN_BOOL);
         }
 
-        bool isBuiltinFloat() const
+        bool isFloat() const
         {
             return isBuiltin(BUILTIN_FLOAT);
         }
 
-        bool isBuiltinInt() const
+        bool isInt() const
         {
             return isBuiltin(BUILTIN_INT);
         }
 
-        bool isStringType() const
+        bool isUInt() const
+        {
+            return isBuiltin(BUILTIN_INT);
+        }
+
+        bool isString() const
         {
             return isBuiltin(BUILTIN_STRING);
         }
@@ -206,6 +216,10 @@ namespace px
             addSymbol(Type::INT16);
             addSymbol(Type::INT32);
             addSymbol(Type::INT64);
+            addSymbol(Type::UINT8);
+            addSymbol(Type::UINT16);
+            addSymbol(Type::UINT32);
+            addSymbol(Type::UINT64);
             addSymbol(Type::FLOAT32);
             addSymbol(Type::FLOAT64);
             addSymbol(Type::STRING);
