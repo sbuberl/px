@@ -99,6 +99,21 @@ namespace px
             void *accept(Visitor &visitor) override;
         };
 
+        class TernaryOpExpression : public Expression
+        {
+        public:
+            std::unique_ptr<Expression> condition;
+            std::unique_ptr<Expression> trueExpr;
+            std::unique_ptr<Expression> falseExpr;
+
+            TernaryOpExpression(std::unique_ptr<Expression> c, std::unique_ptr<Expression> t, std::unique_ptr<Expression> f)
+                : Expression(nullptr), condition(std::move(c)), trueExpr(std::move(t)), falseExpr(std::move(f))
+            {
+            }
+
+            void *accept(Visitor &visitor) override;
+        };
+
         class VariableExpression : public Expression
         {
         protected:

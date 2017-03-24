@@ -167,7 +167,7 @@ namespace px {
             rewind();
         }
 
-        return parseBitwiseOr();
+        return parseTernary();
     }
 
     std::unique_ptr<ast::Expression> Parser::parseAssignment()
@@ -182,6 +182,20 @@ namespace px {
 
         expect(TokenType::OP_END_STATEMENT);
         return std::make_unique<AssignmentExpression>(variableName, std::move(expression));
+    }
+
+    std::unique_ptr<Expression> Parser::parseTernary()
+    {
+        std::unique_ptr<Expression> left = parseOr();
+        if (currentToken.type == TokenType::OP_QUESTION)
+        {
+            accept();
+            std::unique_ptr<Expression> trueExpr = parseOr();
+            expect(TokenType::OP_COLON);
+            std::unique_ptr<Expression> falseExpr = parseOr();
+            left.reset(new TernaryOpExpression{ std::move(left), std::move(trueExpr), std::move(falseExpr) });
+        }
+        return left;
     }
 
     std::unique_ptr<Expression> Parser::parseOr()
@@ -344,6 +358,10 @@ namespace px {
 
         switch (currentToken.type)
         {
+            case TokenType::OP_ADD:
+                accept();
+                result = parseUnary();
+                break;
             case TokenType::OP_SUB:
                 accept();
                 right = parseUnary();

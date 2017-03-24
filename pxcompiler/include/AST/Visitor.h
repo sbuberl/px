@@ -28,6 +28,7 @@ namespace px
             virtual void *visit(IntegerLiteral &i) = 0;
             virtual void *visit(ReturnStatement &s) = 0;
             virtual void *visit(StringLiteral &s) = 0;
+            virtual void *visit(TernaryOpExpression &t) = 0;
             virtual void *visit(UnaryOpExpression &u) = 0;
             virtual void *visit(VariableExpression &v) = 0;
         };

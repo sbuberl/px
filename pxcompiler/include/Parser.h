@@ -35,6 +35,7 @@ namespace px {
         std::unique_ptr<ast::Statement> parseVariableDeclaration();
         std::unique_ptr<ast::Expression> parseExpression();
         std::unique_ptr<ast::Expression> parseAssignment();
+        std::unique_ptr<ast::Expression> parseTernary();
         std::unique_ptr<ast::Expression> parseOr();
         std::unique_ptr<ast::Expression> parseAnd();
         std::unique_ptr<ast::Expression> parseConditionals();

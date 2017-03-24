@@ -12,6 +12,8 @@ namespace px
 
         void *CastExpression::accept(Visitor &visitor) { return visitor.visit(*this); }
 
+        void *TernaryOpExpression::accept(Visitor &visitor) { return visitor.visit(*this); }
+
         void *UnaryOpExpression::accept(Visitor &visitor) { return visitor.visit(*this); }
 
         void *VariableExpression::accept(Visitor &visitor) { return visitor.visit(*this); }

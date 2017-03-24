@@ -25,6 +25,7 @@ namespace px {
         void *visit(ast::IntegerLiteral &i) override;
         void *visit(ast::ReturnStatement &s) override;
         void *visit(ast::StringLiteral &s) override;
+        void *visit(ast::TernaryOpExpression &t) override;
         void *visit(ast::UnaryOpExpression &e) override;
         void *visit(ast::VariableExpression &v) override;
 

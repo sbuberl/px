@@ -218,6 +218,8 @@ namespace px {
                 case '%':	RETURN_OP(OP_MOD, 1);
                 case '~':	RETURN_OP(OP_COMPL, 1);
                 case '^':	RETURN_OP(OP_BIT_XOR, 1);
+                case '?':	RETURN_OP(OP_QUESTION, 1);
+                case ':':	RETURN_OP(OP_COLON, 1);
                 case '=':
                 {
                     char next = source[peekPos.location.fileOffset + 1];

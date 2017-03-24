@@ -138,6 +138,15 @@ namespace px
         return nullptr;
     }
 
+    void *ContextAnalyzer::visit(ast::TernaryOpExpression &t)
+    {
+        t.condition->accept(*this);
+        t.trueExpr->accept(*this);
+        t.falseExpr->accept(*this);
+
+        return nullptr;
+    }
+
     void* ContextAnalyzer::visit(ast::UnaryOpExpression &e)
     {
         e.expression->accept(*this);
