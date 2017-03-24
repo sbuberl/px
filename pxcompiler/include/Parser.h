@@ -24,9 +24,9 @@ namespace px {
 
         void accept();
         bool accept(TokenType type);
-        bool accept(std::string &token);
+        bool accept(const Utf8String &token);
         void expect(TokenType type);
-        void expect(std::string &token);
+        void expect(const Utf8String &token);
         void rewind();
 
         std::unique_ptr<ast::Statement> parseStatement();

@@ -1,6 +1,7 @@
 
 #include "Scanner.h"
-#include <cctype>
+
+#include <unicode/uchar.h>
 
 #define RETURN_OP(tok, length) \
 do { \
@@ -11,35 +12,35 @@ do { \
 
 namespace px {
 
-    std::unordered_map<std::string, TokenType> Scanner::keywords = {
-        {"abstract", TokenType::KW_ABSTRACT},
-        {"as", TokenType::KW_AS},
-        {"break", TokenType::KW_BREAK},
-        {"case", TokenType::KW_CASE},
-        {"concept", TokenType::KW_CONCEPT},
-        {"continue", TokenType::KW_CONTINUE},
-        {"default", TokenType::KW_DEFAULT},
-        {"do", TokenType::KW_DO},
-        {"else", TokenType::KW_ELSE},
-        {"false", TokenType::KW_FALSE},
-        {"for", TokenType::KW_FOR},
-        {"if", TokenType::KW_IF},
-        {"implementation", TokenType::KW_IMPLEMENTATION},
-        {"interface", TokenType::KW_INTERFACE},
-        {"new", TokenType::KW_NEW},
-        {"private", TokenType::KW_PRIVATE},
-        {"protected", TokenType::KW_PROTECTED},
-        {"public", TokenType::KW_PUBLIC},
-        {"ref", TokenType::KW_REF},
-        {"return", TokenType::KW_RETURN},
-        {"state", TokenType::KW_STATE},
-        {"switch", TokenType::KW_SWITCH},
-        {"true", TokenType::KW_TRUE},
-        {"value", TokenType::KW_VALUE},
-        {"while", TokenType::KW_WHILE},
+    std::unordered_map<Utf8String, TokenType> Scanner::keywords = {
+        { "abstract", TokenType::KW_ABSTRACT},
+        { "as", TokenType::KW_AS},
+        { "break", TokenType::KW_BREAK},
+        { "case", TokenType::KW_CASE},
+        { "concept", TokenType::KW_CONCEPT},
+        { "continue", TokenType::KW_CONTINUE},
+        { "default", TokenType::KW_DEFAULT},
+        { "do", TokenType::KW_DO},
+        { "else", TokenType::KW_ELSE},
+        { "false", TokenType::KW_FALSE},
+        { "for", TokenType::KW_FOR},
+        { "if", TokenType::KW_IF},
+        { "implementation", TokenType::KW_IMPLEMENTATION},
+        { "interface", TokenType::KW_INTERFACE},
+        { "new", TokenType::KW_NEW},
+        { "private", TokenType::KW_PRIVATE},
+        { "protected", TokenType::KW_PROTECTED},
+        { "public", TokenType::KW_PUBLIC},
+        { "ref", TokenType::KW_REF},
+        { "return", TokenType::KW_RETURN},
+        { "state", TokenType::KW_STATE},
+        { "switch", TokenType::KW_SWITCH},
+        { "true", TokenType::KW_TRUE},
+        { "value", TokenType::KW_VALUE},
+        { "while", TokenType::KW_WHILE},
     };
 
-    Scanner::Scanner(const std::string &source) : length(source.length())
+    Scanner::Scanner(const Utf8String &source) : length{ source.length() }, peekPos{ source }, currentPos{ source }
     {
         this->source = source;
     }
@@ -61,7 +62,7 @@ namespace px {
             return false;
     }
 
-    bool Scanner::accept(const std::string &str)
+    bool Scanner::accept(const Utf8String &str)
     {
         if (peekPos.token.str == str)
         {
@@ -85,7 +86,7 @@ namespace px {
         return token;
     }
 
-    char Scanner::nextCharacter()
+    int32_t Scanner::nextCharacter()
     {
         peekPos.location.advance();
         return source[peekPos.location.fileOffset];
@@ -93,44 +94,44 @@ namespace px {
 
     TokenType Scanner::scan()
     {
-        char current;
-        std::string &token = peekPos.token.str;
+        int32_t current;
+        Utf8String &token = peekPos.token.str;
 
         if (peekPos.location.fileOffset >= length)
             return TokenType::END_FILE;
 
         current = source[peekPos.location.fileOffset];
-        while (isspace(current))
+        while (u_isWhitespace(current))
         {
             if (current == '\n')
             {
                 peekPos.location.nextLine();
             }
             current = nextCharacter();
+
         }
 
-        if (isdigit(current))
+        if (u_isdigit(current))
         {
             if (current == '0')
             {
-                char next = source[peekPos.location.fileOffset + 1];
+                int32_t next = nextCharacter();
                 switch (next)
                 {
                     case 'x':
-                        nextCharacter();
                         current = nextCharacter();
-                        while (std::isxdigit(current))
+                        while (u_isxdigit(current))
                         {
-                            token.push_back(current);
+                            token += current;
                             current = nextCharacter();
                         }
                         return TokenType::HEX_INT;
                     case 'b':
                         nextCharacter();
                         current = nextCharacter();
-                        while ( current == '0' || current == '1' )
+                        while (current == '0' || current == '1')
                         {
-                            token.push_back(current);
+                            token += current;
                             current = nextCharacter();
                         }
                         return TokenType::BINARY_INT;
@@ -139,41 +140,43 @@ namespace px {
                         current = nextCharacter();
                         while (current >= '0' && current <= '7')
                         {
-                            token.push_back(current);
+                            token += current;
                             current = nextCharacter();
                         }
                         return TokenType::OCTAL_INT;
                     default:
+                        token += current;
+                        current = next;
                         break;
                 }
             }
 
-            do
+            while (u_isdigit(current))
             {
-                token.push_back(current);
+                token += current;
                 current = nextCharacter();
-            } while (isdigit(current));
+            }
 
             if (current == '.')
             {
                 do
                 {
-                    token.push_back(current);
+                    token += current;
                     current = nextCharacter();
-                } while (isdigit(current));
+                } while (u_isdigit(current));
 
                 return TokenType::FLOAT;
             }
             else
                 return TokenType::INTEGER;
         }
-        else if (isalpha(current))
+        else if (u_isalpha(current))
         {
             do
             {
-                token.push_back(current);
+                token += current;
                 current = nextCharacter();
-            } while (isalnum(current) || current == '_');
+            } while (u_isalnum(current) || current == '_');
 
 
             auto it = keywords.find(token);
@@ -189,7 +192,7 @@ namespace px {
             current = nextCharacter();
             while (current != '"')
             {
-                token.push_back(current);
+                token += current;
                 current = nextCharacter();
             }
 

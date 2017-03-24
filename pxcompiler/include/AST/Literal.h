@@ -4,6 +4,7 @@
 
 #include <ast/Expression.h>
 #include <Symbol.h>
+#include <Utf8String.h>
 #include <stdlib.h>
 
 namespace px
@@ -13,12 +14,12 @@ namespace px
         class Literal : public Expression
         {
         public:
-            const std::string literal;
+            const Utf8String literal;
 
             virtual ~Literal() = default;
 
         protected:
-            Literal(Type *type, const std::string l) : Expression(type), literal(l) {}
+            Literal(Type *type, const Utf8String &l) : Expression(type), literal(l) {}
         };
 
         class BoolLiteral : public Literal
@@ -26,8 +27,8 @@ namespace px
         public:
             const bool value;
 
-            BoolLiteral(const std::string &l)
-                : Literal(Type::BOOL, l), value(l == "true")
+            BoolLiteral(const Utf8String &l)
+                : Literal(Type::BOOL, l), value(l == Utf8String("true"))
             {
             }
 
@@ -39,7 +40,7 @@ namespace px
         public:
             const int32_t value;
 
-            IntegerLiteral(const std::string &l, int32_t v)
+            IntegerLiteral(const Utf8String &l, int32_t v)
                 : Literal(Type::INT32, l), value(v)
             {
             }
@@ -52,8 +53,8 @@ namespace px
         public:
             const double value;
 
-            FloatLiteral(const std::string &l)
-                : Literal(Type::FLOAT32, l), value(std::stod(l))
+            FloatLiteral(const Utf8String &l)
+                : Literal(Type::FLOAT32, l), value(std::stod(l.toString()))
             {
             }
 
@@ -63,7 +64,7 @@ namespace px
         class StringLiteral : public Literal
         {
         public:
-            StringLiteral(const std::string l) : Literal(Type::STRING, l)
+            StringLiteral(const Utf8String &l) : Literal(Type::STRING, l)
             {
 
             }

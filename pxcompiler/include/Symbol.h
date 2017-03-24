@@ -2,11 +2,12 @@
 #ifndef SYMBOL_H_
 #define SYMBOL_H_
 
-#include <string>
 #include <memory>
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
+
+#include "Utf8String.h"
 
 namespace px
 {
@@ -35,7 +36,7 @@ namespace px
     {
     public:
 
-        const std::string name;
+        const Utf8String name;
         const SymbolType symbolType;
         OtherSymbolData *data;
 
@@ -46,7 +47,7 @@ namespace px
 
     protected:
 
-        Symbol(const std::string &name, SymbolType type)
+        Symbol(const Utf8String &name, SymbolType type)
             : name(name), symbolType(type), data(nullptr)
         {
         }
@@ -85,7 +86,7 @@ namespace px
             SEALED = 0x20,
         };
 
-        Type(std::string n, Type *p, unsigned int s, unsigned int f)
+        Type(const Utf8String &n, Type *p, unsigned int s, unsigned int f)
             : Symbol(n, SymbolType::TYPE), parent(p), size(s), flags(f)
         {
         }
@@ -163,7 +164,7 @@ namespace px
             _symbols[symbol->name] = symbol;
         }
 
-        Symbol* getSymbol(const std::string &name, bool localsOnly = false) const
+        Symbol* getSymbol(const Utf8String &name, bool localsOnly = false) const
         {
             auto symbol = _symbols.find(name);
             if (symbol != _symbols.end())
@@ -175,7 +176,7 @@ namespace px
         }
 
         template<typename T>
-        T* getSymbol(const std::string &name, SymbolType type, bool localsOnly = false) const
+        T* getSymbol(const Utf8String &name, SymbolType type, bool localsOnly = false) const
         {
             auto entry = _symbols.find(name);
             if (entry != _symbols.end() && entry->second->symbolType == type)
@@ -186,12 +187,12 @@ namespace px
                 return nullptr;
         }
 
-        Type* getType(std::string name, bool localsOnly = false) const
+        Type* getType(const Utf8String &name, bool localsOnly = false) const
         {
             return getSymbol<Type>(name, SymbolType::TYPE, localsOnly);
         }
 
-        Variable* getVariable(std::string name, bool localsOnly = false) const
+        Variable* getVariable(const Utf8String &name, bool localsOnly = false) const
         {
             return getSymbol<Variable>(name, SymbolType::VARIABLE, localsOnly);
         }
@@ -226,7 +227,7 @@ namespace px
         }
 
     private:
-        std::unordered_map<std::string, Symbol*> _symbols;
+        std::unordered_map<Utf8String, Symbol*> _symbols;
         SymbolTable * const _parent;
     };
 
@@ -236,7 +237,7 @@ namespace px
         Type * returnType;
         SymbolTable symbols;
 
-        Function(std::string func, Type *retType, SymbolTable *parentScope)
+        Function(const Utf8String &func, Type *retType, SymbolTable *parentScope)
             : Symbol(func, SymbolType::FUNCTION), returnType(retType), symbols(parentScope)
         {
         }
@@ -246,7 +247,7 @@ namespace px
     {
     public:
         Type * type;
-        Variable(std::string var, Type *t)
+        Variable(const Utf8String &var, Type *t)
             : Symbol(var, SymbolType::VARIABLE), type(t)
         {
         }

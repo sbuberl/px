@@ -5,8 +5,6 @@
 #include <ast/AST.h>
 #include <ast/Statement.h>
 
-#include <string>
-
 namespace px
 {
     namespace ast
@@ -14,12 +12,12 @@ namespace px
         class FunctionDeclaration : public AST
         {
         public:
-            const std::string name;
-            const std::string returnTypeName;
+            const Utf8String name;
+            const Utf8String returnTypeName;
             std::unique_ptr<BlockStatement> block;
             Function *function;
 
-            FunctionDeclaration(const std::string &fname, const std::string &retTypeName, std::unique_ptr<BlockStatement> stmts)
+            FunctionDeclaration(const Utf8String &fname, const Utf8String &retTypeName, std::unique_ptr<BlockStatement> stmts)
                 : name(fname), returnTypeName(retTypeName), block(std::move(stmts)), function(nullptr)
             {
             }

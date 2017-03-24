@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 #include "SourcePosition.h"
+#include "Utf8String.h"
 
 namespace px {
 
@@ -78,20 +79,20 @@ namespace px {
     struct Token
     {
         TokenType type;
-        std::string str;
+        Utf8String str;
         Token() { clear(); }
-        Token(TokenType t, const std::string &s) : type(t), str(s) {}
+        Token(TokenType t, const Utf8String &s) : type(t), str(s) {}
         void clear() { type = TokenType::BAD; str.clear(); }
     };
 
     class Scanner
     {
     public:
-        Scanner(const std::string &source);
+        Scanner(const Utf8String &source);
         ~Scanner() = default;
         bool accept();
         bool accept(TokenType type);
-        bool accept(const std::string &token);
+        bool accept(const Utf8String &token);
         void rewind();
         Token &nextToken();
         TokenType scan();
@@ -101,18 +102,18 @@ namespace px {
         {
             SourcePosition location;
             Token token;
+            //Utf8Iterator charIterator;
 
-            Position()
+            Position(const Utf8Iterator &iter)
             {
-
             }
         };
 
-        char nextCharacter();
+        int32_t nextCharacter();
 
-        static std::unordered_map<std::string, TokenType> keywords;
+        static std::unordered_map<Utf8String, TokenType> keywords;
 
-        std::string source;
+        Utf8String source;
         const size_t length;
         Position currentPos;
         Position peekPos;

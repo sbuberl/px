@@ -33,11 +33,11 @@ namespace px
         class DeclarationStatement : public Statement
         {
         public:
-            const std::string typeName;
-            const std::string name;
+            const Utf8String typeName;
+            const Utf8String name;
             std::unique_ptr<Expression> initialValue;
 
-            DeclarationStatement(std::string t, std::string n, std::unique_ptr<Expression> value)
+            DeclarationStatement(const Utf8String &t, const Utf8String &n, std::unique_ptr<Expression> value)
                 : typeName(t), name(n), initialValue(std::move(value))
             {
             }

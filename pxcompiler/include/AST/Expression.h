@@ -39,10 +39,10 @@ namespace px
         class AssignmentExpression : public Expression
         {
         public:
-            const std::string variableName;
+            const Utf8String variableName;
             std::unique_ptr<Expression> expression;
 
-            AssignmentExpression(const std::string &n, std::unique_ptr<Expression> e)
+            AssignmentExpression(const Utf8String &n, std::unique_ptr<Expression> e)
                 : Expression(nullptr), variableName(n), expression(std::move(e))
             {
             }
@@ -104,9 +104,9 @@ namespace px
         protected:
 
         public:
-            const std::string variable;
+            const Utf8String variable;
 
-            VariableExpression(const std::string &var) : Expression(nullptr), variable(var) {}
+            VariableExpression(const Utf8String &var) : Expression(nullptr), variable(var) {}
 
             ~VariableExpression() {}
 

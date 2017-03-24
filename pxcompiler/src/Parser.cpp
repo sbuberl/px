@@ -33,7 +33,7 @@ namespace px {
         return false;
     }
 
-    bool Parser::accept(std::string &token)
+    bool Parser::accept(const Utf8String &token)
     {
         if (scanner->accept(token))
         {
@@ -52,7 +52,7 @@ namespace px {
         // TODO: raise error
     }
 
-    void Parser::expect(std::string &token)
+    void Parser::expect(const Utf8String &token)
     {
         if (scanner->accept(token))
         {
@@ -71,7 +71,7 @@ namespace px {
     {
         std::stringstream buffer;
         buffer << in.rdbuf();
-        std::string source(buffer.str());
+        Utf8String source{buffer.str()};
 
         scanner = new Scanner(source);
         currentToken = scanner->nextToken();
@@ -141,9 +141,9 @@ namespace px {
     std::unique_ptr<Statement> Parser::parseVariableDeclaration()
     {
         std::unique_ptr<Expression> initializer = nullptr;
-        string typeName = currentToken.str;
+        Utf8String typeName = currentToken.str;
         accept();
-        string variableName = currentToken.str;
+        Utf8String variableName = currentToken.str;
         expect(TokenType::IDENTIFIER);
         if (accept(TokenType::OP_ASSIGN))
         {
@@ -163,9 +163,10 @@ namespace px {
                 rewind();
                 return parseAssignment();
             }
+
+            rewind();
         }
 
-        rewind();
         return parseBitwiseOr();
     }
 
@@ -173,7 +174,7 @@ namespace px {
     {
         expect(TokenType::IDENTIFIER);
 
-        string variableName = currentToken.str;
+        Utf8String variableName = currentToken.str;
 
         expect(TokenType::OP_ASSIGN);
 
@@ -387,26 +388,26 @@ namespace px {
     {
         std::unique_ptr<Expression> value = nullptr;
         int32_t i32Literal;
-
+        std::string tokenString = currentToken.str.toString();
         switch (currentToken.type)
         {
             case TokenType::IDENTIFIER:
                 value.reset(new VariableExpression{ currentToken.str });
                 break;
             case TokenType::INTEGER:
-                i32Literal = std::stoi(currentToken.str);
-                value.reset(new IntegerLiteral{ currentToken.str, i32Literal });
+                i32Literal = std::stoi(tokenString);
+                value.reset(new IntegerLiteral{ currentToken.str.toString(), i32Literal });
                 break;
             case TokenType::HEX_INT:
-                i32Literal = std::stoi(currentToken.str, nullptr, 16);
+                i32Literal = std::stoi(tokenString, nullptr, 16);
                 value.reset(new IntegerLiteral{ currentToken.str, i32Literal });
                 break;
             case TokenType::BINARY_INT:
-                i32Literal = std::stoi(currentToken.str, nullptr, 2);
-                value.reset(new IntegerLiteral{ currentToken.str, i32Literal });
+                i32Literal = std::stoi(tokenString, nullptr, 2);
+                value.reset(new IntegerLiteral{ currentToken.str.toString(), i32Literal });
                 break;
             case TokenType::OCTAL_INT:
-                i32Literal = std::stoi(currentToken.str, nullptr, 8);
+                i32Literal = std::stoi(tokenString, nullptr, 8);
                 value.reset(new IntegerLiteral{ currentToken.str, i32Literal });
                 break;
             case TokenType::FLOAT:
