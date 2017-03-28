@@ -54,6 +54,9 @@
     <ClInclude Include="include\Utf8String.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Token.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="test.px" />
