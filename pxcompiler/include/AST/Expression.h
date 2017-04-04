@@ -22,6 +22,7 @@ namespace px
 
         enum class BinaryOperator
         {
+            BAD,
             OR,
             AND,
             NOT,

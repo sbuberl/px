@@ -29,22 +29,16 @@ namespace px {
         void expect(const Utf8String &token);
         void rewind();
 
+        int getPrecedence(TokenType type);
+        ast::BinaryOperator getBinaryOp(TokenType type);
+
         std::unique_ptr<ast::Statement> parseStatement();
         std::unique_ptr<ast::Statement> parseExpressionStatement();
         std::unique_ptr<ast::Statement> parseReturnStatement();
         std::unique_ptr<ast::Statement> parseVariableDeclaration();
         std::unique_ptr<ast::Expression> parseExpression();
         std::unique_ptr<ast::Expression> parseAssignment();
-        std::unique_ptr<ast::Expression> parseTernary();
-        std::unique_ptr<ast::Expression> parseOr();
-        std::unique_ptr<ast::Expression> parseAnd();
-        std::unique_ptr<ast::Expression> parseConditionals();
-        std::unique_ptr<ast::Expression> parseBitwiseOr();
-        std::unique_ptr<ast::Expression> parseBitwiseXor();
-        std::unique_ptr<ast::Expression> parseBitwiseAnd();
-        std::unique_ptr<ast::Expression> parseShift();
-        std::unique_ptr<ast::Expression> parseAddSub();
-        std::unique_ptr<ast::Expression> parseMultDiv();
+        std::unique_ptr<ast::Expression> parseBinary(int precedence);
         std::unique_ptr<ast::Expression> parseUnary();
         std::unique_ptr<ast::Expression> parseValue();
     };

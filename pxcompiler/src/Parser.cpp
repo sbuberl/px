@@ -167,7 +167,89 @@ namespace px {
             rewind();
         }
 
-        return parseTernary();
+        return parseBinary(1);
+    }
+
+    int Parser::getPrecedence(TokenType type)
+    {
+        switch (type)
+        {
+            case TokenType::OP_QUESTION:
+                return 1;
+            case TokenType::OP_OR:
+                return 2;
+            case TokenType::OP_AND:
+                return 3;
+            case TokenType::OP_EQUALS:
+            case TokenType::OP_NOT_EQUAL:
+            case TokenType::OP_LESS:
+            case TokenType::OP_LESS_OR_EQUAL:
+            case TokenType::OP_GREATER:
+            case TokenType::OP_GREATER_OR_EQUAL:
+                return 4;
+            case TokenType::OP_BIT_OR:
+                return 5;
+            case TokenType::OP_BIT_XOR:
+                return 6;
+            case TokenType::OP_BIT_AND:
+                return 7;
+            case TokenType::OP_LEFT_SHIFT:
+            case TokenType::OP_RIGHT_SHIFT:
+                return 8;
+
+            case TokenType::OP_ADD:
+            case TokenType::OP_SUB:
+                return 9;
+            case TokenType::OP_STAR:
+            case TokenType::OP_DIV:
+            case TokenType::OP_MOD:
+                return 10;
+        }
+        return 0;
+    }
+
+    BinaryOperator Parser::getBinaryOp(TokenType type)
+    {
+        switch (type)
+        {
+            case TokenType::OP_OR:
+                return BinaryOperator::OR;
+            case TokenType::OP_AND:
+                return BinaryOperator::AND;
+            case TokenType::OP_EQUALS:
+                return BinaryOperator::EQ;
+            case TokenType::OP_NOT_EQUAL:
+                return BinaryOperator::NE;
+            case TokenType::OP_LESS:
+                return BinaryOperator::LT;
+            case TokenType::OP_LESS_OR_EQUAL:
+                return BinaryOperator::LTE;
+            case TokenType::OP_GREATER:
+                return BinaryOperator::GT;
+            case TokenType::OP_GREATER_OR_EQUAL:
+                return BinaryOperator::GTE;
+            case TokenType::OP_BIT_OR:
+                return BinaryOperator::BIT_OR;
+            case TokenType::OP_BIT_XOR:
+                return BinaryOperator::BIT_XOR;
+            case TokenType::OP_BIT_AND:
+                return BinaryOperator::BIT_AND;
+            case TokenType::OP_LEFT_SHIFT:
+                return BinaryOperator::LSH;
+            case TokenType::OP_RIGHT_SHIFT:
+                return BinaryOperator::RSH;
+            case TokenType::OP_ADD:
+                return BinaryOperator::ADD;
+            case TokenType::OP_SUB:
+                return BinaryOperator::SUB;
+            case TokenType::OP_STAR:
+                return BinaryOperator::MUL;
+            case TokenType::OP_DIV:
+                return BinaryOperator::DIV;
+            case TokenType::OP_MOD:
+                return BinaryOperator::MOD;
+        }
+        return BinaryOperator::BAD;
     }
 
     std::unique_ptr<ast::Expression> Parser::parseAssignment()
@@ -184,172 +266,40 @@ namespace px {
         return std::make_unique<AssignmentExpression>(variableName, std::move(expression));
     }
 
-    std::unique_ptr<Expression> Parser::parseTernary()
+    std::unique_ptr<ast::Expression> Parser::parseBinary(int precedence)
     {
-        std::unique_ptr<Expression> left = parseOr();
-        if (currentToken.type == TokenType::OP_QUESTION)
+        std::unique_ptr<ast::Expression> expr = parseUnary();
+        for (int prec = getPrecedence(currentToken.type); prec >= precedence; prec--)
         {
-            accept();
-            std::unique_ptr<Expression> trueExpr = parseOr();
-            expect(TokenType::OP_COLON);
-            std::unique_ptr<Expression> falseExpr = parseOr();
-            left.reset(new TernaryOpExpression{ std::move(left), std::move(trueExpr), std::move(falseExpr) });
-        }
-        return left;
-    }
-
-    std::unique_ptr<Expression> Parser::parseOr()
-    {
-        std::unique_ptr<Expression> left = parseAnd();
-        while (currentToken.type == TokenType::OP_OR)
-        {
-            accept();
-            std::unique_ptr<Expression> right = parseAnd();
-            left.reset(new BinaryOpExpression{ BinaryOperator::OR, std::move(left), std::move(right) });
-        }
-        return left;
-    }
-
-    std::unique_ptr<Expression> Parser::parseAnd()
-    {
-        std::unique_ptr<Expression> left = parseConditionals();
-        while (currentToken.type == TokenType::OP_AND)
-        {
-            accept();
-            std::unique_ptr<Expression> right = parseConditionals();
-            left.reset(new BinaryOpExpression{ BinaryOperator::AND, std::move(left), std::move(right) });
-        }
-        return left;
-    }
-
-    std::unique_ptr<Expression> Parser::parseConditionals()
-    {
-        std::unique_ptr<Expression> left = parseBitwiseOr();
-        TokenType token = currentToken.type;
-        while (token == TokenType::OP_EQUALS || token == TokenType::OP_NOT_EQUAL || token == TokenType::OP_LESS || token == TokenType::OP_LESS_OR_EQUAL
-            || token == TokenType::OP_GREATER || token == TokenType::OP_GREATER_OR_EQUAL)
-        {
-            accept();
-            std::unique_ptr<Expression> right = parseBitwiseOr();
-            BinaryOperator op;
-            switch (token)
+            for (;;)
             {
-                case TokenType::OP_EQUALS:
-                    op = BinaryOperator::EQ;
+                TokenType opType = currentToken.type;
+                int op_prec = getPrecedence(opType);
+                if (op_prec != prec)
+                {
                     break;
-                case TokenType::OP_NOT_EQUAL:
-                    op = BinaryOperator::NE;
-                    break;
-                case TokenType::OP_LESS:
-                    op = BinaryOperator::LT;
-                    break;
-                case TokenType::OP_LESS_OR_EQUAL:
-                    op = BinaryOperator::LTE;
-                    break;
-                case TokenType::OP_GREATER:
-                    op = BinaryOperator::GT;
-                    break;
-                default:
-                    op = BinaryOperator::GTE;
-                    break;
+                }
+
+                expect(opType);
+
+                if (opType == TokenType::OP_QUESTION)
+                {
+                    accept();
+                    std::unique_ptr<Expression> trueExpr = parseExpression();
+                    expect(TokenType::OP_COLON);
+                    std::unique_ptr<Expression> falseExpr = parseExpression();
+                    expr.reset(new TernaryOpExpression{ std::move(expr), std::move(trueExpr), std::move(falseExpr) });
+                }
+                else
+                {
+                    BinaryOperator op = getBinaryOp(opType);
+                    std::unique_ptr<ast::Expression> right = parseBinary(prec + 1);
+
+                    expr.reset(new BinaryOpExpression{ op, std::move(expr), std::move(right) });
+                }
             }
-            left.reset(new BinaryOpExpression{ op, std::move(left), std::move(right) });
-            token = currentToken.type;
         }
-        return left;
-    }
-
-    std::unique_ptr<Expression> Parser::parseBitwiseOr()
-    {
-        std::unique_ptr<Expression> left = parseBitwiseXor();
-        while (currentToken.type == TokenType::OP_BIT_OR)
-        {
-            accept();
-            std::unique_ptr<Expression> right = parseBitwiseXor();
-            left.reset(new BinaryOpExpression{ BinaryOperator::BIT_OR, std::move(left), std::move(right) });
-        }
-        return left;
-    }
-
-    std::unique_ptr<Expression> Parser::parseBitwiseXor()
-    {
-        std::unique_ptr<Expression> left = parseBitwiseAnd();
-        while (currentToken.type == TokenType::OP_BIT_XOR)
-        {
-            accept();
-            std::unique_ptr<Expression> right = parseBitwiseAnd();
-            left.reset(new BinaryOpExpression{ BinaryOperator::BIT_XOR, std::move(left), std::move(right) });
-        }
-        return left;
-    }
-
-    std::unique_ptr<Expression> Parser::parseBitwiseAnd()
-    {
-        std::unique_ptr<Expression> left = parseShift();
-        while (currentToken.type == TokenType::OP_BIT_AND)
-        {
-            accept();
-            std::unique_ptr<Expression> right = parseShift();
-            left.reset(new BinaryOpExpression{ BinaryOperator::BIT_AND, std::move(left), std::move(right) });
-        }
-        return left;
-    }
-
-    std::unique_ptr<Expression> Parser::parseShift()
-    {
-        std::unique_ptr<Expression> left = parseAddSub();
-        TokenType token = currentToken.type;
-        while (token == TokenType::OP_LEFT_SHIFT || token == TokenType::OP_RIGHT_SHIFT)
-        {
-            accept();
-            std::unique_ptr<Expression> right = parseAddSub();
-            BinaryOperator op = (token == TokenType::OP_LEFT_SHIFT) ? BinaryOperator::LSH : BinaryOperator::RSH;
-            left.reset(new BinaryOpExpression{ op, std::move(left), std::move(right) });
-            token = currentToken.type;
-        }
-        return left;
-    }
-
-    std::unique_ptr<Expression> Parser::parseAddSub()
-    {
-        std::unique_ptr<Expression> left = parseMultDiv();
-        TokenType token = currentToken.type;
-        while (token == TokenType::OP_ADD || token == TokenType::OP_SUB)
-        {
-            accept();
-            std::unique_ptr<Expression> right = parseMultDiv();
-            BinaryOperator op = (token == TokenType::OP_ADD) ? BinaryOperator::ADD : BinaryOperator::SUB;
-            left.reset(new BinaryOpExpression{ op, std::move(left), std::move(right) });
-            token = currentToken.type;
-        }
-        return left;
-    }
-
-    std::unique_ptr<Expression> Parser::parseMultDiv()
-    {
-        std::unique_ptr<Expression> left = parseUnary();
-        TokenType token = currentToken.type;
-        while (token == TokenType::OP_STAR || token == TokenType::OP_DIV || token == TokenType::OP_MOD)
-        {
-            accept();
-            std::unique_ptr<Expression> right = parseUnary();
-            BinaryOperator op;
-            switch (token)
-            {
-                case TokenType::OP_STAR:
-                    op = BinaryOperator::MUL;
-                    break;
-                case TokenType::OP_DIV:
-                    op = BinaryOperator::DIV;
-                    break;
-                default:
-                    op = BinaryOperator::MOD;
-                    break;
-            }
-            left.reset(new BinaryOpExpression{ op, std::move(left), std::move(right) });
-            token = currentToken.type;
-        }
-        return left;
+        return expr;
     }
 
     std::unique_ptr<Expression> Parser::parseUnary()
