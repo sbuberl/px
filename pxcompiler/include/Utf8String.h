@@ -42,9 +42,14 @@ namespace px {
             return bytes.data();
         }
 
+        const char *c_str() const
+        {
+            return reinterpret_cast<const char*>(bytes.data());
+        }
+
         std::string toString() const
         {
-            return std::string(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+            return std::string(c_str(), bytes.size());
         }
 
         bytes_iterator bytesBegin() const
