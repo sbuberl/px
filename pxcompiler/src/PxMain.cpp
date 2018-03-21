@@ -1,7 +1,7 @@
 
 #include "Parser.h"
 #include "ContextAnalyzer.h"
-//#include "CG/LLVMCompiler.h"
+#include "CG/LLVMCompiler.h"
 #include <iostream>
 #include <fstream>
 using namespace px;
@@ -37,8 +37,8 @@ int main(int argc, char **argv)
 
     //std::cout << "Analysis Complete" << std::endl;
 
-    //px::LLVMCompiler compiler;
-    //compiler.compile(ast);
+    px::LLVMCompiler compiler;
+    compiler.compile(ast);
 
     delete ast;
 

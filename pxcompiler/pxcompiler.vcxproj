@@ -45,6 +45,7 @@
     <ClCompile Include="src\AST\Expression.cpp" />
     <ClCompile Include="src\AST\Literal.cpp" />
     <ClCompile Include="src\AST\Statement.cpp" />
+    <ClCompile Include="src\CG\LLVMCompiler.cpp" />
     <ClCompile Include="src\ContextAnalyzer.cpp" />
     <ClCompile Include="src\Parser.cpp" />
     <ClCompile Include="src\PxMain.cpp" />
@@ -138,7 +139,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
+      <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)include;C:\Program Files\LLVM\include;D:\code\icu4c-58_2-Win64-MSVC2015\icu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>

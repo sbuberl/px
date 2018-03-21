@@ -6,34 +6,33 @@
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/Bitcode/ReaderWriter.h"
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/IR/InstIterator.h"
 
 #include <functional>
 #include <iostream>
 
 namespace px
 {
-    LLVMCompiler::LLVMCompiler() : context(), builder(context), currentFunction(NULL)
+    LLVMCompiler::LLVMCompiler() : context(), builder(context), currentFunction(nullptr)
     {
         module = llvm::make_unique<llvm::Module>("test", context);
     }
 
     llvm::Type *LLVMCompiler::pxTypeToLlvmType(Type *pxType)
     {
-        if (pxType->isBuiltinInt())
+        if (pxType->isInt())
         {
             switch (pxType->size)
             {
                 case 1:
-                    return llvm::Type::getInt8Ty(context);
                 case 2:
-                    return llvm::Type::getInt16Ty(context);
                 case 4:
-                    return llvm::Type::getInt32Ty(context);
                 case 8:
-                    return llvm::Type::getInt64Ty(context);
+                    return llvm::IntegerType::get(context, pxType->size * 8);
             }
         }
-        else if (pxType->isBuiltinFloat())
+        else if (pxType->isFloat())
         {
             switch (pxType->size)
             {
@@ -43,16 +42,31 @@ namespace px
                     return llvm::Type::getDoubleTy(context);
             }
         }
-        else if (pxType->isVoidType())
+        else if (pxType->isVoid())
             return llvm::Type::getVoidTy(context);
+        else if(pxType->isBool())
+            return llvm::IntegerType::get(context, 1);
 
-        return NULL;
+        return nullptr;
     }
 
     void LLVMCompiler::compile(ast::AST* ast)
     {
         ast->accept(*this);
-        //llvm::WriteBitcodeToFile(module, std::cout);
+       /* std::string output;
+        llvm::raw_string_ostream stringStream{ output };
+        llvm::WriteBitcodeToFile(module.get(), stringStream);
+        std::cout << stringStream.str(); */
+    }
+
+    void* LLVMCompiler::visit(ast::AssignmentExpression &a)
+    {
+        llvm::Value *expression = (llvm::Value*) a.expression->accept(*this);
+
+        LLVMFunctionData *funcData = (LLVMFunctionData*)currentFunction->data;
+        llvm::AllocaInst *memory = funcData->variables[a.variableName.c_str()];
+        builder.CreateStore(expression, memory);
+        return nullptr;
     }
 
     void* LLVMCompiler::visit(ast::BinaryOpExpression &b)
@@ -70,7 +84,7 @@ namespace px
                 case ast::BinaryOperator::MUL:	llvmOp = llvm::Instruction::Mul; break;
                 case ast::BinaryOperator::DIV:	llvmOp = llvm::Instruction::SDiv; break;
                 case ast::BinaryOperator::MOD:	llvmOp = llvm::Instruction::SRem; break;
-                default:	return NULL;
+                default:	return nullptr;
             }
         }
         else if ((b.type->flags & Type::BUILTIN_FLOAT) == Type::BUILTIN_FLOAT)
@@ -82,51 +96,55 @@ namespace px
                 case ast::BinaryOperator::MUL:	llvmOp = llvm::Instruction::FMul; break;
                 case ast::BinaryOperator::DIV:	llvmOp = llvm::Instruction::FDiv; break;
                 case ast::BinaryOperator::MOD:	llvmOp = llvm::Instruction::FRem; break;
-                default:	return NULL;
+                default:	return nullptr;
             }
         }
         else
-            return NULL;
+            return nullptr;
 
         return builder.CreateBinOp(llvmOp, left, right);
     }
 
     void* LLVMCompiler::visit(ast::BlockStatement &s)
     {
-        std::vector<ast::Statement*>::const_iterator iter;
-        for (iter = s.statements.begin(); iter != s.statements.end(); iter++)
+        for (auto const& statement : s.statements)
         {
-            (*iter)->accept(*this);
+            statement->accept(*this);
         }
-        return NULL;
+        return nullptr;
+    }
+
+    void* LLVMCompiler::visit(ast::BoolLiteral &i)
+    {
+        return llvm::ConstantInt::get(builder.getInt1Ty(), i.value);
     }
 
     void* LLVMCompiler::visit(ast::CastExpression &e)
     {
-        llvm::Value *value = (llvm::Value*) e.exp->accept(*this);
-        Type *type = e.type, *origType = e.exp->type;
+        llvm::Value *value = (llvm::Value*) e.expression->accept(*this);
+        Type *type = e.type, *origType = e.expression->type;
 
-        if (type->isBuiltinFloat() && origType->isBuiltinInt())
+        if (type->isFloat() && origType->isInt())
         {
             return builder.CreateSIToFP(value, pxTypeToLlvmType(type));
         }
-        else if (type->isBuiltinInt() && origType->isBuiltinFloat())
+        else if (type->isInt() && origType->isFloat())
         {
             return builder.CreateFPToSI(value, pxTypeToLlvmType(type));
         }
-        return NULL;
+        return nullptr;
     }
 
     void* LLVMCompiler::visit(ast::DeclarationStatement &d)
     {
-        if (d.initialValue != NULL)
+        if (d.initialValue != nullptr)
         {
             LLVMFunctionData *funcData = (LLVMFunctionData*)currentFunction->data;
             llvm::Value *value = (llvm::Value*) d.initialValue->accept(*this);
             llvm::AllocaInst *memory = funcData->variables[d.name];
             return builder.CreateStore(value, memory);
         }
-        return NULL;
+        return nullptr;
     }
 
     void* LLVMCompiler::visit(ast::ExpressionStatement &s)
@@ -142,17 +160,17 @@ namespace px
         llvm::Type *RT = pxTypeToLlvmType(function->returnType);
         llvm::FunctionType *FT = llvm::FunctionType::get(RT, std::vector<llvm::Type*>(), false);
         llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, f.name.c_str(), module.get());
-        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context, (f.name + ".0").c_str(), F);
+        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context, (f.name.toString() + ".0").c_str(), F);
         builder.SetInsertPoint(BB);
 
         LLVMFunctionData *data = new LLVMFunctionData();
         std::vector<Variable*> locals = function->symbols.getLocalVariables();
-        for (std::vector<Variable*>::iterator variable = locals.begin(), end = locals.end(); variable != end; ++variable)
+        for (auto variable : locals)
         {
-            Variable *var = *variable;
-            llvm::AllocaInst *varMemory = builder.CreateAlloca(pxTypeToLlvmType(var->type));
-            varMemory->setName(var->name);
-            data->variables[var->name] = varMemory;
+            auto pxType = pxTypeToLlvmType(variable->type);
+            llvm::AllocaInst *varMemory = builder.CreateAlloca(pxType);
+            varMemory->setName(variable->name.toString());
+            data->variables[variable->name] = varMemory;
         }
         function->data = data;
 
@@ -162,6 +180,17 @@ namespace px
         f.block->accept(*this);
 
         currentFunction = prevFunction;
+
+        // F is a pointer to a Function instance
+        std::string output;
+        llvm::raw_string_ostream stringStream{ output };
+        for (llvm::inst_iterator I = llvm::inst_begin(F), E = llvm::inst_end(F); I != E; ++I)
+        {
+            I->print(stringStream);
+            stringStream << "\n";
+        }
+
+        std::cout << stringStream.str();
         return F;
     }
 
@@ -177,7 +206,7 @@ namespace px
 
     void* LLVMCompiler::visit(ast::ReturnStatement &s)
     {
-        if (s.returnValue != NULL)
+        if (s.returnValue != nullptr)
         {
             llvm::Value *result = (llvm::Value*) s.returnValue->accept(*this);
             return builder.CreateRet(result);
@@ -188,13 +217,22 @@ namespace px
 
     void* LLVMCompiler::visit(ast::StringLiteral &s)
     {
-        return NULL;
+        return nullptr;
+    }
+
+    void* LLVMCompiler::visit(ast::TernaryOpExpression &t)
+    {
+        llvm::Value *condition = (llvm::Value*) t.condition->accept(*this);
+        llvm::Value *trueExpr = (llvm::Value*) t.trueExpr->accept(*this);
+        llvm::Value *falseExpr = (llvm::Value*) t.falseExpr->accept(*this);
+
+        return builder.CreateSelect(condition, trueExpr, falseExpr);
     }
 
     void* LLVMCompiler::visit(ast::UnaryOpExpression &e)
     {
-        llvm::Value *value = (llvm::Value*) e.exp->accept(*this);
-        if (e.type->isBuiltinInt())
+        llvm::Value *value = (llvm::Value*) e.expression->accept(*this);
+        if (e.type->isInt())
         {
             switch (e.op)
             {
@@ -203,27 +241,27 @@ namespace px
                 case ast::UnaryOperator::CMPL:
                     return builder.CreateXor(llvm::ConstantInt::get(value->getType(), ~0), value);
                 default:
-                    return NULL;
+                    return nullptr;
             }
         }
-        else if (e.type->isBuiltinFloat())
+        else if (e.type->isFloat())
         {
             switch (e.op)
             {
                 case ast::UnaryOperator::NEG:
                     return builder.CreateSub(llvm::ConstantFP::get(value->getType(), 0.0), value);
                 default:
-                    return NULL;
+                    return nullptr;
             }
         }
         else
-            return NULL;
+            return nullptr;
     }
 
     void *LLVMCompiler::visit(ast::VariableExpression &v)
     {
         LLVMFunctionData *funcData = (LLVMFunctionData*)currentFunction->data;
-        llvm::AllocaInst *memory = funcData->variables[v.variable];
+        llvm::AllocaInst *memory = funcData->variables[v.variable.c_str()];
         return builder.CreateLoad(memory);
     }
 }
