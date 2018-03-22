@@ -16,14 +16,16 @@ namespace px {
     public:
         typedef std::vector<uint8_t>::const_iterator bytes_iterator;
 
-        Utf8String() : bytes(32), count{ 0 }
+        Utf8String() : bytes(), count{ 0 }
         {
+            bytes.reserve(32);
         }
 
         Utf8String(char c)
         {
-            bytes.reserve(10);
+            bytes.reserve(32);
             bytes.push_back(c);
+            pointsStart = { 0 };
             count = 1;
         }
 
@@ -79,7 +81,9 @@ namespace px {
             UBool isError = 0;
             U8_APPEND(buffer, offset, sizeof(buffer), codePoint, isError);
 
+            pointsStart.push_back(bytes.size());
             std::copy(buffer, buffer + offset, std::back_inserter(bytes));
+
             ++count;
             return *this;
         }
