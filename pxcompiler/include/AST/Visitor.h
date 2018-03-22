@@ -21,6 +21,7 @@ namespace px
             virtual void *visit(BinaryOpExpression &f) = 0;
             virtual void *visit(BlockStatement &s) = 0;
             virtual void *visit(CastExpression &f) = 0;
+            virtual void *visit(CharLiteral &c) = 0;
             virtual void *visit(DeclarationStatement &s) = 0;
             virtual void *visit(ExpressionStatement &s) = 0;
             virtual void *visit(FloatLiteral &i) = 0;

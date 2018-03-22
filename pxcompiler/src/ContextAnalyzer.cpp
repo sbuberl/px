@@ -86,6 +86,11 @@ namespace px
         return nullptr;
     }
 
+    void* ContextAnalyzer::visit(ast::CharLiteral &c)
+    {
+        return nullptr;
+    }
+
     void* ContextAnalyzer::visit(ast::DeclarationStatement &d)
     {
         Type *type = _currentScope->getType(d.typeName);

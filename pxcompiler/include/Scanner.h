@@ -35,6 +35,8 @@ namespace px {
         };
 
         int32_t nextCharacter();
+        void scanCharEscape(Utf8String & token);
+        void scanCharCodePoint(Utf8String & token, unsigned int length);
 
         static std::unordered_map<Utf8String, TokenType> keywords;
         Utf8String source;

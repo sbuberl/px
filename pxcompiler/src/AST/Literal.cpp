@@ -8,6 +8,8 @@ namespace px
     {
         void *BoolLiteral::accept(Visitor &visitor) { return visitor.visit(*this); }
 
+        void *CharLiteral::accept(Visitor &visitor) { return visitor.visit(*this); }
+
         void *IntegerLiteral::accept(Visitor &visitor) { return visitor.visit(*this); }
 
         void *FloatLiteral::accept(Visitor &visitor) { return visitor.visit(*this); }

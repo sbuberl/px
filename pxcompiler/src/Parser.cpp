@@ -381,6 +381,9 @@ namespace px {
             case TokenType::FLOAT:
                 value.reset(new FloatLiteral{ currentToken.str });
                 break;
+            case TokenType::CHAR:
+                value.reset(new CharLiteral{ currentToken.str });
+                break;
             case TokenType::STRING:
                 value.reset(new StringLiteral{ currentToken.str });
                 break;

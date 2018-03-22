@@ -35,6 +35,17 @@ namespace px
             void *accept(Visitor &visitor) override;
         };
 
+        class CharLiteral : public Literal
+        {
+        public:
+            CharLiteral(const Utf8String &l)
+                : Literal(Type::CHAR, l)
+            {
+            }
+
+            void *accept(Visitor &visitor) override;
+        };
+
         class IntegerLiteral : public Literal
         {
         public:

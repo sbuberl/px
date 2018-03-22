@@ -70,20 +70,22 @@ namespace px
         static Type * const UINT64;
         static Type * const FLOAT32;
         static Type * const FLOAT64;
+        static Type * const CHAR;
         static Type * const STRING;
 
-        enum TypeFlags
+        enum TypeFlags : uint32_t
         {
             NONE = 0,
-            BUILTIN = 0x08,
-            BUILTIN_BOOL = 0x09,
-            BUILTIN_INT,
-            BUILTIN_UINT,
-            BUILTIN_FLOAT,
-            BUILTIN_STRING,
-            BUILTIN_VOID,
-            ABSTRACT = 0x10,
-            SEALED = 0x20,
+            BUILTIN = 0x01,
+            BUILTIN_BOOL = 0x02 | BUILTIN,
+            BUILTIN_INT = 0x04 | BUILTIN,
+            BUILTIN_UINT = 0x08 | BUILTIN,
+            BUILTIN_FLOAT = 0x10 | BUILTIN,
+            BUILTIN_CHAR = 0x20 | BUILTIN,
+            BUILTIN_STRING = 0x40 | BUILTIN,
+            BUILTIN_VOID = 0x80 | BUILTIN,
+            ABSTRACT = 0x100,
+            SEALED = 0x200,
         };
 
         Type(const Utf8String &n, Type *p, unsigned int s, unsigned int f)
@@ -131,6 +133,11 @@ namespace px
         bool isUInt() const
         {
             return isBuiltin(BUILTIN_INT);
+        }
+
+        bool isChar() const
+        {
+            return isBuiltin(BUILTIN_CHAR);
         }
 
         bool isString() const
@@ -223,6 +230,7 @@ namespace px
             addSymbol(Type::UINT64);
             addSymbol(Type::FLOAT32);
             addSymbol(Type::FLOAT64);
+            addSymbol(Type::CHAR);
             addSymbol(Type::STRING);
         }
 

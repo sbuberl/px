@@ -38,6 +38,7 @@ namespace px {
         virtual void *visit(ast::BlockStatement &s);
         virtual void *visit(ast::BoolLiteral &i);
         virtual void *visit(ast::CastExpression &c);
+        virtual void *visit(ast::CharLiteral &c);
         virtual void *visit(ast::DeclarationStatement &d);
         virtual void *visit(ast::ExpressionStatement &s);
         virtual void *visit(ast::FunctionDeclaration &f);

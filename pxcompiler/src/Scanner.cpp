@@ -187,13 +187,40 @@ namespace px {
 
             return TokenType::IDENTIFIER;
         }
+        else if (current == '\'')
+        {
+            current = nextCharacter();
+            if (current != '\'')
+            {
+                if (current == '\\')
+                {
+                    scanCharEscape(token);
+                }
+                else
+                {
+                    token += current;
+                    current = nextCharacter();
+                }
+            }
+
+            nextCharacter();
+
+            return TokenType::CHAR;
+        }
         else if (current == '"')
         {
             current = nextCharacter();
             while (current != '"')
             {
-                token += current;
-                current = nextCharacter();
+                if (current == '\\')
+                {
+                    scanCharEscape(token);
+                }
+                else
+                {
+                    token += current;
+                    current = nextCharacter();
+                }
             }
 
             nextCharacter();
@@ -276,5 +303,61 @@ namespace px {
         }
 
         return TokenType::BAD;
+    }
+
+    void Scanner::scanCharEscape(Utf8String &token)
+    {
+        int32_t current = nextCharacter();
+        switch (current)
+        {
+            case '0':
+                token += '\0';
+                break;
+            case 'a':
+                token += '\a';
+                break;
+            case 'b':
+                token += '\b';
+                break;
+            case 't':
+                token += '\t';
+                break;
+            case 'n':
+                token += '\n';
+                break;
+            case 'v':
+                token += '\v';
+                break;
+            case 'f':
+                token += '\f';
+                break;
+            case 'r':
+                token += '\f';
+                break;
+            case '"':
+                token += '"';
+                break;
+            case 'u':
+                scanCharCodePoint(token, 4);
+                break;
+            case 'U':
+                scanCharCodePoint(token, 8);
+                break;
+        }
+    }
+
+    void Scanner::scanCharCodePoint(Utf8String &token, unsigned int length)
+    {
+        Utf8String codePointHex;
+        for (unsigned int i = 0; i < length; ++i)
+        {
+            int32_t current = nextCharacter();
+            if (u_isxdigit(current))
+            {
+                codePointHex += current;
+            }
+        }
+        int32_t codePoint = std::stoi(codePointHex.toString(), nullptr, 16);
+        token += codePoint;
     }
 }

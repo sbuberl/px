@@ -46,6 +46,8 @@ namespace px
             return llvm::Type::getVoidTy(context);
         else if(pxType->isBool())
             return llvm::IntegerType::get(context, 1);
+        else if (pxType->isChar())
+            return llvm::IntegerType::get(context, 32);
 
         return nullptr;
     }
@@ -133,6 +135,11 @@ namespace px
             return builder.CreateFPToSI(value, pxTypeToLlvmType(type));
         }
         return nullptr;
+    }
+
+    void* LLVMCompiler::visit(ast::CharLiteral &c)
+    {
+        return llvm::ConstantInt::get(builder.getInt32Ty(), c.literal[0]);
     }
 
     void* LLVMCompiler::visit(ast::DeclarationStatement &d)
