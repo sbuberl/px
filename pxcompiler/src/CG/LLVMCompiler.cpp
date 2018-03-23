@@ -14,6 +14,21 @@
 
 namespace px
 {
+    static llvm::StructType* stringType;
+
+    static llvm::StructType* getStringType(llvm::LLVMContext &context)
+    {
+        if (!stringType)
+        {
+            llvm::Type* runeLengthType = llvm::Type::getInt32Ty(context);
+            llvm::Type* byteCount = llvm::Type::getInt32Ty(context);
+            llvm::Type* utf8PointerType = llvm::Type::getInt8PtrTy(context);
+            std::vector<llvm::Type*> values = { utf8PointerType , runeLengthType, byteCount };
+            stringType = llvm::StructType::create(context, values, "string");
+        }
+        return stringType;
+    }
+
     LLVMCompiler::LLVMCompiler() : context(), builder(context), currentFunction(nullptr)
     {
         module = llvm::make_unique<llvm::Module>("test", context);
@@ -21,7 +36,7 @@ namespace px
 
     llvm::Type *LLVMCompiler::pxTypeToLlvmType(Type *pxType)
     {
-        if (pxType->isInt())
+        if (pxType->isInt() || pxType->isUInt())
         {
             switch (pxType->size)
             {
@@ -48,6 +63,8 @@ namespace px
             return llvm::IntegerType::get(context, 1);
         else if (pxType->isChar())
             return llvm::IntegerType::get(context, 32);
+        else if (pxType->isString())
+            return getStringType(context);
 
         return nullptr;
     }
@@ -224,7 +241,13 @@ namespace px
 
     void* LLVMCompiler::visit(ast::StringLiteral &s)
     {
-        return nullptr;
+        const Utf8String& literal = s.literal;
+        llvm::Constant *runeCount = llvm::ConstantInt::get(builder.getInt32Ty(), literal.length());
+        llvm::Constant *byteCount = llvm::ConstantInt::get(builder.getInt32Ty(), literal.byteLength());
+        llvm::Constant *stringConstant = static_cast<llvm::Constant*>(builder.CreateGlobalStringPtr(literal.toString()));
+
+        std::vector<llvm::Constant*> args = { stringConstant, runeCount, byteCount };
+        return llvm::ConstantStruct::get(getStringType(context), args);
     }
 
     void* LLVMCompiler::visit(ast::TernaryOpExpression &t)
@@ -232,7 +255,6 @@ namespace px
         llvm::Value *condition = (llvm::Value*) t.condition->accept(*this);
         llvm::Value *trueExpr = (llvm::Value*) t.trueExpr->accept(*this);
         llvm::Value *falseExpr = (llvm::Value*) t.falseExpr->accept(*this);
-
         return builder.CreateSelect(condition, trueExpr, falseExpr);
     }
 
