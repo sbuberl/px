@@ -16,20 +16,19 @@ namespace px {
     public:
         typedef std::vector<uint8_t>::const_iterator bytes_iterator;
 
-        Utf8String() : bytes(), count{ 0 }
+        Utf8String() : bytes{}, count{ 0 }
         {
             bytes.reserve(32);
         }
 
-        Utf8String(char c)
+        Utf8String(char c) : Utf8String{}
         {
-            bytes.reserve(32);
             bytes.push_back(c);
             pointsStart = { 0 };
             count = 1;
         }
 
-        Utf8String(const char *text)  : Utf8String(std::string(text))
+        Utf8String(const char *text) : Utf8String{ std::string{text} }
         {
         }
 
@@ -51,7 +50,7 @@ namespace px {
 
         std::string toString() const
         {
-            return std::string(c_str(), bytes.size());
+            return std::string{ c_str(), bytes.size() };
         }
 
         bytes_iterator bytesBegin() const
@@ -120,6 +119,7 @@ namespace px {
         {
             bytes.clear();
             count = 0;
+            pointsStart.clear();
         }
 
         std::size_t hash() const
