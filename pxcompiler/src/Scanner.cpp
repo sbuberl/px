@@ -113,7 +113,8 @@ namespace px {
 
         if (u_isdigit(current))
         {
-            if (current == '0')
+            int currentDigit = u_digit(current, 10);
+            if (currentDigit == 0)
             {
                 int32_t next = nextCharacter();
                 switch (next)
@@ -127,21 +128,23 @@ namespace px {
                         }
                         return TokenType::HEX_INT;
                     case 'b':
-                        nextCharacter();
                         current = nextCharacter();
-                        while (current == '0' || current == '1')
+                        currentDigit = u_digit(current, 10);
+                        while (currentDigit == 0 || currentDigit == 1)
                         {
                             token += current;
                             current = nextCharacter();
+                            currentDigit = u_digit(current, 10);
                         }
                         return TokenType::BINARY_INT;
                     case 'o':
-                        nextCharacter();
                         current = nextCharacter();
-                        while (current >= '0' && current <= '7')
+                        currentDigit = u_digit(current, 10);
+                        while (currentDigit >= 0 && currentDigit <= 7)
                         {
                             token += current;
                             current = nextCharacter();
+                            currentDigit = u_digit(current, 10);
                         }
                         return TokenType::OCTAL_INT;
                     default:
@@ -297,7 +300,7 @@ namespace px {
                     if (next == '|')
                         RETURN_OP(OP_OR, 2);
                     else
-                        RETURN_OP(OP_BIT_XOR, 1);
+                        RETURN_OP(OP_BIT_OR, 1);
                 }
             }
         }
