@@ -355,31 +355,32 @@ namespace px {
     std::unique_ptr<Expression> Parser::parseValue()
     {
         std::unique_ptr<Expression> value = nullptr;
-        int32_t i32Literal;
+        int64_t i64Literal;
         std::string tokenString = currentToken.str.toString();
+        Type *suffix = currentToken.suffixType;
         switch (currentToken.type)
         {
             case TokenType::IDENTIFIER:
                 value.reset(new VariableExpression{ currentToken.str });
                 break;
             case TokenType::INTEGER:
-                i32Literal = std::stoi(tokenString);
-                value.reset(new IntegerLiteral{ currentToken.str.toString(), i32Literal });
+                i64Literal = std::stoll(tokenString);
+                value.reset(new IntegerLiteral{ suffix, currentToken.str, i64Literal });
                 break;
             case TokenType::HEX_INT:
-                i32Literal = std::stoi(tokenString, nullptr, 16);
-                value.reset(new IntegerLiteral{ currentToken.str, i32Literal });
+                i64Literal = std::stoll(tokenString, nullptr, 16);
+                value.reset(new IntegerLiteral{ suffix, currentToken.str, i64Literal });
                 break;
             case TokenType::BINARY_INT:
-                i32Literal = std::stoi(tokenString, nullptr, 2);
-                value.reset(new IntegerLiteral{ currentToken.str.toString(), i32Literal });
+                i64Literal = std::stoll(tokenString, nullptr, 2);
+                value.reset(new IntegerLiteral{ suffix, currentToken.str, i64Literal });
                 break;
             case TokenType::OCTAL_INT:
-                i32Literal = std::stoi(tokenString, nullptr, 8);
-                value.reset(new IntegerLiteral{ currentToken.str, i32Literal });
+                i64Literal = std::stoll(tokenString, nullptr, 8);
+                value.reset(new IntegerLiteral{ suffix, currentToken.str, i64Literal });
                 break;
             case TokenType::FLOAT:
-                value.reset(new FloatLiteral{ currentToken.str });
+                value.reset(new FloatLiteral{ suffix, currentToken.str });
                 break;
             case TokenType::CHAR:
                 value.reset(new CharLiteral{ currentToken.str });

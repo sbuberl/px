@@ -49,10 +49,10 @@ namespace px
         class IntegerLiteral : public Literal
         {
         public:
-            const int32_t value;
+            const int64_t value;
 
-            IntegerLiteral(const Utf8String &l, int32_t v)
-                : Literal(Type::INT32, l), value(v)
+            IntegerLiteral(Type *type, const Utf8String &l, int64_t v)
+                : Literal(type != nullptr ? type : Type::INT32, l), value(v)
             {
             }
 
@@ -64,8 +64,8 @@ namespace px
         public:
             const double value;
 
-            FloatLiteral(const Utf8String &l)
-                : Literal(Type::FLOAT32, l), value(std::stod(l.toString()))
+            FloatLiteral(Type *type, const Utf8String &l)
+                : Literal(type != nullptr ? type : Type::FLOAT32, l), value(std::stod(l.toString()))
             {
             }
 

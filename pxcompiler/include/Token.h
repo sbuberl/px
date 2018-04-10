@@ -2,6 +2,7 @@
 #ifndef TOKEN_H_
 #define TOKEN_H_
 
+#include "Symbol.h"
 #include "Utf8String.h"
 
 namespace px {
@@ -78,9 +79,15 @@ namespace px {
     {
         TokenType type;
         Utf8String str;
+        Type *suffixType;
         Token() { clear(); }
-        Token(TokenType t, const Utf8String &s) : type(t), str(s) {}
-        void clear() { type = TokenType::BAD; str.clear(); }
+        Token(TokenType t, const Utf8String &s) : type{ t }, str{ s }, suffixType{ nullptr } {}
+        void clear()
+        {
+            type = TokenType::BAD;
+            str.clear();
+            suffixType = nullptr;
+        }
     };
 
 }

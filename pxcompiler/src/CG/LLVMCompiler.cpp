@@ -143,7 +143,23 @@ namespace px
         llvm::Value *value = (llvm::Value*) e.expression->accept(*this);
         Type *type = e.type, *origType = e.expression->type;
 
-        if (type->isFloat() && origType->isInt())
+        if (type->isInt() && origType->isInt())
+        {
+            if (type->size != origType->size)
+                return builder.CreateZExtOrTrunc(value, pxTypeToLlvmType(type));
+            else
+                return value;
+        }
+        else if (type->isFloat() && origType->isFloat())
+        {
+            if (type->size < origType->size)
+                return builder.CreateFPTrunc(value, pxTypeToLlvmType(type));
+            else if (type->size > origType->size)
+                return builder.CreateFPExt(value, pxTypeToLlvmType(type));
+            else
+                return value;
+        }
+        else if (type->isFloat() && origType->isInt())
         {
             return builder.CreateSIToFP(value, pxTypeToLlvmType(type));
         }
@@ -220,12 +236,12 @@ namespace px
 
     void* LLVMCompiler::visit(ast::IntegerLiteral &i)
     {
-        return llvm::ConstantInt::get(builder.getInt32Ty(), i.value);
+        return llvm::ConstantInt::get(pxTypeToLlvmType(i.type), i.value);
     }
 
     void* LLVMCompiler::visit(ast::FloatLiteral &f)
     {
-        return llvm::ConstantFP::get(builder.getFloatTy(), f.value);
+        return llvm::ConstantFP::get(pxTypeToLlvmType(f.type), f.value);
     }
 
     void* LLVMCompiler::visit(ast::ReturnStatement &s)
