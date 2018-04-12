@@ -94,7 +94,7 @@ namespace px
         llvm::Value *right = (llvm::Value*) b.right->accept(*this);
 
         llvm::Instruction::BinaryOps llvmOp;
-        if ((b.type->flags & Type::BUILTIN_INT) == Type::BUILTIN_INT)
+        if ((b.type->isInt()))
         {
             switch (b.op)
             {
@@ -106,7 +106,19 @@ namespace px
                 default:	return nullptr;
             }
         }
-        else if ((b.type->flags & Type::BUILTIN_FLOAT) == Type::BUILTIN_FLOAT)
+        else if ((b.type->isUInt()))
+        {
+            switch (b.op)
+            {
+                case ast::BinaryOperator::ADD:	llvmOp = llvm::Instruction::Add; break;
+                case ast::BinaryOperator::SUB:	llvmOp = llvm::Instruction::Sub; break;
+                case ast::BinaryOperator::MUL:	llvmOp = llvm::Instruction::Mul; break;
+                case ast::BinaryOperator::DIV:	llvmOp = llvm::Instruction::UDiv; break;
+                case ast::BinaryOperator::MOD:	llvmOp = llvm::Instruction::URem; break;
+                default:	return nullptr;
+            }
+        }
+        else if ((b.type->isFloat()))
         {
             switch (b.op)
             {
@@ -143,30 +155,55 @@ namespace px
         llvm::Value *value = (llvm::Value*) e.expression->accept(*this);
         Type *type = e.type, *origType = e.expression->type;
 
-        if (type->isInt() && origType->isInt())
+        if (type->isInt())
         {
-            if (type->size != origType->size)
-                return builder.CreateZExtOrTrunc(value, pxTypeToLlvmType(type));
-            else
-                return value;
+            if (origType->isInt() || origType->isUInt())
+            {
+                if (type->size != origType->size)
+                    return builder.CreateZExtOrTrunc(value, pxTypeToLlvmType(type));
+                else
+                    return value;
+            }
+            else if (origType->isFloat())
+            {
+                return builder.CreateFPToSI(value, pxTypeToLlvmType(type));
+            }
         }
-        else if (type->isFloat() && origType->isFloat())
+        else if (type->isUInt())
         {
-            if (type->size < origType->size)
-                return builder.CreateFPTrunc(value, pxTypeToLlvmType(type));
-            else if (type->size > origType->size)
-                return builder.CreateFPExt(value, pxTypeToLlvmType(type));
-            else
-                return value;
+            if(origType->isUInt() || origType->isInt())
+            {
+                if (type->size != origType->size)
+                    return builder.CreateSExtOrTrunc(value, pxTypeToLlvmType(type));
+                else
+                    return value;
+            }
+            else if (origType->isFloat())
+            {
+                return builder.CreateFPToUI(value, pxTypeToLlvmType(type));
+            }
         }
-        else if (type->isFloat() && origType->isInt())
+        else if (type->isFloat())
         {
-            return builder.CreateSIToFP(value, pxTypeToLlvmType(type));
+            if(origType->isFloat())
+            {
+                if (type->size < origType->size)
+                    return builder.CreateFPTrunc(value, pxTypeToLlvmType(type));
+                else if (type->size > origType->size)
+                    return builder.CreateFPExt(value, pxTypeToLlvmType(type));
+                else
+                    return value;
+            }
+            else if (origType->isInt())
+            {
+                return builder.CreateSIToFP(value, pxTypeToLlvmType(type));
+            }
+            else if (origType->isUInt())
+            {
+                return builder.CreateUIToFP(value, pxTypeToLlvmType(type));
+            }
         }
-        else if (type->isInt() && origType->isFloat())
-        {
-            return builder.CreateFPToSI(value, pxTypeToLlvmType(type));
-        }
+
         return nullptr;
     }
 
@@ -277,14 +314,14 @@ namespace px
     void* LLVMCompiler::visit(ast::UnaryOpExpression &e)
     {
         llvm::Value *value = (llvm::Value*) e.expression->accept(*this);
-        if (e.type->isInt())
+        if (e.type->isInt() || e.type->isUInt())
         {
             switch (e.op)
             {
                 case ast::UnaryOperator::NEG:
-                    return builder.CreateSub(llvm::ConstantInt::get(value->getType(), 0), value);
+                    return builder.CreateNeg(value);
                 case ast::UnaryOperator::CMPL:
-                    return builder.CreateXor(llvm::ConstantInt::get(value->getType(), ~0), value);
+                    return builder.CreateNot(value);
                 default:
                     return nullptr;
             }
@@ -294,7 +331,7 @@ namespace px
             switch (e.op)
             {
                 case ast::UnaryOperator::NEG:
-                    return builder.CreateSub(llvm::ConstantFP::get(value->getType(), 0.0), value);
+                    return builder.CreateFNeg(value);
                 default:
                     return nullptr;
             }

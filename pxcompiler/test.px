@@ -1,4 +1,4 @@
-int16 i = 7_i16;
+uint32 i = 7_u;
 int32 j = i + 4.0 as int32;
 0x10ADF + 0b10101001 + 0o15675;
 bool b = true;

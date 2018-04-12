@@ -132,7 +132,7 @@ namespace px
 
         bool isUInt() const
         {
-            return isBuiltin(BUILTIN_INT);
+            return isBuiltin(BUILTIN_UINT);
         }
 
         bool isChar() const

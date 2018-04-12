@@ -40,7 +40,7 @@ namespace px
             {
                 b.type = leftType;
             }
-            else if (leftType->isInt() && rightType->isInt())
+            else if ((leftType->isInt() && rightType->isInt()) || (leftType->isUInt() && rightType->isUInt()))
             {
                 if (leftType->size > rightType->size)
                 {
@@ -53,12 +53,22 @@ namespace px
                     b.left = std::make_unique<ast::CastExpression>(rightType, std::move(b.left));
                 }
             }
-            else if (leftType->isFloat() && rightType->isInt())
+            else if (leftType->isUInt() && rightType->isInt())
             {
                 b.type = leftType;
                 b.right = std::make_unique<ast::CastExpression>(leftType, std::move(b.right));
             }
-            else if (leftType->isInt() && rightType->isFloat())
+            else if (leftType->isInt() && rightType->isUInt())
+            {
+                b.type = rightType;
+                b.left = std::make_unique<ast::CastExpression>(rightType, std::move(b.left));
+            }
+            else if (leftType->isFloat() && (rightType->isInt() || rightType->isUInt()))
+            {
+                b.type = leftType;
+                b.right = std::make_unique<ast::CastExpression>(leftType, std::move(b.right));
+            }
+            else if ((leftType->isInt() || leftType->isUInt()) && rightType->isFloat())
             {
                 b.type = rightType;
                 b.left = std::make_unique<ast::CastExpression>(rightType, std::move(b.left));
