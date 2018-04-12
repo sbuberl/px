@@ -179,105 +179,126 @@ namespace px {
                 {
                     case 'i':
                         current = nextCharacter();
-                        currentDigit = u_digit(current, 10);
-                        switch (currentDigit)
+                        if (u_isdigit(current))
                         {
-                            case 8:
-                                peekPos.token.suffixType = Type::INT8;
-                                current = nextCharacter();
-                                break;
-                            case 1:
-                                current = nextCharacter();
-                                currentDigit = u_digit(current, 10);
-                                if (currentDigit == 6)
-                                {
-                                    peekPos.token.suffixType = Type::INT16;
+                            currentDigit = u_digit(current, 10);
+                            switch (currentDigit)
+                            {
+                                case 8:
+                                    peekPos.token.suffixType = Type::INT8;
                                     current = nextCharacter();
-                                }
-                                break;
-                            case 3:
-                                current = nextCharacter();
-                                currentDigit = u_digit(current, 10);
-                                if (currentDigit == 2)
-                                {
-                                    peekPos.token.suffixType = Type::INT32;
+                                    break;
+                                case 1:
                                     current = nextCharacter();
-                                }
-                                break;
-                            case 6:
-                                current = nextCharacter();
-                                currentDigit = u_digit(current, 10);
-                                if (currentDigit == 4)
-                                {
-                                    peekPos.token.suffixType = Type::INT64;
+                                    currentDigit = u_digit(current, 10);
+                                    if (currentDigit == 6)
+                                    {
+                                        peekPos.token.suffixType = Type::INT16;
+                                        current = nextCharacter();
+                                    }
+                                    break;
+                                case 3:
                                     current = nextCharacter();
-                                }
-                                break;
+                                    currentDigit = u_digit(current, 10);
+                                    if (currentDigit == 2)
+                                    {
+                                        peekPos.token.suffixType = Type::INT32;
+                                        current = nextCharacter();
+                                    }
+                                    break;
+                                case 6:
+                                    current = nextCharacter();
+                                    currentDigit = u_digit(current, 10);
+                                    if (currentDigit == 4)
+                                    {
+                                        peekPos.token.suffixType = Type::INT64;
+                                        current = nextCharacter();
+                                    }
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            peekPos.token.suffixType = Type::INT32;
                         }
                         break;
                     case 'u':
                         current = nextCharacter();
-                        currentDigit = u_digit(current, 10);
-                        switch (currentDigit)
+                        if (u_isdigit(current))
                         {
-                            case 8:
-                                peekPos.token.suffixType = Type::UINT8;
-                                current = nextCharacter();
-                                break;
-                            case 1:
-                                current = nextCharacter();
-                                currentDigit = u_digit(current, 10);
-                                if (currentDigit == 6)
-                                {
-                                    peekPos.token.suffixType = Type::UINT16;
+                            currentDigit = u_digit(current, 10);
+                            switch (currentDigit)
+                            {
+                                case 8:
+                                    peekPos.token.suffixType = Type::UINT8;
                                     current = nextCharacter();
-                                }
-                                break;
-                            case 3:
-                                current = nextCharacter();
-                                currentDigit = u_digit(current, 10);
-                                if (currentDigit == 2)
-                                {
-                                    peekPos.token.suffixType = Type::UINT32;
+                                    break;
+                                case 1:
                                     current = nextCharacter();
-                                }
-                                break;
-                            case 6:
-                                current = nextCharacter();
-                                currentDigit = u_digit(current, 10);
-                                if (currentDigit == 4)
-                                {
-                                    peekPos.token.suffixType = Type::UINT64;
+                                    currentDigit = u_digit(current, 10);
+                                    if (currentDigit == 6)
+                                    {
+                                        peekPos.token.suffixType = Type::UINT16;
+                                        current = nextCharacter();
+                                    }
+                                    break;
+                                case 3:
                                     current = nextCharacter();
-                                }
-                                break;
+                                    currentDigit = u_digit(current, 10);
+                                    if (currentDigit == 2)
+                                    {
+                                        peekPos.token.suffixType = Type::UINT32;
+                                        current = nextCharacter();
+                                    }
+                                    break;
+                                case 6:
+                                    current = nextCharacter();
+                                    currentDigit = u_digit(current, 10);
+                                    if (currentDigit == 4)
+                                    {
+                                        peekPos.token.suffixType = Type::UINT64;
+                                        current = nextCharacter();
+                                    }
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            peekPos.token.suffixType = Type::UINT32;
                         }
                         break;
                     case 'f':
                         current = nextCharacter();
-                        currentDigit = u_digit(current, 10);
-                        switch (currentDigit)
+                        if (u_isdigit(current))
                         {
-                            case 3:
-                                current = nextCharacter();
-                                currentDigit = u_digit(current, 10);
-                                if (currentDigit == 2)
-                                {
-                                    peekPos.token.suffixType = Type::FLOAT32;
+                            currentDigit = u_digit(current, 10);
+                            switch (currentDigit)
+                            {
+                                case 3:
                                     current = nextCharacter();
-                                }
-                                break;
-                            case 6:
-                                current = nextCharacter();
-                                currentDigit = u_digit(current, 10);
-                                if (currentDigit == 4)
-                                {
-                                    peekPos.token.suffixType = Type::FLOAT64;
+                                    currentDigit = u_digit(current, 10);
+                                    if (currentDigit == 2)
+                                    {
+                                        peekPos.token.suffixType = Type::FLOAT32;
+                                        current = nextCharacter();
+                                    }
+                                    break;
+                                case 6:
                                     current = nextCharacter();
-                                }
-                                break;
+                                    currentDigit = u_digit(current, 10);
+                                    if (currentDigit == 4)
+                                    {
+                                        peekPos.token.suffixType = Type::FLOAT64;
+                                        current = nextCharacter();
+                                    }
+                                    break;
+                            }
+                            break;
                         }
-                        break;
+                        else
+                        {
+                            peekPos.token.suffixType = Type::FLOAT32;
+                        }
                 }
             }
             return isFloat ? TokenType::FLOAT : TokenType::INTEGER;
