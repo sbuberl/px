@@ -12,22 +12,21 @@ using namespace px::ast;
 
 namespace px {
 
-    Parser::Parser(SymbolTable *globals)
-        : symbols(globals)
+    Parser::Parser(SymbolTable *globals) : symbols(globals)
     {
     }
 
     void Parser::accept()
     {
         scanner->accept();
-        currentToken = scanner->nextToken();
+        currentToken.reset(new Token(scanner->nextToken()));
     }
 
     bool Parser::accept(TokenType type)
     {
         if (scanner->accept(type))
         {
-            currentToken = scanner->nextToken();
+            currentToken.reset(new Token(scanner->nextToken()));
             return true;
         }
         return false;
@@ -37,48 +36,30 @@ namespace px {
     {
         if (scanner->accept(token))
         {
-            currentToken = scanner->nextToken();
+            currentToken.reset(new Token(scanner->nextToken()));
             return true;
         }
         return false;
     }
 
-    void Parser::expect(TokenType type)
-    {
-        if (scanner->accept(type))
-        {
-            currentToken = scanner->nextToken();
-        }
-        // TODO: raise error
-    }
-
-    void Parser::expect(const Utf8String &token)
-    {
-        if (scanner->accept(token))
-        {
-            currentToken = scanner->nextToken();
-        }
-        // TODO: raise error
-    }
-
     void Parser::rewind()
     {
         scanner->rewind();
-        currentToken = scanner->nextToken();
+        currentToken.reset(new Token(scanner->nextToken()));
     }
 
-    AST *Parser::parse(std::istream &in)
+    AST *Parser::parse(const Utf8String &fileName, std::istream &in)
     {
         std::stringstream buffer;
         buffer << in.rdbuf();
         Utf8String source{buffer.str()};
 
-        scanner = new Scanner(source);
-        currentToken = scanner->nextToken();
+        scanner.reset(new Scanner(fileName, source));
+        currentToken.reset(new Token(scanner->nextToken()));
 
         std::unique_ptr<BlockStatement> block(new BlockStatement());
 
-        while (currentToken.type != TokenType::END_FILE && currentToken.type != TokenType::BAD)
+        while (currentToken->type != TokenType::END_FILE && currentToken->type != TokenType::BAD)
         {
             //std::cout << "Parsing statement " << statements.size() << std::endl;
             std::unique_ptr<Statement> statement = parseStatement();
@@ -95,9 +76,9 @@ namespace px {
 
     std::unique_ptr<Statement> Parser::parseStatement()
     {
-        if (currentToken.type == TokenType::KW_RETURN)
+        if (currentToken->type == TokenType::KW_RETURN)
             return parseReturnStatement();
-        else if (currentToken.type == TokenType::IDENTIFIER)
+        else if (currentToken->type == TokenType::IDENTIFIER)
         {
             Token& next = scanner->nextToken();
             if (next.type == TokenType::IDENTIFIER)
@@ -119,7 +100,7 @@ namespace px {
         if (expr == nullptr)
             return nullptr;
 
-        expect(TokenType::OP_END_STATEMENT);
+        accept(TokenType::OP_END_STATEMENT);
         return std::make_unique<ExpressionStatement>(std::move(expr));
     }
 
@@ -127,7 +108,7 @@ namespace px {
     {
         accept();
         std::unique_ptr<Expression> retValue = nullptr;
-        if (currentToken.type != TokenType::OP_END_STATEMENT)
+        if (currentToken->type != TokenType::OP_END_STATEMENT)
         {
             retValue = parseExpression();
             if (retValue == nullptr)
@@ -141,21 +122,21 @@ namespace px {
     std::unique_ptr<Statement> Parser::parseVariableDeclaration()
     {
         std::unique_ptr<Expression> initializer = nullptr;
-        Utf8String typeName = currentToken.str;
+        Utf8String typeName = currentToken->str;
         accept();
-        Utf8String variableName = currentToken.str;
-        expect(TokenType::IDENTIFIER);
+        Utf8String variableName = currentToken->str;
+        accept(TokenType::IDENTIFIER);
         if (accept(TokenType::OP_ASSIGN))
         {
             initializer = parseExpression();
         }
-        expect(TokenType::OP_END_STATEMENT);
+        accept(TokenType::OP_END_STATEMENT);
         return std::make_unique<DeclarationStatement>(typeName, variableName, std::move(initializer));
     }
 
     std::unique_ptr<Expression> Parser::parseExpression()
     {
-        if (currentToken.type == TokenType::IDENTIFIER)
+        if (currentToken->type == TokenType::IDENTIFIER)
         {
             Token next = scanner->nextToken();
             if (next.type == TokenType::OP_ASSIGN)
@@ -254,39 +235,39 @@ namespace px {
 
     std::unique_ptr<ast::Expression> Parser::parseAssignment()
     {
-        expect(TokenType::IDENTIFIER);
+        accept(TokenType::IDENTIFIER);
 
-        Utf8String variableName = currentToken.str;
+        Utf8String variableName = currentToken->str;
 
-        expect(TokenType::OP_ASSIGN);
+        accept(TokenType::OP_ASSIGN);
 
         std::unique_ptr<Expression> expression = parseExpression();
 
-        expect(TokenType::OP_END_STATEMENT);
+        accept(TokenType::OP_END_STATEMENT);
         return std::make_unique<AssignmentExpression>(variableName, std::move(expression));
     }
 
     std::unique_ptr<ast::Expression> Parser::parseBinary(int precedence)
     {
         std::unique_ptr<ast::Expression> expr = parseUnary();
-        for (int prec = getPrecedence(currentToken.type); prec >= precedence; prec--)
+        for (int prec = getPrecedence(currentToken->type); prec >= precedence; prec--)
         {
             for (;;)
             {
-                TokenType opType = currentToken.type;
+                TokenType opType = currentToken->type;
                 int op_prec = getPrecedence(opType);
                 if (op_prec != prec)
                 {
                     break;
                 }
 
-                expect(opType);
+                accept(opType);
 
                 if (opType == TokenType::OP_QUESTION)
                 {
                     accept();
                     std::unique_ptr<Expression> trueExpr = parseExpression();
-                    expect(TokenType::OP_COLON);
+                    accept(TokenType::OP_COLON);
                     std::unique_ptr<Expression> falseExpr = parseExpression();
                     expr.reset(new TernaryOpExpression{ std::move(expr), std::move(trueExpr), std::move(falseExpr) });
                 }
@@ -306,7 +287,7 @@ namespace px {
     {
         std::unique_ptr<Expression> result, right;
 
-        switch (currentToken.type)
+        switch (currentToken->type)
         {
             case TokenType::OP_ADD:
                 accept();
@@ -329,7 +310,7 @@ namespace px {
             {
                 accept();
                 std::unique_ptr<Expression> expression = parseExpression();
-                expect(TokenType::RPAREN);
+                accept(TokenType::RPAREN);
                 return expression;
             }
             default:
@@ -337,13 +318,13 @@ namespace px {
         }
 
         // cast
-        if (currentToken.type == TokenType::KW_AS)
+        if (currentToken->type == TokenType::KW_AS)
         {
             accept();
 
-            if (currentToken.type == TokenType::IDENTIFIER)
+            if (currentToken->type == TokenType::IDENTIFIER)
             {
-                Type *type = symbols->getType(currentToken.str);
+                Type *type = symbols->getType(currentToken->str);
                 accept();
                 return std::make_unique<CastExpression>(type, std::move(result));
             }
@@ -356,41 +337,41 @@ namespace px {
     {
         std::unique_ptr<Expression> value = nullptr;
         int64_t i64Literal;
-        std::string tokenString = currentToken.str.toString();
-        Type *suffix = currentToken.suffixType;
-        switch (currentToken.type)
+        std::string tokenString = currentToken->str.toString();
+        Type *suffix = currentToken->suffixType;
+        switch (currentToken->type)
         {
             case TokenType::IDENTIFIER:
-                value.reset(new VariableExpression{ currentToken.str });
+                value.reset(new VariableExpression{ currentToken->str });
                 break;
             case TokenType::INTEGER:
                 i64Literal = std::stoll(tokenString);
-                value.reset(new IntegerLiteral{ suffix, currentToken.str, i64Literal });
+                value.reset(new IntegerLiteral{ suffix, currentToken->str, i64Literal });
                 break;
             case TokenType::HEX_INT:
                 i64Literal = std::stoll(tokenString, nullptr, 16);
-                value.reset(new IntegerLiteral{ suffix, currentToken.str, i64Literal });
+                value.reset(new IntegerLiteral{ suffix, currentToken->str, i64Literal });
                 break;
             case TokenType::BINARY_INT:
                 i64Literal = std::stoll(tokenString, nullptr, 2);
-                value.reset(new IntegerLiteral{ suffix, currentToken.str, i64Literal });
+                value.reset(new IntegerLiteral{ suffix, currentToken->str, i64Literal });
                 break;
             case TokenType::OCTAL_INT:
                 i64Literal = std::stoll(tokenString, nullptr, 8);
-                value.reset(new IntegerLiteral{ suffix, currentToken.str, i64Literal });
+                value.reset(new IntegerLiteral{ suffix, currentToken->str, i64Literal });
                 break;
             case TokenType::FLOAT:
-                value.reset(new FloatLiteral{ suffix, currentToken.str });
+                value.reset(new FloatLiteral{ suffix, currentToken->str });
                 break;
             case TokenType::CHAR:
-                value.reset(new CharLiteral{ currentToken.str });
+                value.reset(new CharLiteral{ currentToken->str });
                 break;
             case TokenType::STRING:
-                value.reset(new StringLiteral{ currentToken.str });
+                value.reset(new StringLiteral{ currentToken->str });
                 break;
             case TokenType::KW_TRUE:
             case TokenType::KW_FALSE:
-                value.reset(new BoolLiteral{ currentToken.str });
+                value.reset(new BoolLiteral{ currentToken->str });
                 break;
             default:
                 // TODO parse error

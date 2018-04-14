@@ -15,18 +15,16 @@ namespace px {
     public:
         Parser(SymbolTable *symbols);
         ~Parser() = default;
-        ast::AST *parse(std::istream &in);
+        ast::AST *parse(const Utf8String &fileName, std::istream &in);
 
     private:
-        Token currentToken;
-        Scanner *scanner;
+        std::unique_ptr<Scanner> scanner;
+        std::unique_ptr<Token> currentToken;
         SymbolTable * const symbols;
 
         void accept();
         bool accept(TokenType type);
         bool accept(const Utf8String &token);
-        void expect(TokenType type);
-        void expect(const Utf8String &token);
         void rewind();
 
         int getPrecedence(TokenType type);

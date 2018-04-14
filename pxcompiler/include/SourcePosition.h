@@ -2,17 +2,27 @@
 #ifndef SOURCEPOSITION_H_
 #define SOURCEPOSITION_H_
 
+#include <Utf8String.h>
+
 namespace px {
 
     struct SourcePosition
     {
+        Utf8String fileName;
         size_t fileOffset;
         size_t line;
         size_t lineColumn;
 
-        SourcePosition() : fileOffset{ 0 }, line{ 1 }, lineColumn{ 1 }
+        SourcePosition(const Utf8String &name) : fileName{ name }, fileOffset{ 0 }, line{ 1 }, lineColumn{ 1 }
         {
 
+        }
+
+        void setLocation(const SourcePosition &other)
+        {
+            fileOffset = other.fileOffset;
+            line = other.line;
+            lineColumn = other.lineColumn;
         }
 
         void advance(size_t length = 1)

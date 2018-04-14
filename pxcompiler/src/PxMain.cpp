@@ -25,9 +25,10 @@ int main(int argc, char **argv)
 
     //std::cout << "Starting parsing of file " << argv[1] << std::endl;
 
+    px::Utf8String fileName = argv[1];
     px::Parser parser(&globals);
     std::ifstream fis(argv[1]);
-    px::ast::AST *ast = parser.parse(fis);
+    px::ast::AST *ast = parser.parse(fileName, fis);
     fis.close();
 
     //std::cout << "Parsing Complete " << ast <<  std::endl;

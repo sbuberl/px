@@ -80,8 +80,9 @@ namespace px {
         TokenType type;
         Utf8String str;
         Type *suffixType;
-        Token() { clear(); }
-        Token(TokenType t, const Utf8String &s) : type{ t }, str{ s }, suffixType{ nullptr } {}
+        SourcePosition position;
+        Token(const SourcePosition &pos) : position{ pos } { clear(); }
+        Token(const SourcePosition &pos, TokenType t, const Utf8String &s) : position{ pos }, type { t }, str{ s }, suffixType{ nullptr } {}
         void clear()
         {
             type = TokenType::BAD;

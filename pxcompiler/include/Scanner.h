@@ -14,7 +14,7 @@ namespace px {
     class Scanner
     {
     public:
-        Scanner(const Utf8String &source);
+        Scanner(const Utf8String & fileName, const Utf8String & source);
         ~Scanner() = default;
         bool accept();
         bool accept(TokenType type);
@@ -22,18 +22,9 @@ namespace px {
         void rewind();
         Token &nextToken();
         TokenType scan();
+        const SourcePosition &position();
 
     private:
-        struct Position
-        {
-            SourcePosition location;
-            Token token;
-
-            Position(const Utf8Iterator &iter)
-            {
-            }
-        };
-
         int32_t nextCharacter();
         void scanCharEscape(Utf8String & token);
         void scanCharCodePoint(Utf8String & token, unsigned int length);
@@ -41,8 +32,9 @@ namespace px {
         static std::unordered_map<Utf8String, TokenType> keywords;
         Utf8String source;
         const size_t length;
-        Position currentPos;
-        Position peekPos;
+        SourcePosition currentPos;
+        SourcePosition peekPos;
+        Token peekToken;
 
     };
 

@@ -6,7 +6,7 @@
 #define RETURN_OP(tok, length) \
 do { \
     token = current; \
-    peekPos.location.advance(length);	\
+    peekPos.advance(length);	\
     return TokenType:: tok ; \
 } while( false )
 
@@ -40,20 +40,20 @@ namespace px {
         { "while", TokenType::KW_WHILE},
     };
 
-    Scanner::Scanner(const Utf8String &source) : length{ source.length() }, peekPos{ source }, currentPos{ source }
+    Scanner::Scanner(const Utf8String &fileName, const Utf8String &source) : length{ source.length() }, peekPos{ fileName }, currentPos{ fileName }, peekToken{ peekPos }
     {
         this->source = source;
     }
 
     bool Scanner::accept()
     {
-        currentPos = peekPos;
+        currentPos.setLocation(peekPos);
         return true;
     }
 
     bool Scanner::accept(TokenType type)
     {
-        if (peekPos.token.type == type)
+        if (peekToken.type == type)
         {
             accept();
             return true;
@@ -64,7 +64,7 @@ namespace px {
 
     bool Scanner::accept(const Utf8String &str)
     {
-        if (peekPos.token.str == str)
+        if (peekToken.str == str)
         {
             accept();
             return true;
@@ -75,12 +75,12 @@ namespace px {
 
     void Scanner::rewind()
     {
-        peekPos = currentPos;
+        peekPos.setLocation(currentPos);
     }
 
     Token &Scanner::nextToken()
     {
-        Token &token = peekPos.token;
+        Token &token = peekToken;
         token.clear();
         token.type = scan();
         return token;
@@ -88,24 +88,24 @@ namespace px {
 
     int32_t Scanner::nextCharacter()
     {
-        peekPos.location.advance();
-        return source[peekPos.location.fileOffset];
+        peekPos.advance();
+        return source[peekPos.fileOffset];
     }
 
     TokenType Scanner::scan()
     {
         int32_t current;
-        Utf8String &token = peekPos.token.str;
+        Utf8String &token = peekToken.str;
 
-        if (peekPos.location.fileOffset >= length)
+        if (peekPos.fileOffset >= length)
             return TokenType::END_FILE;
 
-        current = source[peekPos.location.fileOffset];
+        current = source[peekPos.fileOffset];
         while (u_isWhitespace(current))
         {
             if (current == '\n')
             {
-                peekPos.location.nextLine();
+                peekPos.nextLine();
             }
             current = nextCharacter();
 
@@ -185,7 +185,7 @@ namespace px {
                             switch (currentDigit)
                             {
                                 case 8:
-                                    peekPos.token.suffixType = Type::INT8;
+                                    peekToken.suffixType = Type::INT8;
                                     current = nextCharacter();
                                     break;
                                 case 1:
@@ -193,7 +193,7 @@ namespace px {
                                     currentDigit = u_digit(current, 10);
                                     if (currentDigit == 6)
                                     {
-                                        peekPos.token.suffixType = Type::INT16;
+                                        peekToken.suffixType = Type::INT16;
                                         current = nextCharacter();
                                     }
                                     break;
@@ -202,7 +202,7 @@ namespace px {
                                     currentDigit = u_digit(current, 10);
                                     if (currentDigit == 2)
                                     {
-                                        peekPos.token.suffixType = Type::INT32;
+                                        peekToken.suffixType = Type::INT32;
                                         current = nextCharacter();
                                     }
                                     break;
@@ -211,7 +211,7 @@ namespace px {
                                     currentDigit = u_digit(current, 10);
                                     if (currentDigit == 4)
                                     {
-                                        peekPos.token.suffixType = Type::INT64;
+                                        peekToken.suffixType = Type::INT64;
                                         current = nextCharacter();
                                     }
                                     break;
@@ -219,7 +219,7 @@ namespace px {
                         }
                         else
                         {
-                            peekPos.token.suffixType = Type::INT32;
+                            peekToken.suffixType = Type::INT32;
                         }
                         break;
                     case 'u':
@@ -230,7 +230,7 @@ namespace px {
                             switch (currentDigit)
                             {
                                 case 8:
-                                    peekPos.token.suffixType = Type::UINT8;
+                                    peekToken.suffixType = Type::UINT8;
                                     current = nextCharacter();
                                     break;
                                 case 1:
@@ -238,7 +238,7 @@ namespace px {
                                     currentDigit = u_digit(current, 10);
                                     if (currentDigit == 6)
                                     {
-                                        peekPos.token.suffixType = Type::UINT16;
+                                        peekToken.suffixType = Type::UINT16;
                                         current = nextCharacter();
                                     }
                                     break;
@@ -247,7 +247,7 @@ namespace px {
                                     currentDigit = u_digit(current, 10);
                                     if (currentDigit == 2)
                                     {
-                                        peekPos.token.suffixType = Type::UINT32;
+                                        peekToken.suffixType = Type::UINT32;
                                         current = nextCharacter();
                                     }
                                     break;
@@ -256,7 +256,7 @@ namespace px {
                                     currentDigit = u_digit(current, 10);
                                     if (currentDigit == 4)
                                     {
-                                        peekPos.token.suffixType = Type::UINT64;
+                                        peekToken.suffixType = Type::UINT64;
                                         current = nextCharacter();
                                     }
                                     break;
@@ -264,7 +264,7 @@ namespace px {
                         }
                         else
                         {
-                            peekPos.token.suffixType = Type::UINT32;
+                            peekToken.suffixType = Type::UINT32;
                         }
                         break;
                     case 'f':
@@ -279,7 +279,7 @@ namespace px {
                                     currentDigit = u_digit(current, 10);
                                     if (currentDigit == 2)
                                     {
-                                        peekPos.token.suffixType = Type::FLOAT32;
+                                        peekToken.suffixType = Type::FLOAT32;
                                         current = nextCharacter();
                                     }
                                     break;
@@ -288,7 +288,7 @@ namespace px {
                                     currentDigit = u_digit(current, 10);
                                     if (currentDigit == 4)
                                     {
-                                        peekPos.token.suffixType = Type::FLOAT64;
+                                        peekToken.suffixType = Type::FLOAT64;
                                         current = nextCharacter();
                                     }
                                     break;
@@ -297,7 +297,7 @@ namespace px {
                         }
                         else
                         {
-                            peekPos.token.suffixType = Type::FLOAT32;
+                            peekToken.suffixType = Type::FLOAT32;
                         }
                 }
             }
@@ -382,7 +382,7 @@ namespace px {
                 case ':':	RETURN_OP(OP_COLON, 1);
                 case '=':
                 {
-                    char next = source[peekPos.location.fileOffset + 1];
+                    char next = source[peekPos.fileOffset + 1];
                     if (next == '=')
                         RETURN_OP(OP_EQUALS, 2);
                     else
@@ -390,7 +390,7 @@ namespace px {
                 }
                 case '!':
                 {
-                    char next = source[peekPos.location.fileOffset + 1];
+                    char next = source[peekPos.fileOffset + 1];
                     if (next == '=')
                         RETURN_OP(OP_NOT_EQUAL, 2);
                     else
@@ -398,7 +398,7 @@ namespace px {
                 }
                 case '<':
                 {
-                    char next = source[peekPos.location.fileOffset + 1];
+                    char next = source[peekPos.fileOffset + 1];
                     if (next == '<')
                         RETURN_OP(OP_LEFT_SHIFT, 2);
                     else if (next == '=')
@@ -408,7 +408,7 @@ namespace px {
                 }
                 case '>':
                 {
-                    char next = source[peekPos.location.fileOffset + 1];
+                    char next = source[peekPos.fileOffset + 1];
                     if (next == '>')
                         RETURN_OP(OP_RIGHT_SHIFT, 2);
                     else if (next == '=')
@@ -418,7 +418,7 @@ namespace px {
                 }
                 case '&':
                 {
-                    char next = source[peekPos.location.fileOffset + 1];
+                    char next = source[peekPos.fileOffset + 1];
                     if (next == '&')
                         RETURN_OP(OP_AND, 2);
                     else
@@ -426,7 +426,7 @@ namespace px {
                 }
                 case '|':
                 {
-                    char next = source[peekPos.location.fileOffset + 1];
+                    char next = source[peekPos.fileOffset + 1];
                     if (next == '|')
                         RETURN_OP(OP_OR, 2);
                     else
@@ -436,6 +436,11 @@ namespace px {
         }
 
         return TokenType::BAD;
+    }
+
+    const SourcePosition & Scanner::position()
+    {
+        return currentPos;
     }
 
     void Scanner::scanCharEscape(Utf8String &token)
