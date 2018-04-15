@@ -6,6 +6,7 @@
 #include <ast/AST.h>
 #include <ast/Expression.h>
 #include <ast/Statement.h>
+#include "Error.h"
 #include "Scanner.h"
 
 namespace px {
@@ -13,7 +14,7 @@ namespace px {
     class Parser
     {
     public:
-        Parser(SymbolTable *symbols);
+        Parser(SymbolTable *symbols, ErrorLog *errors);
         ~Parser() = default;
         ast::AST *parse(const Utf8String &fileName, std::istream &in);
 
@@ -21,10 +22,11 @@ namespace px {
         std::unique_ptr<Scanner> scanner;
         std::unique_ptr<Token> currentToken;
         SymbolTable * const symbols;
+        ErrorLog * const errors;
 
         void accept();
         bool accept(TokenType type);
-        bool accept(const Utf8String &token);
+        void expect(TokenType type);
         void rewind();
 
         int getPrecedence(TokenType type);

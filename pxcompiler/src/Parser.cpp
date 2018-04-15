@@ -57,7 +57,8 @@ namespace px {
         scanner.reset(new Scanner(fileName, source));
         currentToken.reset(new Token(scanner->nextToken()));
 
-        std::unique_ptr<BlockStatement> block(new BlockStatement());
+        auto startPosition = currentToken->position;
+        std::unique_ptr<BlockStatement> block{ new BlockStatement{ startPosition } };
 
         while (currentToken->type != TokenType::END_FILE && currentToken->type != TokenType::BAD)
         {
@@ -71,7 +72,7 @@ namespace px {
         }
 
         //std::cout << "Statements :" << statements.size() << std::endl;
-        return new FunctionDeclaration("main", "int32", std::move(block));
+        return new FunctionDeclaration{ startPosition, "main", "int32", std::move(block) };
     }
 
     std::unique_ptr<Statement> Parser::parseStatement()
@@ -96,16 +97,18 @@ namespace px {
 
     std::unique_ptr<Statement> Parser::parseExpressionStatement()
     {
+        auto startPos = currentToken->position;
         std::unique_ptr<Expression> expr = parseExpression();
         if (expr == nullptr)
             return nullptr;
 
-        accept(TokenType::OP_END_STATEMENT);
-        return std::make_unique<ExpressionStatement>(std::move(expr));
+        expect(TokenType::OP_END_STATEMENT);
+        return std::make_unique<ExpressionStatement>(startPos, std::move(expr));
     }
 
     std::unique_ptr<Statement> Parser::parseReturnStatement()
     {
+        auto startPos = currentToken->position;
         accept();
         std::unique_ptr<Expression> retValue = nullptr;
         if (currentToken->type != TokenType::OP_END_STATEMENT)
@@ -115,23 +118,24 @@ namespace px {
                 return nullptr;
         }
 
-        accept(TokenType::OP_END_STATEMENT);
-        return std::unique_ptr<ReturnStatement>{new ReturnStatement{ std::move(retValue) }};
+        expect(TokenType::OP_END_STATEMENT);
+        return std::make_unique<ReturnStatement>(startPos, std::move(retValue));
     }
 
     std::unique_ptr<Statement> Parser::parseVariableDeclaration()
     {
+        SourcePosition start = currentToken->position;
         std::unique_ptr<Expression> initializer = nullptr;
         Utf8String typeName = currentToken->str;
         accept();
         Utf8String variableName = currentToken->str;
-        accept(TokenType::IDENTIFIER);
+        expect(TokenType::IDENTIFIER);
         if (accept(TokenType::OP_ASSIGN))
         {
             initializer = parseExpression();
         }
-        accept(TokenType::OP_END_STATEMENT);
-        return std::make_unique<DeclarationStatement>(typeName, variableName, std::move(initializer));
+        expect(TokenType::OP_END_STATEMENT);
+        return std::make_unique<DeclarationStatement>(start, typeName, variableName, std::move(initializer));
     }
 
     std::unique_ptr<Expression> Parser::parseExpression()
@@ -235,21 +239,23 @@ namespace px {
 
     std::unique_ptr<ast::Expression> Parser::parseAssignment()
     {
-        accept(TokenType::IDENTIFIER);
+        SourcePosition start = currentToken->position;
+        expect(TokenType::IDENTIFIER);
 
         Utf8String variableName = currentToken->str;
 
-        accept(TokenType::OP_ASSIGN);
+        expect(TokenType::OP_ASSIGN);
 
         std::unique_ptr<Expression> expression = parseExpression();
 
-        accept(TokenType::OP_END_STATEMENT);
-        return std::make_unique<AssignmentExpression>(variableName, std::move(expression));
+        expect(TokenType::OP_END_STATEMENT);
+        return std::make_unique<AssignmentExpression>(start, variableName, std::move(expression));
     }
 
     std::unique_ptr<ast::Expression> Parser::parseBinary(int precedence)
     {
         std::unique_ptr<ast::Expression> expr = parseUnary();
+        auto start = currentToken->position;
         for (int prec = getPrecedence(currentToken->type); prec >= precedence; prec--)
         {
             for (;;)
@@ -269,14 +275,14 @@ namespace px {
                     std::unique_ptr<Expression> trueExpr = parseExpression();
                     accept(TokenType::OP_COLON);
                     std::unique_ptr<Expression> falseExpr = parseExpression();
-                    expr.reset(new TernaryOpExpression{ std::move(expr), std::move(trueExpr), std::move(falseExpr) });
+                    expr.reset(new TernaryOpExpression{ start, std::move(expr), std::move(trueExpr), std::move(falseExpr) });
                 }
                 else
                 {
                     BinaryOperator op = getBinaryOp(opType);
                     std::unique_ptr<ast::Expression> right = parseBinary(prec + 1);
 
-                    expr.reset(new BinaryOpExpression{ op, std::move(expr), std::move(right) });
+                    expr.reset(new BinaryOpExpression{ start, op, std::move(expr), std::move(right) });
                 }
             }
         }
@@ -285,6 +291,7 @@ namespace px {
 
     std::unique_ptr<Expression> Parser::parseUnary()
     {
+        SourcePosition start = currentToken->position;
         std::unique_ptr<Expression> result, right;
 
         switch (currentToken->type)
@@ -296,16 +303,16 @@ namespace px {
             case TokenType::OP_SUB:
                 accept();
                 right = parseUnary();
-                result = std::make_unique<UnaryOpExpression>(UnaryOperator::NEG, std::move(right));
+                result = std::make_unique<UnaryOpExpression>(start, UnaryOperator::NEG, std::move(right));
                 break;
             case TokenType::OP_NOT:
                 accept();
                 right = parseUnary();
-                result = std::make_unique<UnaryOpExpression>(UnaryOperator::NOT, std::move(right));
+                result = std::make_unique<UnaryOpExpression>(start, UnaryOperator::NOT, std::move(right));
             case TokenType::OP_COMPL:
                 accept();
                 right = parseUnary();
-                result = std::make_unique<UnaryOpExpression>(UnaryOperator::CMPL, std::move(right));
+                result = std::make_unique<UnaryOpExpression>(start, UnaryOperator::CMPL, std::move(right));
             case TokenType::LPAREN:
             {
                 accept();
@@ -326,7 +333,7 @@ namespace px {
             {
                 Type *type = symbols->getType(currentToken->str);
                 accept();
-                return std::make_unique<CastExpression>(type, std::move(result));
+                return std::make_unique<CastExpression>(start, type, std::move(result));
             }
         }
 
@@ -337,41 +344,42 @@ namespace px {
     {
         std::unique_ptr<Expression> value = nullptr;
         int64_t i64Literal;
+        auto start = currentToken->position;
         std::string tokenString = currentToken->str.toString();
         Type *suffix = currentToken->suffixType;
         switch (currentToken->type)
         {
             case TokenType::IDENTIFIER:
-                value.reset(new VariableExpression{ currentToken->str });
+                value.reset(new VariableExpression{ start, currentToken->str });
                 break;
             case TokenType::INTEGER:
                 i64Literal = std::stoll(tokenString);
-                value.reset(new IntegerLiteral{ suffix, currentToken->str, i64Literal });
+                value.reset(new IntegerLiteral{ start, suffix, currentToken->str, i64Literal });
                 break;
             case TokenType::HEX_INT:
                 i64Literal = std::stoll(tokenString, nullptr, 16);
-                value.reset(new IntegerLiteral{ suffix, currentToken->str, i64Literal });
+                value.reset(new IntegerLiteral{ start, suffix, currentToken->str, i64Literal });
                 break;
             case TokenType::BINARY_INT:
                 i64Literal = std::stoll(tokenString, nullptr, 2);
-                value.reset(new IntegerLiteral{ suffix, currentToken->str, i64Literal });
+                value.reset(new IntegerLiteral{ start, suffix, currentToken->str, i64Literal });
                 break;
             case TokenType::OCTAL_INT:
                 i64Literal = std::stoll(tokenString, nullptr, 8);
-                value.reset(new IntegerLiteral{ suffix, currentToken->str, i64Literal });
+                value.reset(new IntegerLiteral{ start, suffix, currentToken->str, i64Literal });
                 break;
             case TokenType::FLOAT:
-                value.reset(new FloatLiteral{ suffix, currentToken->str });
+                value.reset(new FloatLiteral{ start, suffix, currentToken->str });
                 break;
             case TokenType::CHAR:
-                value.reset(new CharLiteral{ currentToken->str });
+                value.reset(new CharLiteral{ start, currentToken->str });
                 break;
             case TokenType::STRING:
-                value.reset(new StringLiteral{ currentToken->str });
+                value.reset(new StringLiteral{ start, currentToken->str });
                 break;
             case TokenType::KW_TRUE:
             case TokenType::KW_FALSE:
-                value.reset(new BoolLiteral{ currentToken->str });
+                value.reset(new BoolLiteral{ start, currentToken->str });
                 break;
             default:
                 // TODO parse error

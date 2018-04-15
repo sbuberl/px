@@ -111,6 +111,7 @@ namespace px {
 
         }
 
+        peekToken.position = peekPos;
         if (u_isdigit(current))
         {
             int currentDigit = u_digit(current, 10);

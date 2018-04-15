@@ -14,12 +14,15 @@ namespace px
     {
         class Statement : public AST
         {
-
+        protected:
+            using AST::AST;
         };
 
         class BlockStatement : public Statement
         {
         public:
+            using Statement::Statement;
+
             std::vector<std::unique_ptr<Statement>> statements;
 
             void addStatement(std::unique_ptr<Statement> statement)
@@ -37,8 +40,8 @@ namespace px
             const Utf8String name;
             std::unique_ptr<Expression> initialValue;
 
-            DeclarationStatement(const Utf8String &t, const Utf8String &n, std::unique_ptr<Expression> value)
-                : typeName(t), name(n), initialValue(std::move(value))
+            DeclarationStatement(const SourcePosition &pos, const Utf8String &t, const Utf8String &n, std::unique_ptr<Expression> value)
+                : Statement{ pos }, typeName(t), name(n), initialValue(std::move(value))
             {
             }
 
@@ -50,7 +53,10 @@ namespace px
         public:
             std::unique_ptr<Expression> expression;
 
-            ExpressionStatement(std::unique_ptr<Expression> expr) : expression(std::move(expr)) {}
+            ExpressionStatement(const SourcePosition &pos, std::unique_ptr<Expression> expr)
+                : Statement{ pos }, expression(std::move(expr))
+            {
+            }
 
             void *accept(Visitor &visitor) override;
 
@@ -61,9 +67,10 @@ namespace px
         public:
             std::unique_ptr<Expression> returnValue;
 
-            ReturnStatement() : returnValue(nullptr) {}
+            ReturnStatement(const SourcePosition &pos) : ReturnStatement{ pos, nullptr } {}
 
-            ReturnStatement(std::unique_ptr<Expression> value) : returnValue(std::move(value)) {}
+            ReturnStatement(const SourcePosition &pos, std::unique_ptr<Expression> value)
+                : Statement{ pos }, returnValue(std::move(value)) {}
 
             void *accept(Visitor &visitor) override;
 

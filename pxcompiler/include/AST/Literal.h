@@ -19,7 +19,7 @@ namespace px
             virtual ~Literal() = default;
 
         protected:
-            Literal(Type *type, const Utf8String &l) : Expression(type), literal(l) {}
+            Literal(const SourcePosition &pos, Type *type, const Utf8String &l) : Expression{ pos, type }, literal{ l } {}
         };
 
         class BoolLiteral : public Literal
@@ -27,8 +27,8 @@ namespace px
         public:
             const bool value;
 
-            BoolLiteral(const Utf8String &l)
-                : Literal(Type::BOOL, l), value(l == Utf8String("true"))
+            BoolLiteral(const SourcePosition &pos, const Utf8String &l)
+                : Literal{ pos, Type::BOOL, l }, value{ l == Utf8String("true") }
             {
             }
 
@@ -38,8 +38,8 @@ namespace px
         class CharLiteral : public Literal
         {
         public:
-            CharLiteral(const Utf8String &l)
-                : Literal(Type::CHAR, l)
+            CharLiteral(const SourcePosition &pos, const Utf8String &l)
+                : Literal{ pos, Type::CHAR, l }
             {
             }
 
@@ -51,8 +51,8 @@ namespace px
         public:
             const int64_t value;
 
-            IntegerLiteral(Type *type, const Utf8String &l, int64_t v)
-                : Literal(type != nullptr ? type : Type::INT32, l), value(v)
+            IntegerLiteral(const SourcePosition &pos, Type *type, const Utf8String &l, int64_t v)
+                : Literal{ pos, type != nullptr ? type : Type::INT32, l }, value{ v }
             {
             }
 
@@ -64,8 +64,8 @@ namespace px
         public:
             const double value;
 
-            FloatLiteral(Type *type, const Utf8String &l)
-                : Literal(type != nullptr ? type : Type::FLOAT32, l), value(std::stod(l.toString()))
+            FloatLiteral(const SourcePosition &pos, Type *type, const Utf8String &l)
+                : Literal{ pos, type != nullptr ? type : Type::FLOAT32, l }, value{ std::stod(l.toString()) }
             {
             }
 
@@ -75,7 +75,7 @@ namespace px
         class StringLiteral : public Literal
         {
         public:
-            StringLiteral(const Utf8String &l) : Literal(Type::STRING, l)
+            StringLiteral(const SourcePosition &pos, const Utf8String &l) : Literal{ pos, Type::STRING, l }
             {
 
             }

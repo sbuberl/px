@@ -17,8 +17,8 @@ namespace px
             std::unique_ptr<BlockStatement> block;
             Function *function;
 
-            FunctionDeclaration(const Utf8String &fname, const Utf8String &retTypeName, std::unique_ptr<BlockStatement> stmts)
-                : name(fname), returnTypeName(retTypeName), block(std::move(stmts)), function(nullptr)
+            FunctionDeclaration(const SourcePosition &pos, const Utf8String &fname, const Utf8String &retTypeName, std::unique_ptr<BlockStatement> stmts)
+                : AST{ pos }, name{ fname }, returnTypeName{ retTypeName }, block{ std::move(stmts) }, function{ nullptr }
             {
             }
 

@@ -15,7 +15,11 @@ namespace px
             Type *type;
 
         protected:
-            Expression(Type *type) : type(type)
+            Expression(const SourcePosition &pos, Type *type) : AST{ pos }, type{ type }
+            {
+            }
+
+            Expression(const SourcePosition &pos) : Expression{ pos , nullptr }
             {
             }
         };
@@ -43,8 +47,8 @@ namespace px
             const Utf8String variableName;
             std::unique_ptr<Expression> expression;
 
-            AssignmentExpression(const Utf8String &n, std::unique_ptr<Expression> e)
-                : Expression(nullptr), variableName(n), expression(std::move(e))
+            AssignmentExpression(const SourcePosition &pos, const Utf8String &n, std::unique_ptr<Expression> e)
+                : Expression{ pos }, variableName{ n }, expression{ std::move(e) }
             {
             }
 
@@ -58,8 +62,8 @@ namespace px
             std::unique_ptr<Expression> right;
             BinaryOperator op;
 
-            BinaryOpExpression(BinaryOperator op, std::unique_ptr<Expression> l, std::unique_ptr<Expression> r)
-                : Expression(nullptr), op(op), left(std::move(l)), right(std::move(r))
+            BinaryOpExpression(const SourcePosition &pos, BinaryOperator op, std::unique_ptr<Expression> l, std::unique_ptr<Expression> r)
+                : Expression{ pos }, op{ op }, left{ std::move(l) }, right{ std::move(r) }
             {
             }
 
@@ -71,8 +75,8 @@ namespace px
         public:
             std::unique_ptr<Expression> expression;
 
-            CastExpression(Type *type, std::unique_ptr<Expression> exp)
-                : Expression(type), expression(std::move(exp))
+            CastExpression(const SourcePosition &pos, Type *type, std::unique_ptr<Expression> exp)
+                : Expression{ pos, type }, expression{ std::move(exp) }
             {
             }
 
@@ -92,8 +96,8 @@ namespace px
             std::unique_ptr<Expression> expression;
             UnaryOperator op;
 
-            UnaryOpExpression(UnaryOperator op, std::unique_ptr<Expression> e)
-                : Expression(nullptr), expression(std::move(e)), op(op)
+            UnaryOpExpression(const SourcePosition &pos, UnaryOperator op, std::unique_ptr<Expression> e)
+                : Expression{ pos }, expression(std::move(e)), op(op)
             {
             }
 
@@ -107,8 +111,8 @@ namespace px
             std::unique_ptr<Expression> trueExpr;
             std::unique_ptr<Expression> falseExpr;
 
-            TernaryOpExpression(std::unique_ptr<Expression> c, std::unique_ptr<Expression> t, std::unique_ptr<Expression> f)
-                : Expression(nullptr), condition(std::move(c)), trueExpr(std::move(t)), falseExpr(std::move(f))
+            TernaryOpExpression(const SourcePosition &pos, std::unique_ptr<Expression> c, std::unique_ptr<Expression> t, std::unique_ptr<Expression> f)
+                : Expression{ pos }, condition{ std::move(c) }, trueExpr{ std::move(t) }, falseExpr{ std::move(f) }
             {
             }
 
@@ -122,7 +126,7 @@ namespace px
         public:
             const Utf8String variable;
 
-            VariableExpression(const Utf8String &var) : Expression(nullptr), variable(var) {}
+            VariableExpression(const SourcePosition &pos, const Utf8String &var) : Expression(pos), variable(var) {}
 
             ~VariableExpression() {}
 
