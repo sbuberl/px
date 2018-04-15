@@ -73,6 +73,17 @@ namespace px {
             return count;
         }
 
+        Utf8String operator+(const Utf8String &other)
+        {
+            Utf8String copy{ *this };
+            size_t length = bytes.size();
+            copy.count += other.count;
+            copy.bytes.insert(std::end(copy.bytes), std::begin(other.bytes), std::end(other.bytes));
+            for (const uint32_t &start : other.pointsStart)
+                copy.pointsStart.push_back(length + start);
+            return copy;
+        }
+
         Utf8String& operator+=(int32_t codePoint)
         {
             uint8_t buffer[4] = { 0 };
@@ -87,7 +98,7 @@ namespace px {
             return *this;
         }
 
-        int32_t operator[](int32_t index) const
+        int32_t operator[](uint32_t index) const
         {
             int32_t codePoint = 0;
             uint32_t offset = pointsStart[index];
