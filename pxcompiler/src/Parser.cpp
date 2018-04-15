@@ -12,7 +12,7 @@ using namespace px::ast;
 
 namespace px {
 
-    Parser::Parser(SymbolTable *globals) : symbols(globals)
+    Parser::Parser(SymbolTable *globals, ErrorLog *errorLog) : symbols{ globals }, errors{ errorLog }
     {
     }
 
@@ -32,14 +32,15 @@ namespace px {
         return false;
     }
 
-    bool Parser::accept(const Utf8String &token)
+    void Parser::expect(TokenType type)
     {
-        if (scanner->accept(token))
+        if (!accept(type))
         {
-            currentToken.reset(new Token(scanner->nextToken()));
-            return true;
+            Utf8String errorMesage = Utf8String{ "Expected a " } + Token::getTokenName(type) + Utf8String{ "but found a " } + Token::getTokenName(currentToken->type);
+            auto error = Error{ currentToken->position, errorMesage };
+            errors->addError(error);
+            throw error;
         }
-        return false;
     }
 
     void Parser::rewind()

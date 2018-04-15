@@ -27,6 +27,7 @@
     <ClInclude Include="include\AST\Visitor.h" />
     <ClInclude Include="include\CG\LLVMCompiler.h" />
     <ClInclude Include="include\ContextAnalyzer.h" />
+    <ClInclude Include="include\Error.h" />
     <ClInclude Include="include\Parser.h" />
     <ClInclude Include="include\Scanner.h" />
     <ClInclude Include="include\SourcePosition.h" />
@@ -52,6 +53,7 @@
     <ClCompile Include="src\runtime\PxRuntime.cpp" />
     <ClCompile Include="src\Scanner.cpp" />
     <ClCompile Include="src\Symbol.cpp" />
+    <ClCompile Include="src\Token.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B4CBE428-32A7-4616-A672-4D39E8B55838}</ProjectGuid>
@@ -125,6 +127,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)include;C:\Program Files\LLVM\include;D:\code\icu4c-58_2-Win64-MSVC2015\icu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,6 +145,7 @@
       <SDLCheck>false</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)include;C:\Program Files\LLVM\include;D:\code\icu4c-58_2-Win64-MSVC2015\icu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -161,6 +165,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)include;C:\Program Files\LLVM\include;D:\code\icu4c-58_2-Win64-MSVC2015\icu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -182,6 +187,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(ProjectDir)include;C:\Program Files\LLVM\include;D:\code\icu4c-58_2-Win64-MSVC2015\icu\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp14</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

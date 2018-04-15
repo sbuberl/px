@@ -1,5 +1,6 @@
 
 #include "Parser.h"
+#include "Error.h"
 #include "ContextAnalyzer.h"
 #include "CG/LLVMCompiler.h"
 #include <iostream>
@@ -23,20 +24,30 @@ int main(int argc, char **argv)
     px::SymbolTable globals;
     globals.addGlobals();
 
-    //std::cout << "Starting parsing of file " << argv[1] << std::endl;
+    px::ErrorLog errors;
 
     px::Utf8String fileName = argv[1];
-    px::Parser parser(&globals);
+    px::Parser parser(&globals, &errors);
     std::ifstream fis(argv[1]);
-    px::ast::AST *ast = parser.parse(fileName, fis);
-    fis.close();
+    px::ast::AST *ast = nullptr;
+    try
+    {
+        ast = parser.parse(fileName, fis);
+    }
+    catch (const px::Error &error)
+    {
+        errors.output();
+        return -2;
+    }
 
-    //std::cout << "Parsing Complete " << ast <<  std::endl;
-
-    px::ContextAnalyzer analyzer(&globals);
+    px::ContextAnalyzer analyzer(&globals, &errors);
     analyzer.analyze(ast);
 
-    //std::cout << "Analysis Complete" << std::endl;
+    if (errors.count() > 0)
+    {
+        errors.output();
+        return -2;
+    }
 
     px::LLVMCompiler compiler;
     compiler.compile(ast);

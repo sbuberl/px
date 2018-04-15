@@ -4,6 +4,7 @@
 
 #include "Symbol.h"
 #include "Utf8String.h"
+#include "SourcePosition.h"
 
 namespace px {
 
@@ -70,7 +71,6 @@ namespace px {
         OP_OR,
         OP_QUESTION,
         OP_RIGHT_SHIFT,
-        OP_SIZE,
         OP_STAR,
         OP_SUB
     };
@@ -81,6 +81,8 @@ namespace px {
         Utf8String str;
         Type *suffixType;
         SourcePosition position;
+
+        static std::unordered_map<TokenType, Utf8String> tokenNames;
         Token(const SourcePosition &pos) : position{ pos } { clear(); }
         Token(const SourcePosition &pos, TokenType t, const Utf8String &s) : position{ pos }, type { t }, str{ s }, suffixType{ nullptr } {}
         void clear()
@@ -88,6 +90,15 @@ namespace px {
             type = TokenType::BAD;
             str.clear();
             suffixType = nullptr;
+        }
+
+        static Utf8String &getTokenName(TokenType type)
+        {
+            auto it = tokenNames.find(type);
+            if (it != tokenNames.end())
+            {
+                return it->second;
+            }
         }
     };
 

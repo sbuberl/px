@@ -3,6 +3,7 @@
 #define CONTEXTANALYZER_H_
 
 #include <ast/Visitor.h>
+#include <Error.h>
 #include <Symbol.h>
 
 namespace px {
@@ -10,7 +11,7 @@ namespace px {
     class ContextAnalyzer : public ast::Visitor
     {
     public:
-        ContextAnalyzer(SymbolTable *globals);
+        ContextAnalyzer(SymbolTable *globals, ErrorLog *errors);
 
         void analyze(ast::AST *ast);
         void *visit(ast::AssignmentExpression &a) override;
@@ -33,6 +34,7 @@ namespace px {
     private:
         SymbolTable *_globals;
         SymbolTable *_currentScope;
+        ErrorLog *errors;
     };
 
 }

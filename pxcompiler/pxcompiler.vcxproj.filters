@@ -57,6 +57,9 @@
     <ClInclude Include="include\Token.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Error.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="test.px" />
@@ -93,6 +96,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\CG\LLVMCompiler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Token.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

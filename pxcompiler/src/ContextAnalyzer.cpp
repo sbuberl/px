@@ -6,8 +6,8 @@
 
 namespace px
 {
-    ContextAnalyzer::ContextAnalyzer(SymbolTable *globals)
-        : _globals(globals), _currentScope(globals)
+    ContextAnalyzer::ContextAnalyzer(SymbolTable *globals, ErrorLog *log)
+        : _globals(globals), _currentScope(globals), errors(log)
     {
 
     }
@@ -32,6 +32,9 @@ namespace px
         Type *leftType = b.left->type;
         Type *rightType = b.right->type;
 
+        SourcePosition leftPosition = b.left->position;
+        SourcePosition rightPosition = b.right->position;
+
         unsigned int combinedFlags = leftType->flags & leftType->flags;
 
         if (combinedFlags & Type::BUILTIN)
@@ -45,33 +48,21 @@ namespace px
                 if (leftType->size > rightType->size)
                 {
                     b.type = leftType;
-                    b.right = std::make_unique<ast::CastExpression>(leftType, std::move(b.right));
+                    b.right = std::make_unique<ast::CastExpression>(rightPosition, leftType, std::move(b.right));
                 }
                 else if (leftType->size < rightType->size)
                 {
                     b.type = rightType;
-                    b.left = std::make_unique<ast::CastExpression>(rightType, std::move(b.left));
+                    b.left = std::make_unique<ast::CastExpression>(leftPosition, rightType, std::move(b.left));
                 }
             }
-            else if (leftType->isUInt() && rightType->isInt())
+            else if ((leftType->isUInt() && rightType->isInt()) || (leftType->isInt() && rightType->isUInt()))
             {
-                b.type = leftType;
-                b.right = std::make_unique<ast::CastExpression>(leftType, std::move(b.right));
+                errors->addError(Error{ leftPosition, "Can not implicitly convert from an integer to an unisgned integer" });
             }
-            else if (leftType->isInt() && rightType->isUInt())
+            else if ((leftType->isFloat() && (rightType->isInt() || rightType->isUInt())) || ((leftType->isInt() || leftType->isUInt()) && rightType->isFloat()))
             {
-                b.type = rightType;
-                b.left = std::make_unique<ast::CastExpression>(rightType, std::move(b.left));
-            }
-            else if (leftType->isFloat() && (rightType->isInt() || rightType->isUInt()))
-            {
-                b.type = leftType;
-                b.right = std::make_unique<ast::CastExpression>(leftType, std::move(b.right));
-            }
-            else if ((leftType->isInt() || leftType->isUInt()) && rightType->isFloat())
-            {
-                b.type = rightType;
-                b.left = std::make_unique<ast::CastExpression>(rightType, std::move(b.left));
+                errors->addError(Error{ leftPosition, "Can not implicitly convert from an integer to a float" });;
             }
         }
 
@@ -117,6 +108,11 @@ namespace px
     void* ContextAnalyzer::visit(ast::DeclarationStatement &d)
     {
         Type *type = _currentScope->getType(d.typeName);
+        if (_currentScope->getVariable(d.name, true) != nullptr)
+        {
+            errors->addError(Error{ d.position, Utf8String{"Variable "} +d.name + " already delcared in the current scope" } );
+            return nullptr;
+        }
         _currentScope->addSymbol(new Variable{ d.name, type });
         if (d.initialValue)
         {
