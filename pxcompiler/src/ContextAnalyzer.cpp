@@ -20,6 +20,11 @@ namespace px
     void* ContextAnalyzer::visit(ast::AssignmentExpression &a)
     {
         Variable *variable = _currentScope->getVariable(a.variableName);
+        if (variable == nullptr)
+        {
+            errors->addError(Error{ a.position, Utf8String{ "Variable " } + a.variableName + " is not declared in the current scope" });
+            return nullptr;
+        }
         a.expression->accept(*this);
         return nullptr;
     }
@@ -110,7 +115,7 @@ namespace px
         Type *type = _currentScope->getType(d.typeName);
         if (_currentScope->getVariable(d.name, true) != nullptr)
         {
-            errors->addError(Error{ d.position, Utf8String{"Variable "} +d.name + " already delcared in the current scope" } );
+            errors->addError(Error{ d.position, Utf8String{"Variable "} + d.name + " already delcared in the current scope" } );
             return nullptr;
         }
         _currentScope->addSymbol(new Variable{ d.name, type });
@@ -181,6 +186,11 @@ namespace px
     void* ContextAnalyzer::visit(ast::VariableExpression &v)
     {
         Variable *variable = _currentScope->getVariable(v.variable);
+        if (variable == nullptr)
+        {
+            errors->addError(Error{ v.position, Utf8String{ "Variable " } + v.variable + " is not declared in the current scope" });
+            return nullptr;
+        }
         v.type = variable->type;
         return nullptr;
     }

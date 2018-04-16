@@ -37,9 +37,7 @@ namespace px {
         if (!accept(type))
         {
             Utf8String errorMesage = Utf8String{ "Expected a " } + Token::getTokenName(type) + Utf8String{ "but found a " } + Token::getTokenName(currentToken->type);
-            auto error = Error{ currentToken->position, errorMesage };
-            errors->addError(error);
-            throw error;
+            compilerError(currentToken->position, errorMesage);
         }
     }
 
@@ -47,6 +45,13 @@ namespace px {
     {
         scanner->rewind();
         currentToken.reset(new Token(scanner->nextToken()));
+    }
+
+    void Parser::compilerError(const SourcePosition &location, const Utf8String &message)
+    {
+        auto error = Error{ location, message };
+        errors->addError(error);
+        throw error;
     }
 
     AST *Parser::parse(const Utf8String &fileName, std::istream &in)
@@ -100,8 +105,6 @@ namespace px {
     {
         auto startPos = currentToken->position;
         std::unique_ptr<Expression> expr = parseExpression();
-        if (expr == nullptr)
-            return nullptr;
 
         expect(TokenType::OP_END_STATEMENT);
         return std::make_unique<ExpressionStatement>(startPos, std::move(expr));
@@ -115,8 +118,6 @@ namespace px {
         if (currentToken->type != TokenType::OP_END_STATEMENT)
         {
             retValue = parseExpression();
-            if (retValue == nullptr)
-                return nullptr;
         }
 
         expect(TokenType::OP_END_STATEMENT);
@@ -274,7 +275,7 @@ namespace px {
                 {
                     accept();
                     std::unique_ptr<Expression> trueExpr = parseExpression();
-                    accept(TokenType::OP_COLON);
+                    expect(TokenType::OP_COLON);
                     std::unique_ptr<Expression> falseExpr = parseExpression();
                     expr.reset(new TernaryOpExpression{ start, std::move(expr), std::move(trueExpr), std::move(falseExpr) });
                 }
@@ -318,7 +319,7 @@ namespace px {
             {
                 accept();
                 std::unique_ptr<Expression> expression = parseExpression();
-                accept(TokenType::RPAREN);
+                expect(TokenType::RPAREN);
                 return expression;
             }
             default:
@@ -326,15 +327,18 @@ namespace px {
         }
 
         // cast
-        if (currentToken->type == TokenType::KW_AS)
+        if (accept(TokenType::KW_AS))
         {
-            accept();
-
             if (currentToken->type == TokenType::IDENTIFIER)
             {
                 Type *type = symbols->getType(currentToken->str);
                 accept();
                 return std::make_unique<CastExpression>(start, type, std::move(result));
+            }
+            else
+            {
+                Utf8String errorMesage = Utf8String{ "Expected an identifer after as but found a " } + Token::getTokenName(currentToken->type);
+                compilerError(currentToken->position, errorMesage);
             }
         }
 
@@ -371,8 +375,9 @@ namespace px {
                 value.reset(new BoolLiteral{ start, currentToken->str });
                 break;
             default:
-                // TODO parse error
-                return value;
+                Utf8String errorMesage = Utf8String{ "Unknown value: " } + Token::getTokenName(currentToken->type);
+                compilerError(currentToken->position, errorMesage);
+                break;
         }
 
         accept();

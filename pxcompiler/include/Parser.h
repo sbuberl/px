@@ -29,6 +29,7 @@ namespace px {
         void expect(TokenType type);
         void rewind();
 
+        void compilerError(const SourcePosition & location, const Utf8String & message);
         int getPrecedence(TokenType type);
         ast::BinaryOperator getBinaryOp(TokenType type);
 
