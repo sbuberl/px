@@ -88,7 +88,7 @@ namespace px {
         else if (currentToken->type == TokenType::IDENTIFIER)
         {
             Token& next = scanner->nextToken();
-            if (next.type == TokenType::IDENTIFIER)
+            if (next.type == TokenType::OP_COLON)
             {
                 rewind();
                 return parseVariableDeclaration();
@@ -128,9 +128,10 @@ namespace px {
     {
         SourcePosition start = currentToken->position;
         std::unique_ptr<Expression> initializer = nullptr;
-        Utf8String typeName = currentToken->str;
-        accept();
         Utf8String variableName = currentToken->str;
+        expect(TokenType::IDENTIFIER);
+        expect(TokenType::OP_COLON);
+        Utf8String typeName = currentToken->str;
         expect(TokenType::IDENTIFIER);
         if (accept(TokenType::OP_ASSIGN))
         {
