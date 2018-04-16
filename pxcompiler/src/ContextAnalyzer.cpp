@@ -17,6 +17,72 @@ namespace px
         ast->accept(*this);
     }
 
+    void ContextAnalyzer::checkAssignmentTypes(Variable *variable, std::unique_ptr<ast::Expression> &expression, const SourcePosition &start)
+    {
+        Type *varType = variable->type;
+        Type *exprType = expression->type;
+        if (varType == exprType)
+            return;
+
+        if (varType->isInt())
+        {
+            if (exprType->isInt())
+            {
+                if (varType->size > exprType->size)
+                {
+                    expression->type = varType;
+                    expression = std::make_unique<ast::CastExpression>(start, varType, std::move(expression));
+                }
+                else if (varType->size < exprType->size)
+                {
+                    errors->addError(Error{ start, Utf8String {"Can not implicitly convert from '" } + exprType->name + "' to '" + varType->name + "'" });
+                }
+            }
+            else
+            {
+                errors->addError(Error{ start, Utf8String{ "Can not implicitly convert from '" } +exprType->name + "' to '" + varType->name + "'" });
+            }
+        }
+        else if (varType->isUInt())
+        {
+            if (exprType->isUInt())
+            {
+                if (varType->size > exprType->size)
+                {
+                    expression->type = varType;
+                    expression = std::make_unique<ast::CastExpression>(start, varType, std::move(expression));
+                }
+                else if (varType->size < exprType->size)
+                {
+                    errors->addError(Error{ start, Utf8String{ "Can not implicitly convert from '" } +exprType->name + "' to '" + varType->name + "'" });
+                }
+            }
+            else
+            {
+                errors->addError(Error{ start, Utf8String{ "Can not implicitly convert from '" } +exprType->name + "' to '" + varType->name + "'" });
+            }
+        }
+        else if (varType->isFloat())
+        {
+            if (exprType->isFloat())
+            {
+                if (varType->size > exprType->size)
+                {
+                    expression->type = varType;
+                    expression = std::make_unique<ast::CastExpression>(start, varType, std::move(expression));
+                }
+                else if (varType->size < exprType->size)
+                {
+                    errors->addError(Error{ start, Utf8String{ "Can not implicitly convert from '" } +exprType->name + "' to '" + varType->name + "'" });
+                }
+            }
+            else
+            {
+                errors->addError(Error{ start, Utf8String{ "Can not implicitly convert from '" } +exprType->name + "' to '" + varType->name + "'" });
+            }
+        }
+
+    }
     void* ContextAnalyzer::visit(ast::AssignmentExpression &a)
     {
         Variable *variable = _currentScope->getVariable(a.variableName);
@@ -26,6 +92,7 @@ namespace px
             return nullptr;
         }
         a.expression->accept(*this);
+        checkAssignmentTypes(variable, a.expression, a.position);
         return nullptr;
     }
 
@@ -118,10 +185,12 @@ namespace px
             errors->addError(Error{ d.position, Utf8String{"Variable "} + d.name + " already delcared in the current scope" } );
             return nullptr;
         }
-        _currentScope->addSymbol(new Variable{ d.name, type });
+        auto variable = new Variable{ d.name, type };
+        _currentScope->addSymbol(variable);
         if (d.initialValue)
         {
             d.initialValue->accept(*this);
+            checkAssignmentTypes(variable, d.initialValue, d.position);
         }
         return nullptr;
     }

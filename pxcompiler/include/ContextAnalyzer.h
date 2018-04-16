@@ -32,6 +32,8 @@ namespace px {
         void *visit(ast::VariableExpression &v) override;
 
     private:
+        void checkAssignmentTypes(Variable * variable, std::unique_ptr<ast::Expression>& expression, const SourcePosition & start);
+
         SymbolTable *_globals;
         SymbolTable *_currentScope;
         ErrorLog *errors;
