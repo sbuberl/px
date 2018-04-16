@@ -354,19 +354,7 @@ namespace px {
                 value.reset(new VariableExpression{ start, currentToken->str });
                 break;
             case TokenType::INTEGER:
-                i64Literal = std::stoll(tokenString);
-                value.reset(new IntegerLiteral{ start, suffix, currentToken->str, i64Literal });
-                break;
-            case TokenType::HEX_INT:
-                i64Literal = std::stoll(tokenString, nullptr, 16);
-                value.reset(new IntegerLiteral{ start, suffix, currentToken->str, i64Literal });
-                break;
-            case TokenType::BINARY_INT:
-                i64Literal = std::stoll(tokenString, nullptr, 2);
-                value.reset(new IntegerLiteral{ start, suffix, currentToken->str, i64Literal });
-                break;
-            case TokenType::OCTAL_INT:
-                i64Literal = std::stoll(tokenString, nullptr, 8);
+                i64Literal = std::stoll(tokenString, nullptr, currentToken->integerBase);
                 value.reset(new IntegerLiteral{ start, suffix, currentToken->str, i64Literal });
                 break;
             case TokenType::FLOAT:

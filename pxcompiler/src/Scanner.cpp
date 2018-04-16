@@ -127,7 +127,8 @@ namespace px {
                             token += current;
                             current = nextCharacter();
                         }
-                        return TokenType::HEX_INT;
+                        peekToken.integerBase = 16;
+                        return TokenType::INTEGER;
                     case 'b':
                         current = nextCharacter();
                         currentDigit = u_digit(current, 10);
@@ -137,7 +138,8 @@ namespace px {
                             current = nextCharacter();
                             currentDigit = u_digit(current, 10);
                         }
-                        return TokenType::BINARY_INT;
+                        peekToken.integerBase = 2;
+                        return TokenType::INTEGER;
                     case 'o':
                         current = nextCharacter();
                         currentDigit = u_digit(current, 10);
@@ -147,7 +149,8 @@ namespace px {
                             current = nextCharacter();
                             currentDigit = u_digit(current, 10);
                         }
-                        return TokenType::OCTAL_INT;
+                        peekToken.integerBase = 8;
+                        return TokenType::INTEGER;
                     default:
                         token += current;
                         current = next;

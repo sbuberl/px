@@ -10,7 +10,7 @@ namespace px {
 
     enum class TokenType
     {
-        BAD, END_FILE, IDENTIFIER, INTEGER, HEX_INT, BINARY_INT, OCTAL_INT, FLOAT, CHAR, STRING,
+        BAD, END_FILE, IDENTIFIER, INTEGER, FLOAT, CHAR, STRING,
         KW_ABSTRACT,
         KW_AS,
         KW_BREAK,
@@ -80,6 +80,7 @@ namespace px {
         TokenType type;
         Utf8String str;
         Type *suffixType;
+        int integerBase;
         SourcePosition position;
 
         static std::unordered_map<TokenType, Utf8String> tokenNames;
@@ -90,6 +91,7 @@ namespace px {
             type = TokenType::BAD;
             str.clear();
             suffixType = nullptr;
+            integerBase = 10;
         }
 
         static Utf8String &getTokenName(TokenType type)
