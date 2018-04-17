@@ -7,5 +7,7 @@ namespace px
     namespace ast
     {
         void *FunctionDeclaration::accept(Visitor &visitor) { return visitor.visit(*this); }
+
+        void *VariableDeclaration::accept(Visitor &visitor) { return visitor.visit(*this); }
     }
 }

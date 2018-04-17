@@ -33,21 +33,6 @@ namespace px
             void *accept(Visitor &visitor) override;
         };
 
-        class DeclarationStatement : public Statement
-        {
-        public:
-            const Utf8String typeName;
-            const Utf8String name;
-            std::unique_ptr<Expression> initialValue;
-
-            DeclarationStatement(const SourcePosition &pos, const Utf8String &t, const Utf8String &n, std::unique_ptr<Expression> value)
-                : Statement{ pos }, typeName(t), name(n), initialValue(std::move(value))
-            {
-            }
-
-            void *accept(Visitor &visitor) override;
-        };
-
         class ExpressionStatement : public Statement
         {
         public:

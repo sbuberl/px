@@ -212,18 +212,6 @@ namespace px
         return llvm::ConstantInt::get(builder.getInt32Ty(), c.literal[0]);
     }
 
-    void* LLVMCompiler::visit(ast::DeclarationStatement &d)
-    {
-        if (d.initialValue != nullptr)
-        {
-            LLVMFunctionData *funcData = (LLVMFunctionData*)currentFunction->data;
-            llvm::Value *value = (llvm::Value*) d.initialValue->accept(*this);
-            llvm::AllocaInst *memory = funcData->variables[d.name];
-            return builder.CreateStore(value, memory);
-        }
-        return nullptr;
-    }
-
     void* LLVMCompiler::visit(ast::ExpressionStatement &s)
     {
         llvm::Value *value = (llvm::Value*) s.expression->accept(*this);
@@ -338,6 +326,18 @@ namespace px
         }
         else
             return nullptr;
+    }
+
+    void* LLVMCompiler::visit(ast::VariableDeclaration &d)
+    {
+        if (d.initialValue != nullptr)
+        {
+            LLVMFunctionData *funcData = (LLVMFunctionData*)currentFunction->data;
+            llvm::Value *value = (llvm::Value*) d.initialValue->accept(*this);
+            llvm::AllocaInst *memory = funcData->variables[d.name];
+            return builder.CreateStore(value, memory);
+        }
+        return nullptr;
     }
 
     void *LLVMCompiler::visit(ast::VariableExpression &v)

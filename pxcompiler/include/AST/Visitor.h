@@ -22,7 +22,6 @@ namespace px
             virtual void *visit(BlockStatement &s) = 0;
             virtual void *visit(CastExpression &f) = 0;
             virtual void *visit(CharLiteral &c) = 0;
-            virtual void *visit(DeclarationStatement &s) = 0;
             virtual void *visit(ExpressionStatement &s) = 0;
             virtual void *visit(FloatLiteral &i) = 0;
             virtual void *visit(FunctionDeclaration &f) = 0;
@@ -31,6 +30,7 @@ namespace px
             virtual void *visit(StringLiteral &s) = 0;
             virtual void *visit(TernaryOpExpression &t) = 0;
             virtual void *visit(UnaryOpExpression &u) = 0;
+            virtual void *visit(VariableDeclaration &s) = 0;
             virtual void *visit(VariableExpression &v) = 0;
         };
     }

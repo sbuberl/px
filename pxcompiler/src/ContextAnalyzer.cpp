@@ -177,24 +177,6 @@ namespace px
         return nullptr;
     }
 
-    void* ContextAnalyzer::visit(ast::DeclarationStatement &d)
-    {
-        Type *type = _currentScope->getType(d.typeName);
-        if (_currentScope->getVariable(d.name, true) != nullptr)
-        {
-            errors->addError(Error{ d.position, Utf8String{"Variable "} + d.name + " already delcared in the current scope" } );
-            return nullptr;
-        }
-        auto variable = new Variable{ d.name, type };
-        _currentScope->addSymbol(variable);
-        if (d.initialValue)
-        {
-            d.initialValue->accept(*this);
-            checkAssignmentTypes(variable, d.initialValue, d.position);
-        }
-        return nullptr;
-    }
-
     void* ContextAnalyzer::visit(ast::ExpressionStatement &s)
     {
         s.expression->accept(*this);
@@ -252,6 +234,24 @@ namespace px
         return nullptr;
     }
 
+    void* ContextAnalyzer::visit(ast::VariableDeclaration &d)
+    {
+        Type *type = _currentScope->getType(d.typeName);
+        if (_currentScope->getVariable(d.name, true) != nullptr)
+        {
+            errors->addError(Error{ d.position, Utf8String{ "Variable " } +d.name + " already delcared in the current scope" });
+            return nullptr;
+        }
+        auto variable = new Variable{ d.name, type };
+        _currentScope->addSymbol(variable);
+        if (d.initialValue)
+        {
+            d.initialValue->accept(*this);
+            checkAssignmentTypes(variable, d.initialValue, d.position);
+        }
+        return nullptr;
+    }
+
     void* ContextAnalyzer::visit(ast::VariableExpression &v)
     {
         Variable *variable = _currentScope->getVariable(v.variable);
@@ -263,4 +263,6 @@ namespace px
         v.type = variable->type;
         return nullptr;
     }
+
+
 }

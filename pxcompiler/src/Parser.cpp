@@ -138,7 +138,7 @@ namespace px {
             initializer = parseExpression();
         }
         expect(TokenType::OP_END_STATEMENT);
-        return std::make_unique<DeclarationStatement>(start, typeName, variableName, std::move(initializer));
+        return std::make_unique<VariableDeclaration>(start, typeName, variableName, std::move(initializer));
     }
 
     std::unique_ptr<Expression> Parser::parseExpression()
