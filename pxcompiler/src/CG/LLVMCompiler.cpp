@@ -98,11 +98,22 @@ namespace px
         {
             switch (b.op)
             {
-                case ast::BinaryOperator::ADD:	llvmOp = llvm::Instruction::Add; break;
-                case ast::BinaryOperator::SUB:	llvmOp = llvm::Instruction::Sub; break;
-                case ast::BinaryOperator::MUL:	llvmOp = llvm::Instruction::Mul; break;
-                case ast::BinaryOperator::DIV:	llvmOp = llvm::Instruction::SDiv; break;
-                case ast::BinaryOperator::MOD:	llvmOp = llvm::Instruction::SRem; break;
+                case ast::BinaryOperator::ADD:      return builder.CreateAdd(left, right);
+                case ast::BinaryOperator::SUB:      return builder.CreateSub(left, right);
+                case ast::BinaryOperator::MUL:      return builder.CreateMul(left, right);
+                case ast::BinaryOperator::DIV:      return builder.CreateSDiv(left, right);
+                case ast::BinaryOperator::MOD:      return builder.CreateSRem(left, right);
+                case ast::BinaryOperator::LSH:      return builder.CreateShl(left, right);
+                case ast::BinaryOperator::RSH:      return builder.CreateAShr(left, right);
+                case ast::BinaryOperator::BIT_AND:  return builder.CreateAnd(left, right);
+                case ast::BinaryOperator::BIT_OR:   return builder.CreateOr(left, right);
+                case ast::BinaryOperator::BIT_XOR:  return builder.CreateXor(left, right);
+                case ast::BinaryOperator::EQ:       return builder.CreateICmpEQ(left, right);
+                case ast::BinaryOperator::NE:       return builder.CreateICmpNE(left, right);
+                case ast::BinaryOperator::LT:       return builder.CreateICmpSLT(left, right);
+                case ast::BinaryOperator::LTE:      return builder.CreateICmpSLE(left, right);
+                case ast::BinaryOperator::GT:       return builder.CreateICmpSGT(left, right);
+                case ast::BinaryOperator::GTE:      return builder.CreateICmpSGE(left, right);
                 default:	return nullptr;
             }
         }
@@ -110,11 +121,22 @@ namespace px
         {
             switch (b.op)
             {
-                case ast::BinaryOperator::ADD:	llvmOp = llvm::Instruction::Add; break;
-                case ast::BinaryOperator::SUB:	llvmOp = llvm::Instruction::Sub; break;
-                case ast::BinaryOperator::MUL:	llvmOp = llvm::Instruction::Mul; break;
-                case ast::BinaryOperator::DIV:	llvmOp = llvm::Instruction::UDiv; break;
-                case ast::BinaryOperator::MOD:	llvmOp = llvm::Instruction::URem; break;
+                case ast::BinaryOperator::ADD:      return builder.CreateAdd(left, right);
+                case ast::BinaryOperator::SUB:      return builder.CreateSub(left, right);
+                case ast::BinaryOperator::MUL:      return builder.CreateMul(left, right);
+                case ast::BinaryOperator::DIV:      return builder.CreateUDiv(left, right);
+                case ast::BinaryOperator::MOD:      return builder.CreateURem(left, right);
+                case ast::BinaryOperator::LSH:      return builder.CreateShl(left, right);
+                case ast::BinaryOperator::RSH:      return builder.CreateLShr(left, right);
+                case ast::BinaryOperator::BIT_AND:  return builder.CreateAnd(left, right);
+                case ast::BinaryOperator::BIT_OR:   return builder.CreateOr(left, right);
+                case ast::BinaryOperator::BIT_XOR:  return builder.CreateXor(left, right);
+                case ast::BinaryOperator::EQ:       return builder.CreateICmpEQ(left, right);
+                case ast::BinaryOperator::NE:       return builder.CreateICmpNE(left, right);
+                case ast::BinaryOperator::LT:       return builder.CreateICmpULT(left, right);
+                case ast::BinaryOperator::LTE:      return builder.CreateICmpULE(left, right);
+                case ast::BinaryOperator::GT:       return builder.CreateICmpUGT(left, right);
+                case ast::BinaryOperator::GTE:      return builder.CreateICmpUGE(left, right);
                 default:	return nullptr;
             }
         }
@@ -122,18 +144,23 @@ namespace px
         {
             switch (b.op)
             {
-                case ast::BinaryOperator::ADD:	llvmOp = llvm::Instruction::FAdd; break;
-                case ast::BinaryOperator::SUB:	llvmOp = llvm::Instruction::FSub; break;
-                case ast::BinaryOperator::MUL:	llvmOp = llvm::Instruction::FMul; break;
-                case ast::BinaryOperator::DIV:	llvmOp = llvm::Instruction::FDiv; break;
-                case ast::BinaryOperator::MOD:	llvmOp = llvm::Instruction::FRem; break;
+                case ast::BinaryOperator::ADD:      return builder.CreateFAdd(left, right);
+                case ast::BinaryOperator::SUB:      return builder.CreateFSub(left, right);
+                case ast::BinaryOperator::MUL:      return builder.CreateFMul(left, right);
+                case ast::BinaryOperator::DIV:      return builder.CreateFDiv(left, right);
+                case ast::BinaryOperator::MOD:      return builder.CreateFRem(left, right);
+                case ast::BinaryOperator::EQ:       return builder.CreateFCmpUEQ(left, right);
+                case ast::BinaryOperator::NE:       return builder.CreateFCmpUNE(left, right);
+                case ast::BinaryOperator::LT:       return builder.CreateFCmpULT(left, right);
+                case ast::BinaryOperator::LTE:      return builder.CreateFCmpULE(left, right);
+                case ast::BinaryOperator::GT:       return builder.CreateFCmpUGT(left, right);
+                case ast::BinaryOperator::GTE:      return builder.CreateFCmpUGE(left, right);
                 default:	return nullptr;
             }
         }
-        else
-            return nullptr;
 
-        return builder.CreateBinOp(llvmOp, left, right);
+        return nullptr;
+
     }
 
     void* LLVMCompiler::visit(ast::BlockStatement &s)
