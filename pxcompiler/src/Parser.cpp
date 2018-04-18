@@ -175,23 +175,18 @@ namespace px {
             case TokenType::OP_GREATER:
             case TokenType::OP_GREATER_OR_EQUAL:
                 return 4;
-            case TokenType::OP_BIT_OR:
-                return 5;
-            case TokenType::OP_BIT_XOR:
-                return 6;
-            case TokenType::OP_BIT_AND:
-                return 7;
-            case TokenType::OP_LEFT_SHIFT:
-            case TokenType::OP_RIGHT_SHIFT:
-                return 8;
-
             case TokenType::OP_ADD:
             case TokenType::OP_SUB:
-                return 9;
+            case TokenType::OP_BIT_OR:
+            case TokenType::OP_BIT_XOR:
+                return 5;
             case TokenType::OP_STAR:
             case TokenType::OP_DIV:
             case TokenType::OP_MOD:
-                return 10;
+            case TokenType::OP_BIT_AND:
+            case TokenType::OP_LEFT_SHIFT:
+            case TokenType::OP_RIGHT_SHIFT:
+                return 6;
         }
         return 0;
     }
