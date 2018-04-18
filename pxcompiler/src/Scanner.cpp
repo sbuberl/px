@@ -368,22 +368,38 @@ namespace px {
         {
             switch (current)
             {
-                case '(':	RETURN_OP(LPAREN, 1);
-                case ')':	RETURN_OP(RPAREN, 1);
-                case '{':	RETURN_OP(LBRACKET, 1);
-                case '}':	RETURN_OP(RBRACKET, 1);
-                case ';':	RETURN_OP(OP_END_STATEMENT, 1);
-                case ',':	RETURN_OP(OP_COMMA, 1);
-                case '.':	RETURN_OP(OP_DOT, 1);
-                case '+':	RETURN_OP(OP_ADD, 1);
-                case '-':	RETURN_OP(OP_SUB, 1);
-                case '*':	RETURN_OP(OP_STAR, 1);
-                case '/':	RETURN_OP(OP_DIV, 1);
-                case '%':	RETURN_OP(OP_MOD, 1);
-                case '~':	RETURN_OP(OP_COMPL, 1);
-                case '^':	RETURN_OP(OP_BIT_XOR, 1);
-                case '?':	RETURN_OP(OP_QUESTION, 1);
-                case ':':	RETURN_OP(OP_COLON, 1);
+                case '(':	    RETURN_OP(LPAREN, 1);
+                case ')':	    RETURN_OP(RPAREN, 1);
+                case '{':	    RETURN_OP(LBRACKET, 1);
+                case '}':	    RETURN_OP(RBRACKET, 1);
+                case ';':	    RETURN_OP(OP_END_STATEMENT, 1);
+                case ',':	    RETURN_OP(OP_COMMA, 1);
+                case '.':	    RETURN_OP(OP_DOT, 1);
+                case '+':	    RETURN_OP(OP_ADD, 1);
+                case '-':	    RETURN_OP(OP_SUB, 1);
+                case '*':	    RETURN_OP(OP_STAR, 1);
+                case '/':	    RETURN_OP(OP_DIV, 1);
+                case '%':	    RETURN_OP(OP_MOD, 1);
+                case '~':	    RETURN_OP(OP_COMPL, 1);
+                case '^':	    RETURN_OP(OP_BIT_XOR, 1);
+                case '?':	    RETURN_OP(OP_QUESTION, 1);
+                case ':':	    RETURN_OP(OP_COLON, 1);
+                 // unicode operators
+                case 0x00AC:    RETURN_OP(OP_NOT, 1);               // ¬
+                case 0x00D7:	RETURN_OP(OP_STAR, 1);              // ×
+                case 0x00F7:    RETURN_OP(OP_DIV, 1);               // ÷
+                case 0x2044:    RETURN_OP(OP_DIV, 1);               // ⁄
+                case 0x2212:	RETURN_OP(OP_SUB, 1);               // −
+                case 0x2227:    RETURN_OP(OP_AND, 1);               // ∧
+                case 0x2228:    RETURN_OP(OP_OR, 1);                // ∨
+                case 0x2229:    RETURN_OP(OP_BIT_AND, 1);           // ∩
+                case 0x222A:    RETURN_OP(OP_BIT_OR, 1);            // ∪
+                case 0x2261:    RETURN_OP(OP_NOT_EQUAL, 1);         // ≠
+                case 0x2264:    RETURN_OP(OP_LESS_OR_EQUAL, 1);     // ≤
+                case 0x2265:    RETURN_OP(OP_GREATER_OR_EQUAL, 1);  // ≥
+                case 0x226A:    RETURN_OP(OP_LEFT_SHIFT, 1);        // ≪
+                case 0x226B:    RETURN_OP(OP_RIGHT_SHIFT, 1);       // ≫
+
                 case '=':
                 {
                     char next = source[peekPos.fileOffset + 1];
