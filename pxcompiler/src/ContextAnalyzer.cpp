@@ -115,7 +115,8 @@ namespace px
             {
                 b.type = leftType;
             }
-            else if ((leftType->isInt() && rightType->isInt()) || (leftType->isUInt() && rightType->isUInt()))
+            else if ((leftType->isInt() && rightType->isInt()) || (leftType->isUInt() && rightType->isUInt())
+                || (leftType->isFloat() && rightType->isFloat()))
             {
                 if (leftType->size > rightType->size)
                 {
