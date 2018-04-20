@@ -24,6 +24,11 @@ namespace px
         if (varType == exprType)
             return;
 
+        if (!exprType->isImpiciltyCastableTo(varType) && exprType != Type::UNKNOWN && varType!= Type::UNKNOWN)
+        {
+            errors->addError(Error{ start, Utf8String{ "Can not implicitly convert from '" } + exprType->name + "' to '" + varType->name + "'" });
+        }
+
         if (varType->isInt())
         {
             if (exprType->isInt())
@@ -31,16 +36,9 @@ namespace px
                 if (varType->size > exprType->size)
                 {
                     expression->type = varType;
-                    expression = std::make_unique<ast::CastExpression>(start, varType, std::move(expression));
+                    expression = std::make_unique<ast::CastExpression>(start, varType->name, std::move(expression));
+                    expression->accept(*this);
                 }
-                else if (varType->size < exprType->size)
-                {
-                    errors->addError(Error{ start, Utf8String {"Can not implicitly convert from '" } + exprType->name + "' to '" + varType->name + "'" });
-                }
-            }
-            else
-            {
-                errors->addError(Error{ start, Utf8String{ "Can not implicitly convert from '" } +exprType->name + "' to '" + varType->name + "'" });
             }
         }
         else if (varType->isUInt())
@@ -50,16 +48,9 @@ namespace px
                 if (varType->size > exprType->size)
                 {
                     expression->type = varType;
-                    expression = std::make_unique<ast::CastExpression>(start, varType, std::move(expression));
+                    expression = std::make_unique<ast::CastExpression>(start, varType->name, std::move(expression));
+                    expression->accept(*this);
                 }
-                else if (varType->size < exprType->size)
-                {
-                    errors->addError(Error{ start, Utf8String{ "Can not implicitly convert from '" } +exprType->name + "' to '" + varType->name + "'" });
-                }
-            }
-            else
-            {
-                errors->addError(Error{ start, Utf8String{ "Can not implicitly convert from '" } +exprType->name + "' to '" + varType->name + "'" });
             }
         }
         else if (varType->isFloat())
@@ -69,16 +60,9 @@ namespace px
                 if (varType->size > exprType->size)
                 {
                     expression->type = varType;
-                    expression = std::make_unique<ast::CastExpression>(start, varType, std::move(expression));
+                    expression = std::make_unique<ast::CastExpression>(start, varType->name, std::move(expression));
+                    expression->accept(*this);
                 }
-                else if (varType->size < exprType->size)
-                {
-                    errors->addError(Error{ start, Utf8String{ "Can not implicitly convert from '" } +exprType->name + "' to '" + varType->name + "'" });
-                }
-            }
-            else
-            {
-                errors->addError(Error{ start, Utf8String{ "Can not implicitly convert from '" } +exprType->name + "' to '" + varType->name + "'" });
             }
         }
 
@@ -109,6 +93,11 @@ namespace px
 
         unsigned int combinedFlags = leftType->flags & leftType->flags;
 
+        if (!leftType->isImpiciltyCastableTo(rightType) && !rightType->isImpiciltyCastableTo(leftType))
+        {
+            errors->addError(Error{ leftPosition, Utf8String{ "Can not perform binary operators between '" }  + leftType->name + "' and '" + rightType->name + "'" });
+        }
+
         if (combinedFlags & Type::BUILTIN)
         {
             if (leftType == rightType)
@@ -121,21 +110,15 @@ namespace px
                 if (leftType->size > rightType->size)
                 {
                     b.type = leftType;
-                    b.right = std::make_unique<ast::CastExpression>(rightPosition, leftType, std::move(b.right));
+                    b.right = std::make_unique<ast::CastExpression>(rightPosition, leftType->name, std::move(b.right));
+                    b.right->accept(*this);
                 }
                 else if (leftType->size < rightType->size)
                 {
                     b.type = rightType;
-                    b.left = std::make_unique<ast::CastExpression>(leftPosition, rightType, std::move(b.left));
+                    b.left = std::make_unique<ast::CastExpression>(leftPosition, rightType->name, std::move(b.left));
+                    b.left->accept(*this);
                 }
-            }
-            else if ((leftType->isUInt() && rightType->isInt()) || (leftType->isInt() && rightType->isUInt()))
-            {
-                errors->addError(Error{ leftPosition, "Can not implicitly convert from an integer to an unisgned integer" });
-            }
-            else if ((leftType->isFloat() && (rightType->isInt() || rightType->isUInt())) || ((leftType->isInt() || leftType->isUInt()) && rightType->isFloat()))
-            {
-                errors->addError(Error{ leftPosition, "Can not implicitly convert from an integer to a float" });;
             }
         }
 
@@ -161,13 +144,12 @@ namespace px
         c.expression->accept(*this);
 
         Type *originalType = c.expression->type;
-        Type *castTo = c.type;
+        Type *castTo = _currentScope->getType(c.newTypeName);
+        c.type = castTo;
 
-        unsigned int combinedFlags = originalType->flags & castTo->flags;
-
-        if (combinedFlags & Type::BUILTIN)
+        if (!originalType->isCastableTo(castTo))
         {
-
+            errors->addError(Error{ c.position, Utf8String{ "Can not convert from '" }  + originalType->name + "' to '" + castTo->name + "'" });
         }
 
         return nullptr;
@@ -193,7 +175,7 @@ namespace px
     {
         SymbolTable *oldScope = _currentScope;
         Type *returnType = _currentScope->getType(f.returnTypeName);
-        Function *function = new Function(f.name, returnType, _currentScope);
+        Function *function = new Function{ f.name, returnType, _currentScope };
         f.function = function;
         _currentScope->addSymbol(function);
         _currentScope = &function->symbols;

@@ -39,7 +39,7 @@ namespace px
             std::unique_ptr<Expression> expression;
 
             ExpressionStatement(const SourcePosition &pos, std::unique_ptr<Expression> expr)
-                : Statement{ pos }, expression(std::move(expr))
+                : Statement{ pos }, expression{ std::move(expr) }
             {
             }
 

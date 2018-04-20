@@ -19,7 +19,7 @@ namespace px
             {
             }
 
-            Expression(const SourcePosition &pos) : Expression{ pos , nullptr }
+            Expression(const SourcePosition &pos) : Expression{ pos , Type::UNKNOWN }
             {
             }
         };
@@ -74,9 +74,10 @@ namespace px
         {
         public:
             std::unique_ptr<Expression> expression;
+            const Utf8String newTypeName;
 
-            CastExpression(const SourcePosition &pos, Type *type, std::unique_ptr<Expression> exp)
-                : Expression{ pos, type }, expression{ std::move(exp) }
+            CastExpression(const SourcePosition &pos, const Utf8String &type, std::unique_ptr<Expression> exp)
+                : Expression{ pos }, newTypeName{ type }, expression{ std::move(exp) }
             {
             }
 
@@ -97,7 +98,7 @@ namespace px
             UnaryOperator op;
 
             UnaryOpExpression(const SourcePosition &pos, UnaryOperator op, std::unique_ptr<Expression> e)
-                : Expression{ pos }, expression(std::move(e)), op(op)
+                : Expression{ pos }, expression{ std::move(e) }, op{ op }
             {
             }
 
@@ -126,7 +127,7 @@ namespace px
         public:
             const Utf8String variable;
 
-            VariableExpression(const SourcePosition &pos, const Utf8String &var) : Expression(pos), variable(var) {}
+            VariableExpression(const SourcePosition &pos, const Utf8String &var) : Expression{ pos }, variable{ var } {}
 
             ~VariableExpression() {}
 

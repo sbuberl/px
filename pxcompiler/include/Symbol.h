@@ -57,6 +57,7 @@ namespace px
     class Type : public Symbol
     {
     public:
+        static Type * const UNKNOWN;
         static Type * const OBJECT;
         static Type * const VOID;
         static Type * const BOOL;
@@ -98,6 +99,39 @@ namespace px
         bool inherits(Type *t) const
         {
             return t != nullptr && parent != nullptr && (t == parent || parent->inherits(t));
+        }
+
+        bool isCastableTo(Type *other) const
+        {
+            if (this == other)
+            {
+                return true;
+            }
+            else if ((isInt() || isUInt() || isFloat()) && (other->isInt() || other->isUInt() || other->isFloat()))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        bool isImpiciltyCastableTo(Type *other) const
+        {
+            if (this == other)
+            {
+                return true;
+            }
+            else if ((isInt() && other->isInt()) || (isUInt() && other->isUInt()) || (isFloat() && other->isFloat()))
+            {
+                if (other->size > size)
+                    return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         bool is_a(Type *t) const

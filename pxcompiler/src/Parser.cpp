@@ -327,9 +327,9 @@ namespace px {
         {
             if (currentToken->type == TokenType::IDENTIFIER)
             {
-                Type *type = symbols->getType(currentToken->str);
+                Utf8String newTypeName = currentToken->str;
                 accept();
-                return std::make_unique<CastExpression>(start, type, std::move(result));
+                return std::make_unique<CastExpression>(start, newTypeName, std::move(result));
             }
             else
             {
