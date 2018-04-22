@@ -39,7 +39,7 @@ namespace px {
         std::unique_ptr<ast::Statement> parseReturnStatement();
         std::unique_ptr<ast::Statement> parseVariableDeclaration();
         std::unique_ptr<ast::Expression> parseExpression();
-        std::unique_ptr<ast::Expression> parseBinary(int precedence);
+        std::unique_ptr<ast::Expression> parseBinary(int precedence = 1);
         std::unique_ptr<ast::Expression> parseUnary();
         std::unique_ptr<ast::Expression> parseValue();
     };

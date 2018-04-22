@@ -106,6 +106,20 @@ namespace px {
         return parseExpressionStatement();
     }
 
+    std::unique_ptr<ast::Statement> Parser::parseAssignment()
+    {
+        SourcePosition start = currentToken->position;
+        Utf8String variableName = currentToken->str;
+        expect(TokenType::IDENTIFIER);
+
+        expect(TokenType::OP_ASSIGN);
+
+        std::unique_ptr<Expression> expression = parseExpression();
+
+        expect(TokenType::OP_END_STATEMENT);
+        return std::make_unique<AssignmentStatement>(start, variableName, std::move(expression));
+    }
+
     std::unique_ptr<Statement> Parser::parseExpressionStatement()
     {
         auto startPos = currentToken->position;
@@ -146,40 +160,33 @@ namespace px {
         return std::make_unique<VariableDeclaration>(start, typeName, variableName, std::move(initializer));
     }
 
-    std::unique_ptr<Expression> Parser::parseExpression()
-    {
-        return parseBinary(1);
-    }
-
     int Parser::getPrecedence(TokenType type)
     {
         switch (type)
         {
-            case TokenType::OP_QUESTION:
-                return 1;
             case TokenType::OP_OR:
-                return 2;
+                return 1;
             case TokenType::OP_AND:
-                return 3;
+                return 2;
             case TokenType::OP_EQUALS:
             case TokenType::OP_NOT_EQUAL:
             case TokenType::OP_LESS:
             case TokenType::OP_LESS_OR_EQUAL:
             case TokenType::OP_GREATER:
             case TokenType::OP_GREATER_OR_EQUAL:
-                return 4;
+                return 3;
             case TokenType::OP_ADD:
             case TokenType::OP_SUB:
             case TokenType::OP_BIT_OR:
             case TokenType::OP_BIT_XOR:
-                return 5;
+                return 4;
             case TokenType::OP_STAR:
             case TokenType::OP_DIV:
             case TokenType::OP_MOD:
             case TokenType::OP_BIT_AND:
             case TokenType::OP_LEFT_SHIFT:
             case TokenType::OP_RIGHT_SHIFT:
-                return 6;
+                return 5;
         }
         return 0;
     }
@@ -228,18 +235,18 @@ namespace px {
         return BinaryOperator::BAD;
     }
 
-    std::unique_ptr<ast::Statement> Parser::parseAssignment()
+    std::unique_ptr<Expression> Parser::parseExpression()
     {
-        SourcePosition start = currentToken->position;
-        Utf8String variableName = currentToken->str;
-        expect(TokenType::IDENTIFIER);
-
-        expect(TokenType::OP_ASSIGN);
-
-        std::unique_ptr<Expression> expression = parseExpression();
-
-        expect(TokenType::OP_END_STATEMENT);
-        return std::make_unique<AssignmentStatement>(start, variableName, std::move(expression));
+        auto startPos = currentToken->position;
+        std::unique_ptr<Expression> expr = parseBinary();
+        if (accept(TokenType::OP_QUESTION))
+        {
+            std::unique_ptr<Expression> trueExpr = parseExpression();
+            expect(TokenType::OP_COLON);
+            std::unique_ptr<Expression> falseExpr = parseExpression();
+            expr.reset(new TernaryOpExpression{ startPos, std::move(expr), std::move(trueExpr), std::move(falseExpr) });
+        }
+        return expr;
     }
 
     std::unique_ptr<ast::Expression> Parser::parseBinary(int precedence)
@@ -259,20 +266,9 @@ namespace px {
 
                 accept(opType);
 
-                if (opType == TokenType::OP_QUESTION)
-                {
-                    std::unique_ptr<Expression> trueExpr = parseExpression();
-                    expect(TokenType::OP_COLON);
-                    std::unique_ptr<Expression> falseExpr = parseExpression();
-                    expr.reset(new TernaryOpExpression{ start, std::move(expr), std::move(trueExpr), std::move(falseExpr) });
-                }
-                else
-                {
-                    BinaryOperator op = getBinaryOp(opType);
-                    std::unique_ptr<ast::Expression> right = parseBinary(prec + 1);
-
-                    expr.reset(new BinaryOpExpression{ start, op, std::move(expr), std::move(right) });
-                }
+                BinaryOperator op = getBinaryOp(opType);
+                std::unique_ptr<ast::Expression> right = parseBinary(prec + 1);
+                expr.reset(new BinaryOpExpression{ start, op, std::move(expr), std::move(right) });
             }
         }
         return expr;
