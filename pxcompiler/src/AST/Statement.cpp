@@ -6,6 +6,8 @@ namespace px
 {
     namespace ast
     {
+        void *AssignmentStatement::accept(Visitor &visitor) { return visitor.visit(*this); }
+
         void *BlockStatement::accept(Visitor &visitor) { return visitor.visit(*this); }
 
         void *ExpressionStatement::accept(Visitor &visitor) { return visitor.visit(*this); }

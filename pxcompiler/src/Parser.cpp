@@ -93,6 +93,11 @@ namespace px {
                 rewind();
                 return parseVariableDeclaration();
             }
+            else if (next.type == TokenType::OP_ASSIGN)
+            {
+                rewind();
+                return parseAssignment();
+            }
             else
                 rewind();
         }
@@ -143,18 +148,6 @@ namespace px {
 
     std::unique_ptr<Expression> Parser::parseExpression()
     {
-        if (currentToken->type == TokenType::IDENTIFIER)
-        {
-            Token next = scanner->nextToken();
-            if (next.type == TokenType::OP_ASSIGN)
-            {
-                rewind();
-                return parseAssignment();
-            }
-
-            rewind();
-        }
-
         return parseBinary(1);
     }
 
@@ -235,19 +228,18 @@ namespace px {
         return BinaryOperator::BAD;
     }
 
-    std::unique_ptr<ast::Expression> Parser::parseAssignment()
+    std::unique_ptr<ast::Statement> Parser::parseAssignment()
     {
         SourcePosition start = currentToken->position;
-        expect(TokenType::IDENTIFIER);
-
         Utf8String variableName = currentToken->str;
+        expect(TokenType::IDENTIFIER);
 
         expect(TokenType::OP_ASSIGN);
 
         std::unique_ptr<Expression> expression = parseExpression();
 
         expect(TokenType::OP_END_STATEMENT);
-        return std::make_unique<AssignmentExpression>(start, variableName, std::move(expression));
+        return std::make_unique<AssignmentStatement>(start, variableName, std::move(expression));
     }
 
     std::unique_ptr<ast::Expression> Parser::parseBinary(int precedence)

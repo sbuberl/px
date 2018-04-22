@@ -33,7 +33,7 @@ namespace px
             std::unique_ptr<Expression> initialValue;
 
             VariableDeclaration(const SourcePosition &pos, const Utf8String &t, const Utf8String &n, std::unique_ptr<Expression> value)
-                : Statement{ pos }, typeName(t), name(n), initialValue(std::move(value))
+                : Statement{ pos }, typeName{ t }, name{ n }, initialValue{ std::move(value) }
             {
             }
 

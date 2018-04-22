@@ -78,7 +78,7 @@ namespace px
         std::cout << stringStream.str(); */
     }
 
-    void* LLVMCompiler::visit(ast::AssignmentExpression &a)
+    void* LLVMCompiler::visit(ast::AssignmentStatement &a)
     {
         llvm::Value *expression = (llvm::Value*) a.expression->accept(*this);
 

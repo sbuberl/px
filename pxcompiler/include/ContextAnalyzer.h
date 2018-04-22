@@ -14,7 +14,7 @@ namespace px {
         ContextAnalyzer(SymbolTable *globals, ErrorLog *errors);
 
         void analyze(ast::AST *ast);
-        void *visit(ast::AssignmentExpression &a) override;
+        void *visit(ast::AssignmentStatement &a) override;
         void *visit(ast::BinaryOpExpression &e) override;
         void *visit(ast::BoolLiteral &b) override;
         void *visit(ast::BlockStatement &s) override;

@@ -16,7 +16,7 @@ namespace px
         {
         public:
             virtual ~Visitor() = default;
-            virtual void *visit(AssignmentExpression &a) = 0;
+            virtual void *visit(AssignmentStatement &a) = 0;
             virtual void *visit(BoolLiteral &b) = 0;
             virtual void *visit(BinaryOpExpression &f) = 0;
             virtual void *visit(BlockStatement &s) = 0;

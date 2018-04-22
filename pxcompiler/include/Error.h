@@ -16,7 +16,7 @@ namespace px {
         const SourcePosition position;
         const Utf8String errorMsg;
 
-        Error(const SourcePosition &pos, const Utf8String &error) : position{ pos }, errorMsg(error)
+        Error(const SourcePosition &pos, const Utf8String &error) : position{ pos }, errorMsg{ error }
         {
         }
     };
@@ -49,7 +49,7 @@ namespace px {
                 u_strFromUTF8(utf16Message.get(), length, &length, message.c_str(), message.byteLength(), &error);
                 utf16Message[length] = '\r';
                 utf16Message[length + 1] = '\n';
-                icu:u_file_write(utf16Message.get(), length + 2, out);
+                u_file_write(utf16Message.get(), length + 2, out);
             }
         }
 

@@ -40,21 +40,6 @@ namespace px
             EXP
         };
 
-
-        class AssignmentExpression : public Expression
-        {
-        public:
-            const Utf8String variableName;
-            std::unique_ptr<Expression> expression;
-
-            AssignmentExpression(const SourcePosition &pos, const Utf8String &n, std::unique_ptr<Expression> e)
-                : Expression{ pos }, variableName{ n }, expression{ std::move(e) }
-            {
-            }
-
-            void *accept(Visitor &visitor) override;
-        };
-
         class BinaryOpExpression : public Expression
         {
         public:

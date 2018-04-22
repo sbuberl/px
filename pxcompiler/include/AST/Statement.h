@@ -18,6 +18,20 @@ namespace px
             using AST::AST;
         };
 
+        class AssignmentStatement : public Statement
+        {
+        public:
+            const Utf8String variableName;
+            std::unique_ptr<Expression> expression;
+
+            AssignmentStatement(const SourcePosition &pos, const Utf8String &n, std::unique_ptr<Expression> e)
+                : Statement{ pos }, variableName{ n }, expression{ std::move(e) }
+            {
+            }
+
+            void *accept(Visitor &visitor) override;
+        };
+
         class BlockStatement : public Statement
         {
         public:
@@ -55,7 +69,9 @@ namespace px
             ReturnStatement(const SourcePosition &pos) : ReturnStatement{ pos, nullptr } {}
 
             ReturnStatement(const SourcePosition &pos, std::unique_ptr<Expression> value)
-                : Statement{ pos }, returnValue(std::move(value)) {}
+                : Statement{ pos }, returnValue{ std::move(value) }
+            {
+            }
 
             void *accept(Visitor &visitor) override;
 

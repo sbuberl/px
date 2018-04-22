@@ -33,7 +33,7 @@ namespace px {
     public:
         LLVMCompiler();
         void compile(ast::AST *ast);
-        virtual void *visit(ast::AssignmentExpression &f);
+        virtual void *visit(ast::AssignmentStatement &f);
         virtual void *visit(ast::BinaryOpExpression &f);
         virtual void *visit(ast::BlockStatement &s);
         virtual void *visit(ast::BoolLiteral &i);

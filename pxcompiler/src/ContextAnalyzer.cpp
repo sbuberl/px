@@ -67,7 +67,7 @@ namespace px
         }
 
     }
-    void* ContextAnalyzer::visit(ast::AssignmentExpression &a)
+    void* ContextAnalyzer::visit(ast::AssignmentStatement &a)
     {
         Variable *variable = _currentScope->getVariable(a.variableName);
         if (variable == nullptr)
