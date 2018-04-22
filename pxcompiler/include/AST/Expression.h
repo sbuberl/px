@@ -29,7 +29,6 @@ namespace px
             BAD,
             OR,
             AND,
-            NOT,
             LT, LTE, GT, GTE, EQ, NE,
             BIT_OR,
             BIT_XOR,
