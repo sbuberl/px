@@ -92,9 +92,10 @@ namespace px
     {
         llvm::Value *left = (llvm::Value*) b.left->accept(*this);
         llvm::Value *right = (llvm::Value*) b.right->accept(*this);
+        px::Type *leftType = b.left->type;
 
         llvm::Instruction::BinaryOps llvmOp;
-        if ((b.type->isInt()))
+        if ((leftType->isInt()))
         {
             switch (b.op)
             {
@@ -117,7 +118,7 @@ namespace px
                 default:	return nullptr;
             }
         }
-        else if ((b.type->isUInt()))
+        else if ((leftType->isUInt()))
         {
             switch (b.op)
             {
@@ -140,7 +141,7 @@ namespace px
                 default:	return nullptr;
             }
         }
-        else if ((b.type->isFloat()))
+        else if ((leftType->isFloat()))
         {
             switch (b.op)
             {

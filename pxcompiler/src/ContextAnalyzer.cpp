@@ -98,7 +98,11 @@ namespace px
             errors->addError(Error{ leftPosition, Utf8String{ "Can not perform binary operators between '" }  + leftType->name + "' and '" + rightType->name + "'" });
         }
 
-        if (combinedFlags & Type::BUILTIN)
+        if (b.op >= ast::BinaryOperator::OR && b.op <= ast::BinaryOperator::NE)
+        {
+            b.type = Type::BOOL;
+        }
+        else if (combinedFlags & Type::BUILTIN)
         {
             if (leftType == rightType)
             {
@@ -204,6 +208,12 @@ namespace px
     void *ContextAnalyzer::visit(ast::TernaryOpExpression &t)
     {
         t.condition->accept(*this);
+        if (!t.condition->type->isBool())
+        {
+            errors->addError(Error{ t.position, Utf8String{ "Ternary condition must be of type bool" } } );
+            return nullptr;
+        }
+
         t.trueExpr->accept(*this);
         t.falseExpr->accept(*this);
 

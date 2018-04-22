@@ -1,7 +1,7 @@
 i: int32 = 7_i;
 j: int32 = i ÷ 4.0 as int32;
 0x10ADF + 0b10101001 + 0o15675;
-i = 112;
+i = j > 12 ? 256 : 384;
 b: bool = true;
 c: char  = 'A';
 s: string = "こんにちは世界";

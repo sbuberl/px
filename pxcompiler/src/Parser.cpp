@@ -261,7 +261,6 @@ namespace px {
 
                 if (opType == TokenType::OP_QUESTION)
                 {
-                    accept();
                     std::unique_ptr<Expression> trueExpr = parseExpression();
                     expect(TokenType::OP_COLON);
                     std::unique_ptr<Expression> falseExpr = parseExpression();
