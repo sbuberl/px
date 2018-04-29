@@ -70,11 +70,9 @@ namespace px {
         {
             //std::cout << "Parsing statement " << statements.size() << std::endl;
             std::unique_ptr<Statement> statement = parseStatement();
-            if (statement != nullptr)
-            {
-                //	std::cout << "Adding statement " << typeid(*statement).name() << std::endl;
-                block->addStatement(std::move(statement));
-            }
+
+            //	std::cout << "Adding statement " << typeid(*statement).name() << std::endl;
+            block->addStatement(std::move(statement));
         }
 
         //std::cout << "Statements :" << statements.size() << std::endl;
@@ -83,23 +81,30 @@ namespace px {
 
     std::unique_ptr<Statement> Parser::parseStatement()
     {
-        if (currentToken->type == TokenType::KW_RETURN)
-            return parseReturnStatement();
-        else if (currentToken->type == TokenType::IDENTIFIER)
+        switch (currentToken->type)
         {
-            Token& next = scanner->nextToken();
-            if (next.type == TokenType::OP_COLON)
+            case TokenType::KW_RETURN:
+                return parseReturnStatement();
+            case TokenType::KW_IF:
+                return parseIfStatement();
+            case TokenType::LBRACKET:
+                return parseBlockStatement();
+            case TokenType::IDENTIFIER:
             {
-                rewind();
-                return parseVariableDeclaration();
+                Token& next = scanner->nextToken();
+                if (next.type == TokenType::OP_COLON)
+                {
+                    rewind();
+                    return parseVariableDeclaration();
+                }
+                else if (next.type == TokenType::OP_ASSIGN)
+                {
+                    rewind();
+                    return parseAssignment();
+                }
+                else
+                    rewind();
             }
-            else if (next.type == TokenType::OP_ASSIGN)
-            {
-                rewind();
-                return parseAssignment();
-            }
-            else
-                rewind();
         }
 
         // if none of the above, parse as expression
@@ -120,6 +125,21 @@ namespace px {
         return std::make_unique<AssignmentStatement>(start, variableName, std::move(expression));
     }
 
+    std::unique_ptr<ast::Statement> Parser::parseBlockStatement()
+    {
+        auto startPos = currentToken->position;
+        accept();
+        std::unique_ptr<BlockStatement> block{ new BlockStatement{ startPos } };
+
+        while (currentToken->type != TokenType::RBRACKET)
+        {
+            std::unique_ptr<Statement> statement = parseStatement();
+            block->addStatement(std::move(statement));
+        }
+        accept();
+        return block;
+    }
+
     std::unique_ptr<Statement> Parser::parseExpressionStatement()
     {
         auto startPos = currentToken->position;
@@ -127,6 +147,20 @@ namespace px {
 
         expect(TokenType::OP_END_STATEMENT);
         return std::make_unique<ExpressionStatement>(startPos, std::move(expr));
+    }
+
+    std::unique_ptr<ast::Statement> Parser::parseIfStatement()
+    {
+        auto startPos = currentToken->position;
+        accept();
+        expect(TokenType::LPAREN);
+        std::unique_ptr<Expression> condition = parseExpression();
+        expect(TokenType::RPAREN);
+        std::unique_ptr<Statement> trueClause = parseStatement();
+        std::unique_ptr<Statement> elseClause = nullptr;
+        if (accept(TokenType::KW_ELSE))
+            elseClause = parseStatement();
+        return std::make_unique<IfStatement>(startPos, std::move(condition), std::move(trueClause), std::move(elseClause));
     }
 
     std::unique_ptr<Statement> Parser::parseReturnStatement()

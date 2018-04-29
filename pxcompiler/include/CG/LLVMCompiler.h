@@ -20,11 +20,13 @@ namespace px {
         llvm::IRBuilder<> builder;
         std::unique_ptr<llvm::Module> module;
         px::Function *currentFunction;
+        llvm::BasicBlock *currentBlock;
 
         class LLVMFunctionData : public OtherSymbolData
         {
         public:
             std::map<Utf8String, llvm::AllocaInst*> variables;
+            llvm::Function *llvmFunction;
             virtual ~LLVMFunctionData() {}
         };
 
@@ -33,22 +35,23 @@ namespace px {
     public:
         LLVMCompiler();
         void compile(ast::AST *ast);
-        virtual void *visit(ast::AssignmentStatement &f);
-        virtual void *visit(ast::BinaryOpExpression &f);
-        virtual void *visit(ast::BlockStatement &s);
-        virtual void *visit(ast::BoolLiteral &i);
-        virtual void *visit(ast::CastExpression &c);
-        virtual void *visit(ast::CharLiteral &c);
-        virtual void *visit(ast::ExpressionStatement &s);
-        virtual void *visit(ast::FunctionDeclaration &f);
-        virtual void *visit(ast::IntegerLiteral &i);
-        virtual void *visit(ast::FloatLiteral &f);
-        virtual void *visit(ast::ReturnStatement &s);
-        virtual void *visit(ast::StringLiteral &s);
-        virtual void *visit(ast::TernaryOpExpression &t);
-        virtual void *visit(ast::UnaryOpExpression &e);
-        virtual void *visit(ast::VariableDeclaration &d);
-        virtual void *visit(ast::VariableExpression &v);
+        void *visit(ast::AssignmentStatement &a) override;
+        void *visit(ast::BinaryOpExpression &e) override;
+        void *visit(ast::BoolLiteral &b) override;
+        void *visit(ast::BlockStatement &s) override;
+        void *visit(ast::CharLiteral &c) override;
+        void *visit(ast::CastExpression &f) override;
+        void *visit(ast::ExpressionStatement &s) override;
+        void *visit(ast::FloatLiteral &f) override;
+        void *visit(ast::FunctionDeclaration &f) override;
+        void *visit(ast::IfStatement &i) override;
+        void *visit(ast::IntegerLiteral &i) override;
+        void *visit(ast::ReturnStatement &s) override;
+        void *visit(ast::StringLiteral &s) override;
+        void *visit(ast::TernaryOpExpression &t) override;
+        void *visit(ast::UnaryOpExpression &e) override;
+        void *visit(ast::VariableDeclaration &d) override;
+        void *visit(ast::VariableExpression &v) override;
     };
 
 }

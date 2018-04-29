@@ -188,6 +188,22 @@ namespace px
         return nullptr;
     }
 
+    void * ContextAnalyzer::visit(ast::IfStatement & i)
+    {
+        i.condition->accept(*this);
+        if (!i.condition->type->isBool())
+        {
+            errors->addError(Error{ i.position, Utf8String{ "If condition must be of type bool" } });
+            return nullptr;
+        }
+
+        i.trueStatement->accept(*this);
+        if (i.elseStatement)
+            i.elseStatement->accept(*this);
+
+        return nullptr;
+    }
+
     void* ContextAnalyzer::visit(ast::IntegerLiteral &i)
     {
         return nullptr;

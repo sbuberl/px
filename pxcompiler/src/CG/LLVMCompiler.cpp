@@ -159,6 +159,22 @@ namespace px
                 default:	return nullptr;
             }
         }
+        else if ((leftType->isBool()))
+        {
+            switch (b.op)
+            {
+            case ast::BinaryOperator::BIT_AND:  return builder.CreateAnd(left, right);
+            case ast::BinaryOperator::BIT_OR:   return builder.CreateOr(left, right);
+            case ast::BinaryOperator::BIT_XOR:  return builder.CreateXor(left, right);
+            case ast::BinaryOperator::EQ:       return builder.CreateICmpEQ(left, right);
+            case ast::BinaryOperator::NE:       return builder.CreateICmpNE(left, right);
+            case ast::BinaryOperator::LT:       return builder.CreateICmpSLT(left, right);
+            case ast::BinaryOperator::LTE:      return builder.CreateICmpSLE(left, right);
+            case ast::BinaryOperator::GT:       return builder.CreateICmpSGT(left, right);
+            case ast::BinaryOperator::GTE:      return builder.CreateICmpSGE(left, right);
+            default:	return nullptr;
+            }
+        }
 
         return nullptr;
 
@@ -166,10 +182,13 @@ namespace px
 
     void* LLVMCompiler::visit(ast::BlockStatement &s)
     {
+        auto current = currentScope;
+        auto scope = std::make_unique<SymbolTable>(current);
         for (auto const& statement : s.statements)
         {
             statement->accept(*this);
         }
+        currentScope = scope;
         return nullptr;
     }
 
@@ -246,6 +265,11 @@ namespace px
         return value;
     }
 
+    void* LLVMCompiler::visit(ast::FloatLiteral &f)
+    {
+        return llvm::ConstantFP::get(pxTypeToLlvmType(f.type), f.value);
+    }
+
     void* LLVMCompiler::visit(ast::FunctionDeclaration &f)
     {
         Function *function = f.function;
@@ -257,6 +281,7 @@ namespace px
         builder.SetInsertPoint(BB);
 
         LLVMFunctionData *data = new LLVMFunctionData();
+        data->llvmFunction = F;
         std::vector<Variable*> locals = function->symbols.getLocalVariables();
         for (auto variable : locals)
         {
@@ -268,11 +293,14 @@ namespace px
         function->data = data;
 
         Function *prevFunction = currentFunction;
+        llvm::BasicBlock *prevBlock = currentBlock;
         currentFunction = function;
+        currentBlock = BB;
 
         f.block->accept(*this);
 
         currentFunction = prevFunction;
+        currentBlock = prevBlock;
 
         // F is a pointer to a Function instance
         std::string output;
@@ -287,14 +315,47 @@ namespace px
         return F;
     }
 
+    void * LLVMCompiler::visit(ast::IfStatement & i)
+    {
+        llvm::Value *condition = (llvm::Value*) i.condition->accept(*this);
+
+        LLVMFunctionData *funcData = (LLVMFunctionData*)currentFunction->data;
+        auto thenBlock = llvm::BasicBlock::Create(context, "", funcData->llvmFunction);
+        llvm::BasicBlock *elseBlock = nullptr;
+        auto endBlock = llvm::BasicBlock::Create(context, "", funcData->llvmFunction);
+
+        if (i.elseStatement)
+        {
+            elseBlock = llvm::BasicBlock::Create(context, "", funcData->llvmFunction);
+            llvm::BranchInst::Create(thenBlock, elseBlock, condition, currentBlock);
+        }
+        else
+        {
+            llvm::BranchInst::Create(thenBlock, endBlock, condition, currentBlock);
+        }
+
+        currentBlock = thenBlock;
+        i.trueStatement->accept(*this);
+
+        if (!currentBlock->getTerminator())
+            builder.CreateBr(endBlock);
+
+        if (i.elseStatement) {
+            elseBlock->moveAfter(currentBlock);
+            currentBlock = elseBlock;
+            i.elseStatement->accept(*this);
+            if (!currentBlock->getTerminator())
+                builder.CreateBr(endBlock);
+
+            endBlock->moveAfter(currentBlock);
+            currentBlock = endBlock;
+        }
+        return nullptr;
+    }
+
     void* LLVMCompiler::visit(ast::IntegerLiteral &i)
     {
         return llvm::ConstantInt::get(pxTypeToLlvmType(i.type), i.value);
-    }
-
-    void* LLVMCompiler::visit(ast::FloatLiteral &f)
-    {
-        return llvm::ConstantFP::get(pxTypeToLlvmType(f.type), f.value);
     }
 
     void* LLVMCompiler::visit(ast::ReturnStatement &s)

@@ -35,7 +35,9 @@ namespace px {
 
         std::unique_ptr<ast::Statement> parseStatement();
         std::unique_ptr<ast::Statement> parseAssignment();
+        std::unique_ptr<ast::Statement> parseBlockStatement();
         std::unique_ptr<ast::Statement> parseExpressionStatement();
+        std::unique_ptr<ast::Statement> parseIfStatement();
         std::unique_ptr<ast::Statement> parseReturnStatement();
         std::unique_ptr<ast::Statement> parseVariableDeclaration();
         std::unique_ptr<ast::Expression> parseExpression();

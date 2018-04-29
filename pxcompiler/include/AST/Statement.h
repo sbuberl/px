@@ -61,6 +61,22 @@ namespace px
 
         };
 
+        class IfStatement : public Statement
+        {
+        public:
+            std::unique_ptr<Expression> condition;
+            std::unique_ptr<Statement> trueStatement;
+            std::unique_ptr<Statement> elseStatement;
+
+            IfStatement(const SourcePosition &pos, std::unique_ptr<Expression> cond, std::unique_ptr<Statement> trueMatch, std::unique_ptr<Statement> elseMatch)
+                : Statement{ pos }, condition{ std::move(cond) }, trueStatement{ std::move(trueMatch) }, elseStatement{ std::move(elseMatch) }
+            {
+            }
+
+            void *accept(Visitor &visitor) override;
+
+        };
+
         class ReturnStatement : public Statement
         {
         public:

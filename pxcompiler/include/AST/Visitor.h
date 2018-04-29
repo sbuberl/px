@@ -25,6 +25,7 @@ namespace px
             virtual void *visit(ExpressionStatement &s) = 0;
             virtual void *visit(FloatLiteral &i) = 0;
             virtual void *visit(FunctionDeclaration &f) = 0;
+            virtual void *visit(IfStatement &i) = 0;
             virtual void *visit(IntegerLiteral &i) = 0;
             virtual void *visit(ReturnStatement &s) = 0;
             virtual void *visit(StringLiteral &s) = 0;

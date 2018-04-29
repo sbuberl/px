@@ -128,10 +128,8 @@ namespace px
                 if (other->size > size)
                     return true;
             }
-            else
-            {
-                return false;
-            }
+
+             return false;
         }
 
         bool is_a(Type *t) const
