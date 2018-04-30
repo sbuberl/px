@@ -16,24 +16,8 @@ namespace px {
 
     class LLVMCompiler : public ast::Visitor
     {
-        llvm::LLVMContext context;
-        llvm::IRBuilder<> builder;
-        std::unique_ptr<llvm::Module> module;
-        px::Function *currentFunction;
-        llvm::BasicBlock *currentBlock;
-
-        class LLVMFunctionData : public OtherSymbolData
-        {
-        public:
-            std::map<Utf8String, llvm::AllocaInst*> variables;
-            llvm::Function *llvmFunction;
-            virtual ~LLVMFunctionData() {}
-        };
-
-        llvm::Type *pxTypeToLlvmType(Type *type);
-
     public:
-        LLVMCompiler();
+        LLVMCompiler(ScopeTree * scopeTree);
         void compile(ast::AST *ast);
         void *visit(ast::AssignmentStatement &a) override;
         void *visit(ast::BinaryOpExpression &e) override;
@@ -52,6 +36,47 @@ namespace px {
         void *visit(ast::UnaryOpExpression &e) override;
         void *visit(ast::VariableDeclaration &d) override;
         void *visit(ast::VariableExpression &v) override;
+
+    private:
+        class LLVMScope
+        {
+        public:
+            LLVMScope(px::Scope *s, LLVMScope *p) : scope{ s }, parent{ p }
+            {
+            }
+
+            LLVMScope *findVariable(const Utf8String &name)
+            {
+                auto var = variables.find(name);
+                if (var != variables.end())
+                    return this;
+                else if (parent != nullptr)
+                    return parent->findVariable(name);
+                else
+                    return nullptr;
+            }
+
+            std::unordered_map<Utf8String, llvm::AllocaInst*> variables;
+            LLVMScope * const parent;
+            px::Scope *const scope;
+        };
+
+        class LLVMFunctionData : public OtherSymbolData
+        {
+        public:
+            llvm::Function *llvmFunction;
+            virtual ~LLVMFunctionData() = default;
+        };
+
+        llvm::Type *pxTypeToLlvmType(Type *type);
+
+        llvm::LLVMContext context;
+        llvm::IRBuilder<> builder;
+        std::unique_ptr<llvm::Module> module;
+        px::Function *currentFunction;
+        LLVMScope *currentScope;
+        px::ScopeTree * const scopeTree;
+        llvm::BasicBlock *currentBlock;
     };
 
 }

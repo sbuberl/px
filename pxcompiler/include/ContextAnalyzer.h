@@ -11,7 +11,7 @@ namespace px {
     class ContextAnalyzer : public ast::Visitor
     {
     public:
-        ContextAnalyzer(SymbolTable *globals, ErrorLog *errors);
+        ContextAnalyzer(Scope *rootScope, ErrorLog *errors);
 
         void analyze(ast::AST *ast);
         void *visit(ast::AssignmentStatement &a) override;
@@ -35,9 +35,8 @@ namespace px {
     private:
         void checkAssignmentTypes(Variable * variable, std::unique_ptr<ast::Expression>& expression, const SourcePosition & start);
 
-        SymbolTable *_globals;
-        SymbolTable *_currentScope;
-        ErrorLog *errors;
+        Scope *_currentScope;
+        ErrorLog * const errors;
     };
 
 }

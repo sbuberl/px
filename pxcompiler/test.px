@@ -4,7 +4,10 @@ j: int32 = i ÷ 4.0 as int32;
 i = j > 12 ? 256 : 384;
 b: bool = true;
 if( b == false )
+{
+	q: int32 = j * i;
 	b = true;
+}
 else
 	b = false;
 c: char  = 'A';

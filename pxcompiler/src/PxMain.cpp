@@ -21,8 +21,7 @@ int main(int argc, char **argv)
 
     //std::cout << "Building Symbol Table " << std::endl;
 
-    px::SymbolTable globals;
-    globals.addGlobals();
+    px:ScopeTree scopeTree;
 
     px::ErrorLog errors;
 
@@ -40,7 +39,7 @@ int main(int argc, char **argv)
         return -2;
     }
 
-    px::ContextAnalyzer analyzer(&globals, &errors);
+    px::ContextAnalyzer analyzer(scopeTree.current(), &errors);
     analyzer.analyze(ast);
 
     if (errors.count() > 0)
@@ -49,7 +48,7 @@ int main(int argc, char **argv)
         return -2;
     }
 
-    px::LLVMCompiler compiler;
+    px::LLVMCompiler compiler(&scopeTree);
     compiler.compile(ast);
 
     delete ast;

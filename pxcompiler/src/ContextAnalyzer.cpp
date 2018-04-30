@@ -6,8 +6,8 @@
 
 namespace px
 {
-    ContextAnalyzer::ContextAnalyzer(SymbolTable *globals, ErrorLog *log)
-        : _globals(globals), _currentScope(globals), errors(log)
+    ContextAnalyzer::ContextAnalyzer(Scope *rootScope, ErrorLog *log)
+        : _currentScope(rootScope), errors(log)
     {
 
     }
@@ -69,7 +69,8 @@ namespace px
     }
     void* ContextAnalyzer::visit(ast::AssignmentStatement &a)
     {
-        Variable *variable = _currentScope->getVariable(a.variableName);
+        auto symbols = _currentScope->symbols();
+        Variable *variable = symbols->getVariable(a.variableName);
         if (variable == nullptr)
         {
             errors->addError(Error{ a.position, Utf8String{ "Variable " } + a.variableName + " is not declared in the current scope" });
@@ -131,10 +132,14 @@ namespace px
 
     void* ContextAnalyzer::visit(ast::BlockStatement &s)
     {
+        auto current = _currentScope;
+        auto newScope = new Scope(current);
+        _currentScope = newScope;
         for (auto &statement : s.statements)
         {
             statement->accept(*this);
         }
+        _currentScope = current;
         return nullptr;
     }
 
@@ -148,7 +153,8 @@ namespace px
         c.expression->accept(*this);
 
         Type *originalType = c.expression->type;
-        Type *castTo = _currentScope->getType(c.newTypeName);
+        auto symbols = _currentScope->symbols();
+        Type *castTo = symbols->getType(c.newTypeName);
         c.type = castTo;
 
         if (!originalType->isCastableTo(castTo))
@@ -177,14 +183,12 @@ namespace px
 
     void* ContextAnalyzer::visit(ast::FunctionDeclaration &f)
     {
-        SymbolTable *oldScope = _currentScope;
-        Type *returnType = _currentScope->getType(f.returnTypeName);
-        Function *function = new Function{ f.name, returnType, _currentScope };
+        auto currentSymbols = _currentScope->symbols();
+        Type *returnType = currentSymbols->getType(f.returnTypeName);
+        Function *function = new Function{ f.name, returnType };
         f.function = function;
-        _currentScope->addSymbol(function);
-        _currentScope = &function->symbols;
+        currentSymbols->addSymbol(function);
         f.block->accept(*this);
-        _currentScope = oldScope;
         return nullptr;
     }
 
@@ -245,14 +249,15 @@ namespace px
 
     void* ContextAnalyzer::visit(ast::VariableDeclaration &d)
     {
-        Type *type = _currentScope->getType(d.typeName);
-        if (_currentScope->getVariable(d.name, true) != nullptr)
+        auto symbols = _currentScope->symbols();
+        Type *type = symbols->getType(d.typeName);
+        if (symbols->getVariable(d.name, true) != nullptr)
         {
             errors->addError(Error{ d.position, Utf8String{ "Variable " } +d.name + " already delcared in the current scope" });
             return nullptr;
         }
         auto variable = new Variable{ d.name, type };
-        _currentScope->addSymbol(variable);
+        symbols->addSymbol(variable);
         if (d.initialValue)
         {
             d.initialValue->accept(*this);
@@ -263,7 +268,8 @@ namespace px
 
     void* ContextAnalyzer::visit(ast::VariableExpression &v)
     {
-        Variable *variable = _currentScope->getVariable(v.variable);
+        auto symbols = _currentScope->symbols();
+        Variable *variable = symbols->getVariable(v.variable);
         if (variable == nullptr)
         {
             errors->addError(Error{ v.position, Utf8String{ "Variable " } + v.variable + " is not declared in the current scope" });

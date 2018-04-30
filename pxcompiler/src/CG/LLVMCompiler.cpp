@@ -29,9 +29,10 @@ namespace px
         return stringType;
     }
 
-    LLVMCompiler::LLVMCompiler() : context(), builder(context), currentFunction(nullptr)
+    LLVMCompiler::LLVMCompiler(ScopeTree *tree) : scopeTree{ tree }, context{}, builder{ context }, currentFunction{ nullptr }
     {
         module = llvm::make_unique<llvm::Module>("test", context);
+        currentScope = new LLVMScope{ tree->current(), nullptr };
     }
 
     llvm::Type *LLVMCompiler::pxTypeToLlvmType(Type *pxType)
@@ -81,9 +82,8 @@ namespace px
     void* LLVMCompiler::visit(ast::AssignmentStatement &a)
     {
         llvm::Value *expression = (llvm::Value*) a.expression->accept(*this);
-
-        LLVMFunctionData *funcData = (LLVMFunctionData*)currentFunction->data;
-        llvm::AllocaInst *memory = funcData->variables[a.variableName.c_str()];
+        auto varScope = currentScope->findVariable(a.variableName);
+        llvm::AllocaInst *memory = varScope->variables[a.variableName];
         builder.CreateStore(expression, memory);
         return nullptr;
     }
@@ -183,12 +183,24 @@ namespace px
     void* LLVMCompiler::visit(ast::BlockStatement &s)
     {
         auto current = currentScope;
-        auto scope = std::make_unique<SymbolTable>(current);
+        auto llvmScope = new LLVMScope{ scopeTree->enterScope(), current };
+        auto pxScope = llvmScope->scope;
+        std::vector<Variable*> locals = pxScope->symbols()->getLocalVariables();
+        for (auto variable : locals)
+        {
+            auto pxType = pxTypeToLlvmType(variable->type);
+            llvm::AllocaInst *varMemory = builder.CreateAlloca(pxType);
+            varMemory->setName(variable->name.toString());
+            llvmScope->variables[variable->name] = varMemory;
+        }
+
+        currentScope = llvmScope;
         for (auto const& statement : s.statements)
         {
             statement->accept(*this);
         }
-        currentScope = scope;
+        scopeTree->endScope();
+        currentScope = current;
         return nullptr;
     }
 
@@ -282,14 +294,7 @@ namespace px
 
         LLVMFunctionData *data = new LLVMFunctionData();
         data->llvmFunction = F;
-        std::vector<Variable*> locals = function->symbols.getLocalVariables();
-        for (auto variable : locals)
-        {
-            auto pxType = pxTypeToLlvmType(variable->type);
-            llvm::AllocaInst *varMemory = builder.CreateAlloca(pxType);
-            varMemory->setName(variable->name.toString());
-            data->variables[variable->name] = varMemory;
-        }
+
         function->data = data;
 
         Function *prevFunction = currentFunction;
@@ -421,9 +426,9 @@ namespace px
     {
         if (d.initialValue != nullptr)
         {
-            LLVMFunctionData *funcData = (LLVMFunctionData*)currentFunction->data;
             llvm::Value *value = (llvm::Value*) d.initialValue->accept(*this);
-            llvm::AllocaInst *memory = funcData->variables[d.name];
+            auto varScope = currentScope->findVariable(d.name);
+            llvm::AllocaInst *memory = varScope->variables[d.name];
             return builder.CreateStore(value, memory);
         }
         return nullptr;
@@ -431,8 +436,8 @@ namespace px
 
     void *LLVMCompiler::visit(ast::VariableExpression &v)
     {
-        LLVMFunctionData *funcData = (LLVMFunctionData*)currentFunction->data;
-        llvm::AllocaInst *memory = funcData->variables[v.variable.c_str()];
+        auto varScope = currentScope->findVariable(v.variable);
+        llvm::AllocaInst *memory = varScope->variables[v.variable];
         return builder.CreateLoad(memory);
     }
 }
