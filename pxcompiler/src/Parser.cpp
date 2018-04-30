@@ -12,7 +12,7 @@ using namespace px::ast;
 
 namespace px {
 
-    Parser::Parser(SymbolTable *globals, ErrorLog *errorLog) : symbols{ globals }, errors{ errorLog }
+    Parser::Parser(ErrorLog *errorLog) : errors{ errorLog }
     {
     }
 

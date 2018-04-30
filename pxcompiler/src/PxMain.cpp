@@ -27,7 +27,7 @@ int main(int argc, char **argv)
     px::ErrorLog errors;
 
     px::Utf8String fileName = argv[1];
-    px::Parser parser(&globals, &errors);
+    px::Parser parser(&errors);
     std::ifstream fis(argv[1]);
     px::ast::AST *ast = nullptr;
     try

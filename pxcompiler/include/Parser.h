@@ -14,14 +14,13 @@ namespace px {
     class Parser
     {
     public:
-        Parser(SymbolTable *symbols, ErrorLog *errors);
+        Parser(ErrorLog *errors);
         ~Parser() = default;
         ast::AST *parse(const Utf8String &fileName, std::istream &in);
 
     private:
         std::unique_ptr<Scanner> scanner;
         std::unique_ptr<Token> currentToken;
-        SymbolTable * const symbols;
         ErrorLog * const errors;
 
         void accept();
