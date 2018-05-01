@@ -30,6 +30,7 @@
     <ClInclude Include="include\Error.h" />
     <ClInclude Include="include\Parser.h" />
     <ClInclude Include="include\Scanner.h" />
+    <ClInclude Include="include\Scope.h" />
     <ClInclude Include="include\SourcePosition.h" />
     <ClInclude Include="include\Symbol.h" />
     <ClInclude Include="include\Token.h" />

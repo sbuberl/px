@@ -60,6 +60,9 @@
     <ClInclude Include="include\Error.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Scope.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="test.px" />

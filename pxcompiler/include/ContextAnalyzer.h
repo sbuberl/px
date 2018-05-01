@@ -2,9 +2,9 @@
 #ifndef CONTEXTANALYZER_H_
 #define CONTEXTANALYZER_H_
 
-#include <ast/Visitor.h>
-#include <Error.h>
-#include <Symbol.h>
+#include "ast/Visitor.h"
+#include "Error.h"
+#include "Scope.h"
 
 namespace px {
 

@@ -2,8 +2,8 @@
 #ifndef LLVMCOMPILER_H_
 #define LLVMCOMPILER_H_
 
-#include <ast/Visitor.h>
-#include <Symbol.h>
+#include "ast/Visitor.h"
+#include "Scope.h"
 
 #include <map>
 #include <string>
