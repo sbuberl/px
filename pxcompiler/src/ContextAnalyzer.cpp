@@ -155,6 +155,12 @@ namespace px
         Type *originalType = c.expression->type;
         auto symbols = _currentScope->symbols();
         Type *castTo = symbols->getType(c.newTypeName);
+        if (castTo == nullptr)
+        {
+            errors->addError(Error{ c.position, Utf8String{ "Type " } +c.newTypeName + " was not found" });
+            return nullptr;
+        }
+
         c.type = castTo;
 
         if (!originalType->isCastableTo(castTo))
@@ -185,6 +191,11 @@ namespace px
     {
         auto currentSymbols = _currentScope->symbols();
         Type *returnType = currentSymbols->getType(f.returnTypeName);
+        if (returnType == nullptr)
+        {
+            errors->addError(Error{ f.position, Utf8String{ "Return type " } + f.returnTypeName + " was not found" });
+            return nullptr;
+        }
         Function *function = new Function{ f.name, returnType };
         f.function = function;
         currentSymbols->addSymbol(function);
@@ -251,9 +262,14 @@ namespace px
     {
         auto symbols = _currentScope->symbols();
         Type *type = symbols->getType(d.typeName);
+        if (type == nullptr)
+        {
+            errors->addError(Error{ d.position, Utf8String{ "Type " } + d.typeName + " was not found" });
+            return nullptr;
+        }
         if (symbols->getVariable(d.name, true) != nullptr)
         {
-            errors->addError(Error{ d.position, Utf8String{ "Variable " } +d.name + " already delcared in the current scope" });
+            errors->addError(Error{ d.position, Utf8String{ "Variable " } + d.name + " already delcared in the current scope" });
             return nullptr;
         }
         auto variable = new Variable{ d.name, type };
