@@ -35,8 +35,17 @@ namespace px {
         Utf8String(const std::string &text)
         {
             std::copy(text.begin(), text.end(), std::back_inserter(bytes));
-                    count = countChars();
+            count = countChars();
         }
+
+        Utf8String(const Utf8String &other) : count{other.count}, bytes{ other.bytes }, pointsStart{ other.pointsStart }
+        {
+        }
+
+        Utf8String(const Utf8String &&other) : count{ std::move(other.count) }, bytes{ std::move(other.bytes) }, pointsStart{ std::move(other.pointsStart) }
+        {
+        }
+
 
         const uint8_t *data() const
         {
@@ -68,9 +77,22 @@ namespace px {
             return bytes.size();
         }
 
+        size_t size() const
+        {
+            return count;
+        }
+
         size_t length() const
         {
             return count;
+        }
+
+        Utf8String &operator=(const Utf8String &other)
+        {
+            count = other.count;
+            bytes = other.bytes;
+            pointsStart = other.pointsStart;
+            return *this;
         }
 
         Utf8String operator+(const Utf8String &other)
@@ -131,6 +153,13 @@ namespace px {
             bytes.clear();
             count = 0;
             pointsStart.clear();
+        }
+
+        friend void swap(Utf8String& a, Utf8String& b)
+        {
+            std::swap(a.count, b.count);
+            std::swap(a.bytes, b.bytes);
+            std::swap(a.pointsStart, b.pointsStart);
         }
 
         std::size_t hash() const
