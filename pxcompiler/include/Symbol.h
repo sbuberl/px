@@ -38,12 +38,9 @@ namespace px
 
         const Utf8String name;
         const SymbolType symbolType;
-        OtherSymbolData *data;
+        std::unique_ptr<OtherSymbolData> data;
 
-        virtual ~Symbol()
-        {
-            delete data;
-        }
+        virtual ~Symbol() = default;
 
     protected:
 
@@ -90,11 +87,9 @@ namespace px
         };
 
         Type(const Utf8String &n, Type *p, unsigned int s, unsigned int f)
-            : Symbol(n, SymbolType::TYPE), parent(p), size(s), flags(f)
+            : Symbol{ n, SymbolType::TYPE }, parent{ p }, size{ s }, flags{ f }
         {
         }
-
-        virtual ~Type() = default;
 
         bool inherits(Type *t) const
         {

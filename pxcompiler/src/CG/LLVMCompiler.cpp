@@ -94,7 +94,6 @@ namespace px
         llvm::Value *right = (llvm::Value*) b.right->accept(*this);
         px::Type *leftType = b.left->type;
 
-        llvm::Instruction::BinaryOps llvmOp;
         if ((leftType->isInt()))
         {
             switch (b.op)
@@ -292,10 +291,7 @@ namespace px
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context, (f.name.toString() + ".0").c_str(), F);
         builder.SetInsertPoint(BB);
 
-        LLVMFunctionData *data = new LLVMFunctionData();
-        data->llvmFunction = F;
-
-        function->data = data;
+        function->data.reset(new LLVMFunctionData(F));
 
         Function *prevFunction = currentFunction;
         llvm::BasicBlock *prevBlock = currentBlock;
@@ -324,14 +320,15 @@ namespace px
     {
         llvm::Value *condition = (llvm::Value*) i.condition->accept(*this);
 
-        LLVMFunctionData *funcData = (LLVMFunctionData*)currentFunction->data;
-        auto thenBlock = llvm::BasicBlock::Create(context, "", funcData->llvmFunction);
+        LLVMFunctionData *funcData = (LLVMFunctionData*) currentFunction->data.get();
+        llvm::Function *function = funcData->function;
+        auto thenBlock = llvm::BasicBlock::Create(context, "", function);
         llvm::BasicBlock *elseBlock = nullptr;
-        auto endBlock = llvm::BasicBlock::Create(context, "", funcData->llvmFunction);
+        auto endBlock = llvm::BasicBlock::Create(context, "", function);
 
         if (i.elseStatement)
         {
-            elseBlock = llvm::BasicBlock::Create(context, "", funcData->llvmFunction);
+            elseBlock = llvm::BasicBlock::Create(context, "", function);
             llvm::BranchInst::Create(thenBlock, elseBlock, condition, currentBlock);
         }
         else

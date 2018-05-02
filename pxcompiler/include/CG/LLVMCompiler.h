@@ -58,14 +58,19 @@ namespace px {
 
             std::unordered_map<Utf8String, llvm::AllocaInst*> variables;
             LLVMScope * const parent;
-            px::Scope *const scope;
+            px::Scope * const scope;
         };
 
         class LLVMFunctionData : public OtherSymbolData
         {
         public:
-            llvm::Function *llvmFunction;
+            LLVMFunctionData(llvm::Function *f) : function{ f }
+            {
+            }
+
             virtual ~LLVMFunctionData() = default;
+
+            llvm::Function * const function;
         };
 
         llvm::Type *pxTypeToLlvmType(Type *type);
