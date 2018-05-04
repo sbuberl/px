@@ -12,9 +12,9 @@ namespace px
 
     }
 
-    void ContextAnalyzer::analyze(ast::AST* ast)
+    void ContextAnalyzer::analyze(ast::AST &ast)
     {
-        ast->accept(*this);
+        ast.accept(*this);
     }
 
     void ContextAnalyzer::checkAssignmentTypes(Variable *variable, std::unique_ptr<ast::Expression> &expression, const SourcePosition &start)
@@ -221,6 +221,12 @@ namespace px
 
     void* ContextAnalyzer::visit(ast::IntegerLiteral &i)
     {
+        return nullptr;
+    }
+
+    void * ContextAnalyzer::visit(ast::Module & m)
+    {
+        m.block->accept(*this);
         return nullptr;
     }
 

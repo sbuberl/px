@@ -54,7 +54,7 @@ namespace px {
         throw error;
     }
 
-    AST *Parser::parse(const Utf8String &fileName, std::istream &in)
+    std::unique_ptr<ast::Module> Parser::parse(const Utf8String &fileName, std::istream &in)
     {
         std::stringstream buffer;
         buffer << in.rdbuf();
@@ -75,18 +75,21 @@ namespace px {
             block->addStatement(std::move(statement));
         }
 
-        //std::cout << "Statements :" << statements.size() << std::endl;
-        return new FunctionDeclaration{ startPosition, "main", "int32", std::move(block) };
+        //std::cout << "Statements :" << statements.size() << std::endl;;
+        return std::make_unique<ast::Module>(startPosition, fileName, std::move(block));
+
     }
 
     std::unique_ptr<Statement> Parser::parseStatement()
     {
         switch (currentToken->type)
         {
-            case TokenType::KW_RETURN:
-                return parseReturnStatement();
+            case TokenType::KW_FUNC:
+                return parseFunctionDeclaration();
             case TokenType::KW_IF:
                 return parseIfStatement();
+            case TokenType::KW_RETURN:
+                return parseReturnStatement();
             case TokenType::LBRACKET:
                 return parseBlockStatement();
             case TokenType::IDENTIFIER:

@@ -26,9 +26,9 @@ int main(int argc, char **argv)
     px::ErrorLog errors;
 
     px::Utf8String fileName = argv[1];
-    px::Parser parser(&errors);
+    px::Parser parser{ &errors };
     std::ifstream fis(argv[1]);
-    px::ast::AST *ast = nullptr;
+    std::unique_ptr<px::ast::Module> ast;
     try
     {
         ast = parser.parse(fileName, fis);
@@ -39,8 +39,8 @@ int main(int argc, char **argv)
         return -2;
     }
 
-    px::ContextAnalyzer analyzer(scopeTree.current(), &errors);
-    analyzer.analyze(ast);
+    px::ContextAnalyzer analyzer{ scopeTree.current(), &errors };
+    analyzer.analyze(*ast);
 
     if (errors.count() > 0)
     {
@@ -48,10 +48,9 @@ int main(int argc, char **argv)
         return -2;
     }
 
-    px::LLVMCompiler compiler(&scopeTree);
-    compiler.compile(ast);
+    px::LLVMCompiler compiler{ &scopeTree };
+    compiler.compile(*ast);
 
-    delete ast;
 
     return 0;
 }

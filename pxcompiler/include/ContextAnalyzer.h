@@ -13,7 +13,7 @@ namespace px {
     public:
         ContextAnalyzer(Scope *rootScope, ErrorLog *errors);
 
-        void analyze(ast::AST *ast);
+        void analyze(ast::AST & ast);
         void *visit(ast::AssignmentStatement &a) override;
         void *visit(ast::BinaryOpExpression &e) override;
         void *visit(ast::BoolLiteral &b) override;
@@ -25,6 +25,7 @@ namespace px {
         void *visit(ast::FunctionDeclaration &f) override;
         void *visit(ast::IfStatement &i) override;
         void *visit(ast::IntegerLiteral &i) override;
+        void *visit(ast::Module &m) override;
         void *visit(ast::ReturnStatement &s) override;
         void *visit(ast::StringLiteral &s) override;
         void *visit(ast::TernaryOpExpression &t) override;

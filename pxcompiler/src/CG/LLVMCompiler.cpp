@@ -61,18 +61,18 @@ namespace px
         else if (pxType->isVoid())
             return llvm::Type::getVoidTy(context);
         else if(pxType->isBool())
-            return llvm::IntegerType::get(context, 1);
+            return llvm::Type::getInt1Ty(context);
         else if (pxType->isChar())
-            return llvm::IntegerType::get(context, 32);
+            return llvm::Type::getInt32Ty(context);
         else if (pxType->isString())
             return getStringType(context);
 
         return nullptr;
     }
 
-    void LLVMCompiler::compile(ast::AST* ast)
+    void LLVMCompiler::compile(ast::AST& ast)
     {
-        ast->accept(*this);
+        ast.accept(*this);
        /* std::string output;
         llvm::raw_string_ostream stringStream{ output };
         llvm::WriteBitcodeToFile(module.get(), stringStream);
@@ -358,6 +358,12 @@ namespace px
     void* LLVMCompiler::visit(ast::IntegerLiteral &i)
     {
         return llvm::ConstantInt::get(pxTypeToLlvmType(i.type), i.value);
+    }
+
+    void * LLVMCompiler::visit(ast::Module & m)
+    {
+        m.block->accept(*this);
+        return nullptr;
     }
 
     void* LLVMCompiler::visit(ast::ReturnStatement &s)

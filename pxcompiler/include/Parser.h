@@ -6,6 +6,7 @@
 #include <ast/AST.h>
 #include <ast/Expression.h>
 #include <ast/Statement.h>
+#include <ast/Declaration.h>
 #include "Error.h"
 #include "Scanner.h"
 
@@ -15,8 +16,8 @@ namespace px {
     {
     public:
         Parser(ErrorLog *errors);
-        ~Parser() = default;
-        ast::AST *parse(const Utf8String &fileName, std::istream &in);
+
+        std::unique_ptr<ast::Module> parse(const Utf8String &fileName, std::istream &in);
 
     private:
         std::unique_ptr<Scanner> scanner;

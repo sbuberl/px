@@ -46,6 +46,7 @@
     <ClCompile Include="src\AST\Declaration.cpp" />
     <ClCompile Include="src\AST\Expression.cpp" />
     <ClCompile Include="src\AST\Literal.cpp" />
+    <ClCompile Include="src\AST\Node.cpp" />
     <ClCompile Include="src\AST\Statement.cpp" />
     <ClCompile Include="src\CG\LLVMCompiler.cpp" />
     <ClCompile Include="src\ContextAnalyzer.cpp" />
