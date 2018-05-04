@@ -77,6 +77,7 @@ namespace px {
         void endScope()
         {
             current_ = current_->parent();
+            current_->leaveScope();
         }
 
     private:
