@@ -40,9 +40,8 @@ namespace px {
         { "while", TokenType::KW_WHILE},
     };
 
-    Scanner::Scanner(const Utf8String &fileName, const Utf8String &source) : length{ source.length() }, peekPos{ fileName }, currentPos{ fileName }, peekToken{ peekPos }
+    Scanner::Scanner(const Utf8String &fileName, const Utf8String &code) : source{ code }, length { source.length() }, peekPos{ fileName }, currentPos{ fileName }, peekToken{ peekPos }
     {
-        this->source = source;
     }
 
     bool Scanner::accept()
@@ -97,7 +96,7 @@ namespace px {
         int32_t current;
         Utf8String &token = peekToken.str;
 
-        if (peekPos.fileOffset >= length)
+        if (peekPos.fileOffset >= length - 1)
             return TokenType::END_FILE;
 
         current = source[peekPos.fileOffset];
@@ -107,8 +106,9 @@ namespace px {
             {
                 peekPos.nextLine();
             }
+            if (peekPos.fileOffset >= length - 1)
+                return TokenType::END_FILE;
             current = nextCharacter();
-
         }
 
         peekToken.position = peekPos;
@@ -402,7 +402,7 @@ namespace px {
 
                 case '=':
                 {
-                    char next = source[peekPos.fileOffset + 1];
+                    uint32_t next = source[peekPos.fileOffset + 1];
                     if (next == '=')
                         RETURN_OP(OP_EQUALS, 2);
                     else
@@ -410,7 +410,7 @@ namespace px {
                 }
                 case '!':
                 {
-                    char next = source[peekPos.fileOffset + 1];
+                    uint32_t next = source[peekPos.fileOffset + 1];
                     if (next == '=')
                         RETURN_OP(OP_NOT_EQUAL, 2);
                     else
@@ -418,7 +418,7 @@ namespace px {
                 }
                 case '<':
                 {
-                    char next = source[peekPos.fileOffset + 1];
+                    uint32_t next = source[peekPos.fileOffset + 1];
                     if (next == '<')
                         RETURN_OP(OP_LEFT_SHIFT, 2);
                     else if (next == '=')
@@ -428,7 +428,7 @@ namespace px {
                 }
                 case '>':
                 {
-                    char next = source[peekPos.fileOffset + 1];
+                    uint32_t next = source[peekPos.fileOffset + 1];
                     if (next == '>')
                         RETURN_OP(OP_RIGHT_SHIFT, 2);
                     else if (next == '=')
@@ -438,7 +438,7 @@ namespace px {
                 }
                 case '&':
                 {
-                    char next = source[peekPos.fileOffset + 1];
+                    uint32_t next = source[peekPos.fileOffset + 1];
                     if (next == '&')
                         RETURN_OP(OP_AND, 2);
                     else
@@ -446,7 +446,7 @@ namespace px {
                 }
                 case '|':
                 {
-                    char next = source[peekPos.fileOffset + 1];
+                    uint32_t next = source[peekPos.fileOffset + 1];
                     if (next == '|')
                         RETURN_OP(OP_OR, 2);
                     else
