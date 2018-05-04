@@ -22,6 +22,7 @@ namespace px {
         KW_ELSE,
         KW_FALSE,
         KW_FOR,
+        KW_FUNC,
         KW_IF,
         KW_IMPLEMENTATION,
         KW_INTERFACE,

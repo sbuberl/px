@@ -34,12 +34,13 @@ namespace px {
         ast::BinaryOperator getBinaryOp(TokenType type);
 
         std::unique_ptr<ast::Statement> parseStatement();
-        std::unique_ptr<ast::Statement> parseAssignment();
-        std::unique_ptr<ast::Statement> parseBlockStatement();
-        std::unique_ptr<ast::Statement> parseExpressionStatement();
-        std::unique_ptr<ast::Statement> parseIfStatement();
-        std::unique_ptr<ast::Statement> parseReturnStatement();
-        std::unique_ptr<ast::Statement> parseVariableDeclaration();
+        std::unique_ptr<ast::AssignmentStatement> parseAssignment();
+        std::unique_ptr<ast::BlockStatement> parseBlockStatement();
+        std::unique_ptr<ast::ExpressionStatement> parseExpressionStatement();
+        std::unique_ptr<ast::FunctionDeclaration> parseFunctionDeclaration();
+        std::unique_ptr<ast::IfStatement> parseIfStatement();
+        std::unique_ptr<ast::ReturnStatement> parseReturnStatement();
+        std::unique_ptr<ast::VariableDeclaration> parseVariableDeclaration();
         std::unique_ptr<ast::Expression> parseExpression();
         std::unique_ptr<ast::Expression> parseBinary(int precedence = 1);
         std::unique_ptr<ast::Expression> parseUnary();

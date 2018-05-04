@@ -114,7 +114,7 @@ namespace px {
         return parseExpressionStatement();
     }
 
-    std::unique_ptr<ast::Statement> Parser::parseAssignment()
+    std::unique_ptr<ast::AssignmentStatement> Parser::parseAssignment()
     {
         SourcePosition start = currentToken->position;
         Utf8String variableName = currentToken->str;
@@ -128,10 +128,10 @@ namespace px {
         return std::make_unique<AssignmentStatement>(start, variableName, std::move(expression));
     }
 
-    std::unique_ptr<ast::Statement> Parser::parseBlockStatement()
+    std::unique_ptr<ast::BlockStatement> Parser::parseBlockStatement()
     {
         auto startPos = currentToken->position;
-        accept();
+        expect(TokenType::LBRACKET);
         std::unique_ptr<BlockStatement> block{ new BlockStatement{ startPos } };
 
         while (currentToken->type != TokenType::RBRACKET)
@@ -143,7 +143,7 @@ namespace px {
         return block;
     }
 
-    std::unique_ptr<Statement> Parser::parseExpressionStatement()
+    std::unique_ptr<ast::ExpressionStatement> Parser::parseExpressionStatement()
     {
         auto startPos = currentToken->position;
         std::unique_ptr<Expression> expr = parseExpression();
@@ -152,10 +152,39 @@ namespace px {
         return std::make_unique<ExpressionStatement>(startPos, std::move(expr));
     }
 
-    std::unique_ptr<ast::Statement> Parser::parseIfStatement()
+    std::unique_ptr<ast::FunctionDeclaration> Parser::parseFunctionDeclaration()
     {
         auto startPos = currentToken->position;
-        accept();
+        expect(TokenType::KW_FUNC);
+        Utf8String functionName = currentToken->str;
+        expect(TokenType::IDENTIFIER);
+        expect(TokenType::LPAREN);
+        std::vector<ast::Argument> arguments;
+        if (currentToken->type != TokenType::RPAREN)
+        {
+            do
+            {
+                Utf8String argName = currentToken->str;
+                expect(TokenType::IDENTIFIER);
+                expect(TokenType::OP_COLON);
+                Utf8String argTypeName = currentToken->str;
+                expect(TokenType::IDENTIFIER);
+                arguments.push_back({ argName, argTypeName });
+            }
+            while (accept(TokenType::OP_COMMA));
+        }
+        expect(TokenType::RPAREN);
+        expect(TokenType::OP_COLON);
+        Utf8String returnType = currentToken->str;
+        expect(TokenType::IDENTIFIER);
+        std::unique_ptr<ast::BlockStatement> block = parseBlockStatement();
+        return std::make_unique<FunctionDeclaration>(startPos, functionName, returnType, arguments, std::move(block));
+    }
+
+    std::unique_ptr<ast::IfStatement> Parser::parseIfStatement()
+    {
+        auto startPos = currentToken->position;
+        expect(TokenType::KW_IF);
         expect(TokenType::LPAREN);
         std::unique_ptr<Expression> condition = parseExpression();
         expect(TokenType::RPAREN);
@@ -166,10 +195,10 @@ namespace px {
         return std::make_unique<IfStatement>(startPos, std::move(condition), std::move(trueClause), std::move(elseClause));
     }
 
-    std::unique_ptr<Statement> Parser::parseReturnStatement()
+    std::unique_ptr<ReturnStatement> Parser::parseReturnStatement()
     {
         auto startPos = currentToken->position;
-        accept();
+        expect(TokenType::KW_RETURN);
         std::unique_ptr<Expression> retValue = nullptr;
         if (currentToken->type != TokenType::OP_END_STATEMENT)
         {
@@ -180,7 +209,7 @@ namespace px {
         return std::make_unique<ReturnStatement>(startPos, std::move(retValue));
     }
 
-    std::unique_ptr<Statement> Parser::parseVariableDeclaration()
+    std::unique_ptr<VariableDeclaration> Parser::parseVariableDeclaration()
     {
         SourcePosition start = currentToken->position;
         std::unique_ptr<Expression> initializer = nullptr;

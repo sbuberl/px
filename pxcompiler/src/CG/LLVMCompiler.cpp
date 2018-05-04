@@ -286,7 +286,14 @@ namespace px
         Function *function = f.function;
 
         llvm::Type *RT = pxTypeToLlvmType(function->returnType);
-        llvm::FunctionType *FT = llvm::FunctionType::get(RT, std::vector<llvm::Type*>(), false);
+        std::vector<llvm::Type*> argTypes;
+        for (const FunctionArgument &arg : function->arguments)
+        {
+            llvm::Type *argType = pxTypeToLlvmType(arg.type);
+            argTypes.push_back(argType);
+        }
+
+        llvm::FunctionType *FT = llvm::FunctionType::get(RT, argTypes, false);
         llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, f.name.c_str(), module.get());
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(context, (f.name.toString() + ".0").c_str(), F);
         builder.SetInsertPoint(BB);
@@ -306,11 +313,13 @@ namespace px
         // F is a pointer to a Function instance
         std::string output;
         llvm::raw_string_ostream stringStream{ output };
+        stringStream << "Printing function " << f.name.toString() << ":\n";
         for (llvm::inst_iterator I = llvm::inst_begin(F), E = llvm::inst_end(F); I != E; ++I)
         {
             I->print(stringStream);
             stringStream << "\n";
         }
+        stringStream << "\n";
 
         std::cout << stringStream.str();
         return F;

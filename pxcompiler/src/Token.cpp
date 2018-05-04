@@ -21,6 +21,7 @@ namespace px
         { TokenType::KW_ELSE , "else" },
         { TokenType::KW_FALSE, "false" },
         { TokenType::KW_FOR, "for" },
+        { TokenType::KW_FUNC, "func" },
         { TokenType::KW_IF , "if" },
         { TokenType::KW_IMPLEMENTATION, "implementation" },
         { TokenType::KW_INTERFACE, "interface" },

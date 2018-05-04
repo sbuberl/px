@@ -196,7 +196,18 @@ namespace px
             errors->addError(Error{ f.position, Utf8String{ "Return type " } + f.returnTypeName + " was not found" });
             return nullptr;
         }
-        Function *function = new Function{ f.name, returnType };
+        std::vector<FunctionArgument> arguments;
+        for (ast::Argument arg : f.arguments)
+        {
+            Type *argType = currentSymbols->getType(arg.typeName);
+            if (argType == nullptr)
+            {
+                errors->addError(Error{ f.position, Utf8String{ "Function argument type " } + arg.typeName + " was not found" });
+                return nullptr;
+            }
+            arguments.push_back({ arg.name, argType });
+        }
+        Function *function = new Function{ f.name, arguments, returnType };
         f.function = function;
         currentSymbols->addSymbol(function);
         f.block->accept(*this);
