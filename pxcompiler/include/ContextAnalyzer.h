@@ -22,6 +22,7 @@ namespace px {
         void *visit(ast::CastExpression &f) override;
         void *visit(ast::ExpressionStatement &s) override;
         void *visit(ast::FloatLiteral &f) override;
+        void *visit(ast::FunctionCallExpression &f) override;
         void *visit(ast::FunctionDeclaration &f) override;
         void *visit(ast::IfStatement &i) override;
         void *visit(ast::IntegerLiteral &i) override;

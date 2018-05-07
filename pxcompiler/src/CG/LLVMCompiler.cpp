@@ -281,21 +281,40 @@ namespace px
         return llvm::ConstantFP::get(pxTypeToLlvmType(f.type), f.value);
     }
 
+    void * LLVMCompiler::visit(ast::FunctionCallExpression & f)
+    {
+        Function *pxFunction = f.function;
+        LLVMFunctionData *functionData = (LLVMFunctionData*)pxFunction->data.get();
+        llvm::Function *llvmFunction = functionData->function;
+
+        std::vector <llvm::Value*> llvmArgs;
+        for (auto &arg : f.arguments)
+        {
+            llvm::Value *argValue = (llvm::Value*) arg->accept(*this);
+            llvmArgs.push_back(argValue);
+        }
+        llvm::Value *ret = builder.CreateCall(llvmFunction, llvmArgs);
+        if (llvmFunction->getReturnType() != llvm::Type::getVoidTy(context))
+            return ret;
+        return nullptr;
+    }
+
     void* LLVMCompiler::visit(ast::FunctionDeclaration &f)
     {
         Function *function = f.function;
 
         llvm::Type *RT = pxTypeToLlvmType(function->returnType);
         std::vector<llvm::Type*> argTypes;
-        for (const FunctionArgument &arg : function->arguments)
+        for (const Variable *arg : function->parameters)
         {
-            llvm::Type *argType = pxTypeToLlvmType(arg.type);
+            llvm::Type *argType = pxTypeToLlvmType(arg->type);
             argTypes.push_back(argType);
         }
 
         llvm::FunctionType *FT = llvm::FunctionType::get(RT, argTypes, false);
-        llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, f.name.c_str(), module.get());
-        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context, (f.name.toString() + ".0").c_str(), F);
+        std::string functionName = f.name.toString();
+        llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, functionName, module.get());
+        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context, functionName + ".0", F);
         builder.SetInsertPoint(BB);
 
         function->data.reset(new LLVMFunctionData(F));

@@ -187,30 +187,64 @@ namespace px
         return nullptr;
     }
 
-    void* ContextAnalyzer::visit(ast::FunctionDeclaration &f)
+    void * ContextAnalyzer::visit(ast::FunctionCallExpression &f)
     {
         auto currentSymbols = _currentScope->symbols();
+        Function *function = currentSymbols->template getSymbol<Function>(f.functionName, SymbolType::FUNCTION);
+        if (function == nullptr)
+        {
+            errors->addError(Error{ f.position, Utf8String{ "Function " } +f.functionName + " was not found" });
+            return nullptr;
+        }
+        f.function = function;
+
+        if (function->parameters.size() != f.arguments.size())
+        {
+            errors->addError(Error{ f.position, Utf8String{ "Invalid number of arguments given to function " } +f.functionName });
+        }
+
+        for (auto &arg : f.arguments)
+        {
+            arg->accept(*this);
+        }
+
+;
+        return nullptr;
+    }
+
+    void* ContextAnalyzer::visit(ast::FunctionDeclaration &f)
+    {
+        auto current = _currentScope;
+        auto currentSymbols = current->symbols();
         Type *returnType = currentSymbols->getType(f.returnTypeName);
         if (returnType == nullptr)
         {
             errors->addError(Error{ f.position, Utf8String{ "Return type " } + f.returnTypeName + " was not found" });
-            return nullptr;
         }
-        std::vector<FunctionArgument> arguments;
-        for (ast::Argument arg : f.arguments)
+        std::vector<Variable *> parameters;
+        for (ast::Parameter param : f.parameters)
         {
-            Type *argType = currentSymbols->getType(arg.typeName);
-            if (argType == nullptr)
+            Type *paramType = currentSymbols->getType(param.typeName);
+            if (paramType == nullptr)
             {
-                errors->addError(Error{ f.position, Utf8String{ "Function argument type " } + arg.typeName + " was not found" });
-                return nullptr;
+                errors->addError(Error{ f.position, Utf8String{ "Function parameter type " } + param.typeName + " was not found" });
             }
-            arguments.push_back({ arg.name, argType });
+            Variable *parameter = new Variable{ param.name, paramType };
+            parameters.push_back(parameter);
         }
-        Function *function = new Function{ f.name, arguments, returnType };
+        Function *function = new Function{ f.name, parameters, returnType };
         f.function = function;
         currentSymbols->addSymbol(function);
-        f.block->accept(*this);
+
+        auto newScope = new Scope(current);
+        _currentScope = newScope;
+        auto newSymbols = newScope->symbols();
+        for (auto &param : parameters)
+            newSymbols->addSymbol(param);
+        for(auto &statement : f.block->statements)
+            statement->accept(*this);
+        _currentScope = current;
+        
         return nullptr;
     }
 

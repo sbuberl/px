@@ -159,7 +159,7 @@ namespace px {
         Utf8String functionName = currentToken->str;
         expect(TokenType::IDENTIFIER);
         expect(TokenType::LPAREN);
-        std::vector<ast::Argument> arguments;
+        std::vector<ast::Parameter> arguments;
         if (currentToken->type != TokenType::RPAREN)
         {
             do
@@ -404,8 +404,34 @@ namespace px {
         switch (currentToken->type)
         {
             case TokenType::IDENTIFIER:
-                value.reset(new VariableExpression{ start, currentToken->str });
+            {
+                {
+                    Utf8String identifier = currentToken->str;
+                    Token &nextToken = scanner->nextToken();
+                    if (nextToken.type == TokenType::LPAREN)
+                    {
+                        accept();
+                        std::vector<std::unique_ptr<Expression>> arguments;
+                        if (currentToken->type != TokenType::RPAREN)
+                        {
+                            do
+                            {
+                                std::unique_ptr<Expression> argument = parseExpression();
+                                arguments.push_back(std::move(argument));
+                            } while (accept(TokenType::OP_COMMA));
+                        }
+                        expect(TokenType::RPAREN);
+                        value.reset(new FunctionCallExpression{ start, identifier, std::move(arguments) });
+                        return value;
+                    }
+                    else
+                    {
+                        rewind();
+                        value.reset(new VariableExpression{ start, identifier });
+                    }
+                }
                 break;
+            }
             case TokenType::INTEGER:
                 i64Literal = std::stoll(tokenString, nullptr, currentToken->integerBase);
                 value.reset(new IntegerLiteral{ start, suffix, currentToken->str, i64Literal });

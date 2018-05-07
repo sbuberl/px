@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
     //std::cout << "Building Symbol Table " << std::endl;
 
-    px:ScopeTree scopeTree;
+    px::ScopeTree scopeTree;
 
     px::ErrorLog errors;
 
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     {
         ast = parser.parse(fileName, fis);
     }
-    catch (const px::Error &error)
+    catch (const px::Error &)
     {
         errors.output();
         return -2;

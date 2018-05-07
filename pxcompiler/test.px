@@ -1,7 +1,7 @@
-func blah() : void
+func blah(x:int32, y:int32) : void
 {
 	a: uint32 = 1024_u32;
-	i: int32 = 7_i;
+	i: int32 = x + y;
 	j: int32 = i ÷ 4.0 as int32;
 	0x10ADF + 0b10101001 + 0o15675;
 	i = j > 12 ? 256 : 384;
@@ -19,5 +19,6 @@ func blah() : void
 
 func main() : int32
 {
+	blah(123, 586);
 	return 27;
 }

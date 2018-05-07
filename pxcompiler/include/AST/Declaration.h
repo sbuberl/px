@@ -9,13 +9,13 @@ namespace px
 {
     namespace ast
     {
-        class Argument
+        class Parameter
         {
         public:
             const Utf8String name;
             const Utf8String typeName;
 
-            Argument(const Utf8String &func, const Utf8String &ty)
+            Parameter(const Utf8String &func, const Utf8String &ty)
                 : name{ func }, typeName{ ty }
             {
             }
@@ -26,12 +26,12 @@ namespace px
         public:
             const Utf8String name;
             const Utf8String returnTypeName;
-            std::vector<Argument> arguments;
+            std::vector<Parameter> parameters;
             std::unique_ptr<BlockStatement> block;
             Function *function;
 
-            FunctionDeclaration(const SourcePosition &pos, const Utf8String &fname, const Utf8String &retTypeName, const std::vector<Argument> &args, std::unique_ptr<BlockStatement> stmts)
-                : Statement{ pos }, name{ fname }, returnTypeName{ retTypeName }, arguments{ args }, block{ std::move(stmts) }, function{ nullptr }
+            FunctionDeclaration(const SourcePosition &pos, const Utf8String &fname, const Utf8String &retTypeName, const std::vector<Parameter> &args, std::unique_ptr<BlockStatement> stmts)
+                : Statement{ pos }, name{ fname }, returnTypeName{ retTypeName }, parameters{ args }, block{ std::move(stmts) }, function{ nullptr }
             {
             }
 

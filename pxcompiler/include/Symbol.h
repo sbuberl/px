@@ -28,8 +28,7 @@ namespace px
         UNKNOWN = 0,
         TYPE,
         FUNCTION,
-        VARIABLE,
-        PARAMETER
+        VARIABLE
     };
 
     class Symbol
@@ -266,26 +265,14 @@ namespace px
         SymbolTable * const _parent;
     };
 
-    class FunctionArgument
-    {
-    public:
-        const Utf8String name;
-        Type * const type;
-
-        FunctionArgument(const Utf8String &n, Type *t)
-            : name{ n }, type{ t }
-        {
-        }
-    };
-
     class Function : public Symbol
     {
     public:
         Type * returnType;
-        std::vector<FunctionArgument> arguments;
+        std::vector<Variable*> parameters;
 
-        Function(const Utf8String &func, std::vector<FunctionArgument> args, Type *retType)
-            : Symbol{ func, SymbolType::FUNCTION }, arguments{ args }, returnType {retType}
+        Function(const Utf8String &func, const std::vector<Variable*> &params, Type *retType)
+            : Symbol{ func, SymbolType::FUNCTION }, parameters{ params }, returnType {retType}
         {
         }
     };

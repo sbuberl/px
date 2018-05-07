@@ -68,6 +68,21 @@ namespace px
             void *accept(Visitor &visitor) override;
         };
 
+        class FunctionCallExpression : public Expression
+        {
+        public:
+            const Utf8String functionName;
+            std::vector<std::unique_ptr<Expression>> arguments;
+            Function *function;
+
+            FunctionCallExpression(const SourcePosition &pos, const Utf8String &name, std::vector<std::unique_ptr<Expression>> args)
+                : Expression{ pos }, functionName{ name }, arguments{ std::move(args) }, function{}
+            {
+            }
+
+            void *accept(Visitor &visitor) override;
+        };
+
         enum class UnaryOperator
         {
             NEG,
