@@ -182,6 +182,33 @@ namespace px
         return nullptr;
     }
 
+    void * ContextAnalyzer::visit(ast::ExternFunctionDeclaration & e)
+    {
+        auto current = _currentScope;
+        auto currentSymbols = current->symbols();
+        auto prototype = *e.prototype;
+        Type *returnType = currentSymbols->getType(prototype.returnTypeName);
+        if (returnType == nullptr)
+        {
+            errors->addError(Error{ e.position, Utf8String{ "Return type " } + prototype.returnTypeName + " was not found" });
+        }
+        std::vector<Variable *> parameters;
+        for (ast::Parameter param : prototype.parameters)
+        {
+            Type *paramType = currentSymbols->getType(param.typeName);
+            if (paramType == nullptr)
+            {
+                errors->addError(Error{ e.position, Utf8String{ "Function parameter type " } + param.typeName + " was not found" });
+            }
+            Variable *parameter = new Variable{ param.name, paramType };
+            parameters.push_back(parameter);
+        }
+        Function *function = new Function{ prototype.name, parameters, returnType };
+        e.function = function;
+        currentSymbols->addSymbol(function);
+        return nullptr;
+    }
+
     void* ContextAnalyzer::visit(ast::FloatLiteral &f)
     {
         return nullptr;
@@ -216,13 +243,14 @@ namespace px
     {
         auto current = _currentScope;
         auto currentSymbols = current->symbols();
-        Type *returnType = currentSymbols->getType(f.returnTypeName);
+        auto prototype = *f.prototype;
+        Type *returnType = currentSymbols->getType(prototype.returnTypeName);
         if (returnType == nullptr)
         {
-            errors->addError(Error{ f.position, Utf8String{ "Return type " } + f.returnTypeName + " was not found" });
+            errors->addError(Error{ f.position, Utf8String{ "Return type " } + prototype.returnTypeName + " was not found" });
         }
         std::vector<Variable *> parameters;
-        for (ast::Parameter param : f.parameters)
+        for (ast::Parameter param : prototype.parameters)
         {
             Type *paramType = currentSymbols->getType(param.typeName);
             if (paramType == nullptr)
@@ -232,7 +260,7 @@ namespace px
             Variable *parameter = new Variable{ param.name, paramType };
             parameters.push_back(parameter);
         }
-        Function *function = new Function{ f.name, parameters, returnType };
+        Function *function = new Function{ prototype.name, parameters, returnType };
         f.function = function;
         currentSymbols->addSymbol(function);
 

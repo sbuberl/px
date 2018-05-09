@@ -84,6 +84,8 @@ namespace px {
     {
         switch (currentToken->type)
         {
+            case TokenType::KW_EXTERN:
+                return parseExternFunction();
             case TokenType::KW_FUNC:
                 return parseFunctionDeclaration();
             case TokenType::KW_IF:
@@ -143,6 +145,15 @@ namespace px {
         return block;
     }
 
+    std::unique_ptr<ast::ExternFunctionDeclaration> Parser::parseExternFunction()
+    {
+        auto startPos = currentToken->position;
+        expect(TokenType::KW_EXTERN);
+        std::unique_ptr<ast::FunctionPrototype> prototype = parseFunctionPrototype();
+        expect(TokenType::OP_END_STATEMENT);
+        return std::make_unique<ExternFunctionDeclaration>(startPos, std::move(prototype));
+    }
+
     std::unique_ptr<ast::ExpressionStatement> Parser::parseExpressionStatement()
     {
         auto startPos = currentToken->position;
@@ -155,6 +166,13 @@ namespace px {
     std::unique_ptr<ast::FunctionDeclaration> Parser::parseFunctionDeclaration()
     {
         auto startPos = currentToken->position;
+        std::unique_ptr<ast::FunctionPrototype> prototype = parseFunctionPrototype();
+        std::unique_ptr<ast::BlockStatement> block = parseBlockStatement();
+        return std::make_unique<FunctionDeclaration>(startPos, std::move(prototype), std::move(block));
+    }
+
+    std::unique_ptr<ast::FunctionPrototype> Parser::parseFunctionPrototype()
+    {
         expect(TokenType::KW_FUNC);
         Utf8String functionName = currentToken->str;
         expect(TokenType::IDENTIFIER);
@@ -170,15 +188,13 @@ namespace px {
                 Utf8String argTypeName = currentToken->str;
                 expect(TokenType::IDENTIFIER);
                 arguments.push_back({ argName, argTypeName });
-            }
-            while (accept(TokenType::OP_COMMA));
+            } while (accept(TokenType::OP_COMMA));
         }
         expect(TokenType::RPAREN);
         expect(TokenType::OP_COLON);
         Utf8String returnType = currentToken->str;
         expect(TokenType::IDENTIFIER);
-        std::unique_ptr<ast::BlockStatement> block = parseBlockStatement();
-        return std::make_unique<FunctionDeclaration>(startPos, functionName, returnType, arguments, std::move(block));
+        return std::make_unique<FunctionPrototype>(functionName, returnType, arguments);
     }
 
     std::unique_ptr<ast::IfStatement> Parser::parseIfStatement()

@@ -14,29 +14,15 @@
 
 namespace px
 {
-    static llvm::StructType* stringType;
 
-    static llvm::StructType* getStringType(llvm::LLVMContext &context)
+    LLVMCompiler::LLVMCompiler(ScopeTree *tree) : scopeTree{ tree }, moduleData{}, builder{ moduleData.context }, currentFunction{ nullptr }
     {
-        if (!stringType)
-        {
-            llvm::Type* runeLengthType = llvm::Type::getInt32Ty(context);
-            llvm::Type* byteCount = llvm::Type::getInt32Ty(context);
-            llvm::Type* utf8PointerType = llvm::Type::getInt8PtrTy(context);
-            std::vector<llvm::Type*> values = { utf8PointerType , runeLengthType, byteCount };
-            stringType = llvm::StructType::create(context, values, "string");
-        }
-        return stringType;
-    }
-
-    LLVMCompiler::LLVMCompiler(ScopeTree *tree) : scopeTree{ tree }, context{}, builder{ context }, currentFunction{ nullptr }
-    {
-        module = llvm::make_unique<llvm::Module>("test", context);
         currentScope = new LLVMScope{ tree->current(), nullptr };
     }
 
     llvm::Type *LLVMCompiler::pxTypeToLlvmType(Type *pxType)
     {
+        auto &context = moduleData.context;
         if (pxType->isInt() || pxType->isUInt())
         {
             switch (pxType->size)
@@ -65,7 +51,7 @@ namespace px
         else if (pxType->isChar())
             return llvm::Type::getInt32Ty(context);
         else if (pxType->isString())
-            return getStringType(context);
+            return moduleData.getStruct("string");
 
         return nullptr;
     }
@@ -73,6 +59,11 @@ namespace px
     void LLVMCompiler::compile(ast::AST& ast)
     {
         ast.accept(*this);
+        moduleData.module->dump();
+      /*  std::string output;
+        llvm::raw_string_ostream stringStream{ output };
+        llvm::WriteBitcodeToFile(moduleData.module.get(), stringStream);
+        std::cout << stringStream.str(); */
        /* std::string output;
         llvm::raw_string_ostream stringStream{ output };
         llvm::WriteBitcodeToFile(module.get(), stringStream);
@@ -276,6 +267,26 @@ namespace px
         return value;
     }
 
+    void * LLVMCompiler::visit(ast::ExternFunctionDeclaration & e)
+    {
+        Function *function = e.function;
+
+        llvm::Type *RT = pxTypeToLlvmType(function->returnType);
+
+        std::vector<llvm::Type*> argTypes;
+        for (const Variable *arg : function->parameters)
+        {
+            llvm::Type *argType = pxTypeToLlvmType(arg->type);
+            argTypes.push_back(argType);
+        }
+
+        llvm::FunctionType *funcType = llvm::FunctionType::get(RT, argTypes, false);
+        std::string functionName = e.prototype->name.toString();
+        llvm::Function *foundFunction = (llvm::Function*) moduleData.module->getOrInsertFunction(functionName, funcType);
+        function->data.reset(new LLVMFunctionData(foundFunction));
+        return nullptr;
+    }
+
     void* LLVMCompiler::visit(ast::FloatLiteral &f)
     {
         return llvm::ConstantFP::get(pxTypeToLlvmType(f.type), f.value);
@@ -294,7 +305,7 @@ namespace px
             llvmArgs.push_back(argValue);
         }
         llvm::Value *ret = builder.CreateCall(llvmFunction, llvmArgs);
-        if (llvmFunction->getReturnType() != llvm::Type::getVoidTy(context))
+        if (llvmFunction->getReturnType() != llvm::Type::getVoidTy(moduleData.context))
             return ret;
         return nullptr;
     }
@@ -312,9 +323,9 @@ namespace px
         }
 
         llvm::FunctionType *FT = llvm::FunctionType::get(RT, argTypes, false);
-        std::string functionName = f.name.toString();
-        llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, functionName, module.get());
-        llvm::BasicBlock *BB = llvm::BasicBlock::Create(context, functionName + ".0", F);
+        std::string functionName = f.prototype->name.toString();
+        llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, functionName, moduleData.module.get());
+        llvm::BasicBlock *BB = llvm::BasicBlock::Create(moduleData.context, functionName + ".0", F);
         builder.SetInsertPoint(BB);
 
         function->data.reset(new LLVMFunctionData(F));
@@ -329,25 +340,13 @@ namespace px
         currentFunction = prevFunction;
         currentBlock = prevBlock;
 
-        // F is a pointer to a Function instance
-        std::string output;
-        llvm::raw_string_ostream stringStream{ output };
-        stringStream << "Printing function " << f.name.toString() << ":\n";
-        for (llvm::inst_iterator I = llvm::inst_begin(F), E = llvm::inst_end(F); I != E; ++I)
-        {
-            I->print(stringStream);
-            stringStream << "\n";
-        }
-        stringStream << "\n";
-
-        std::cout << stringStream.str();
         return F;
     }
 
     void * LLVMCompiler::visit(ast::IfStatement & i)
     {
         llvm::Value *condition = (llvm::Value*) i.condition->accept(*this);
-
+        auto &context = moduleData.context;
         LLVMFunctionData *funcData = (LLVMFunctionData*) currentFunction->data.get();
         llvm::Function *function = funcData->function;
         auto thenBlock = llvm::BasicBlock::Create(context, "", function);
@@ -413,7 +412,7 @@ namespace px
         llvm::Constant *stringConstant = static_cast<llvm::Constant*>(builder.CreateGlobalStringPtr(literal.toString()));
 
         std::vector<llvm::Constant*> args = { stringConstant, runeCount, byteCount };
-        return llvm::ConstantStruct::get(getStringType(context), args);
+        return llvm::ConstantStruct::get(moduleData.getStruct("string"), args);
     }
 
     void* LLVMCompiler::visit(ast::TernaryOpExpression &t)

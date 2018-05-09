@@ -3,13 +3,11 @@
 #define LLVMCOMPILER_H_
 
 #include "ast/Visitor.h"
+#include "ModuleData.h"
 #include "Scope.h"
+#include "Utf8String.h"
 
-#include <map>
-#include <string>
-
-#include "llvm/IR/Module.h"
-#include "llvm/IR/LLVMContext.h"
+#include <unordered_map>
 #include "llvm/IR/IRBuilder.h"
 
 namespace px {
@@ -26,6 +24,7 @@ namespace px {
         void *visit(ast::CharLiteral &c) override;
         void *visit(ast::CastExpression &f) override;
         void *visit(ast::ExpressionStatement &s) override;
+        void *visit(ast::ExternFunctionDeclaration &e) override;
         void *visit(ast::FloatLiteral &f) override;
         void *visit(ast::FunctionCallExpression &f) override;
         void *visit(ast::FunctionDeclaration &f) override;
@@ -77,9 +76,8 @@ namespace px {
 
         llvm::Type *pxTypeToLlvmType(Type *type);
 
-        llvm::LLVMContext context;
+        ModuleData moduleData;
         llvm::IRBuilder<> builder;
-        std::unique_ptr<llvm::Module> module;
         px::Function *currentFunction;
         LLVMScope *currentScope;
         px::ScopeTree * const scopeTree;

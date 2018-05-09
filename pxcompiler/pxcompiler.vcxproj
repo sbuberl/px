@@ -26,6 +26,7 @@
     <ClInclude Include="include\AST\Statement.h" />
     <ClInclude Include="include\AST\Visitor.h" />
     <ClInclude Include="include\CG\LLVMCompiler.h" />
+    <ClInclude Include="include\CG\ModuleData.h" />
     <ClInclude Include="include\ContextAnalyzer.h" />
     <ClInclude Include="include\Error.h" />
     <ClInclude Include="include\Parser.h" />

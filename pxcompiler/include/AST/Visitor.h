@@ -23,6 +23,7 @@ namespace px
             virtual void *visit(CastExpression &f) = 0;
             virtual void *visit(CharLiteral &c) = 0;
             virtual void *visit(ExpressionStatement &s) = 0;
+            virtual void *visit(ExternFunctionDeclaration &e) = 0;
             virtual void *visit(FloatLiteral &i) = 0;
             virtual void *visit(FunctionCallExpression &f) = 0;
             virtual void *visit(FunctionDeclaration &f) = 0;

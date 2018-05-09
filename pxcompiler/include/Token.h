@@ -20,6 +20,7 @@ namespace px {
         KW_DEFAULT,
         KW_DO,
         KW_ELSE,
+        KW_EXTERN,
         KW_FALSE,
         KW_FOR,
         KW_FUNC,

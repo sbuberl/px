@@ -19,6 +19,7 @@ namespace px
         { TokenType::KW_DEFAULT, "default" },
         { TokenType::KW_DO, "do" },
         { TokenType::KW_ELSE , "else" },
+        { TokenType::KW_EXTERN , "extern" },
         { TokenType::KW_FALSE, "false" },
         { TokenType::KW_FOR, "for" },
         { TokenType::KW_FUNC, "func" },
