@@ -1,3 +1,6 @@
+![C++ Badge](https://camo.githubusercontent.com/5470b238fcbd1a4ed9f15c650df2472ece533eb5/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f7374642d632b2b31342d626c75652e737667)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/ab463a33c64b4bd3abd9d3c83768b2b5)](https://www.codacy.com/app/sbuberl/px?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sbuberl/px&amp;utm_campaign=Badge_Grade)
+
 # px
 A work in progress programming language
 
