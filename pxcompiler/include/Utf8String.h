@@ -42,10 +42,10 @@ namespace px {
         {
         }
 
-        Utf8String(const Utf8String &&other) : count{ std::move(other.count) }, bytes{ std::move(other.bytes) }, pointsStart{ std::move(other.pointsStart) }
+        Utf8String(Utf8String &&other) : count{ other.count }, bytes{ std::move(other.bytes) }, pointsStart{ std::move(other.pointsStart) }
         {
+            other.count = 0;
         }
-
 
         const uint8_t *data() const
         {
