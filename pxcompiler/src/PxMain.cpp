@@ -2,7 +2,7 @@
 #include "Parser.h"
 #include "Error.h"
 #include "ContextAnalyzer.h"
-#include "CG/LLVMCompiler.h"
+#include "cg/LLVMCompiler.h"
 #include <iostream>
 #include <fstream>
 using namespace px;

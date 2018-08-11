@@ -1,5 +1,5 @@
 
-#include "CG/LLVMCompiler.h"
+#include "cg/LLVMCompiler.h"
 
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/Function.h"
