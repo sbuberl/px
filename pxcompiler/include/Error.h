@@ -1,5 +1,5 @@
-#ifndef PX_ERROR
-#define PX_ERROR
+#ifndef _PX_ERROR_H_
+#define _PX_ERROR_H_
 
 #include <SourcePosition.h>
 #include <Utf8String.h>

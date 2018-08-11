@@ -1,6 +1,6 @@
 
-#ifndef MODULEDATA_H_
-#define MODULEDATA_H_
+#ifndef _PX_CG_MODULEDATA_H_
+#define _PX_CG_MODULEDATA_H_
 
 #include "ast/Visitor.h"
 #include "Scope.h"

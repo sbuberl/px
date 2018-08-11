@@ -1,6 +1,6 @@
 
-#ifndef VISITOR_H_
-#define VISITOR_H_
+#ifndef _PX_AST_VISITOR_H_
+#define _PX_AST_VISITOR_H_
 
 #include <ast/AST.h>
 #include <ast/Expression.h>

@@ -1,6 +1,6 @@
 
-#ifndef SOURCEPOSITION_H_
-#define SOURCEPOSITION_H_
+#ifndef _PX_SOURCEPOSITION_H_
+#define _PX_SOURCEPOSITION_H_
 
 #include <Utf8String.h>
 

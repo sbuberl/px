@@ -1,6 +1,6 @@
 
-#ifndef LLVMCOMPILER_H_
-#define LLVMCOMPILER_H_
+#ifndef _PX_CG_LLVMCOMPILER_H_
+#define _PX_CG_LLVMCOMPILER_H_
 
 #include "ast/Visitor.h"
 #include "ModuleData.h"

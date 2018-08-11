@@ -1,6 +1,6 @@
 
-#ifndef AST_H_
-#define AST_H_
+#ifndef _PX_AST_AST_H_
+#define _PX_AST_AST_H_
 
 #include "SourcePosition.h"
 

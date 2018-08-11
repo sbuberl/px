@@ -1,6 +1,6 @@
 
-#ifndef LITERAL_H_
-#define LITERAL_H_
+#ifndef _PX_AST_LITERAL_H_
+#define _PX_AST_LITERAL_H_
 
 #include <ast/Expression.h>
 #include <Symbol.h>

@@ -1,6 +1,6 @@
 
-#ifndef EXPRESSION_H_
-#define EXPRESSION_H_
+#ifndef _PX_AST_EXPRESSION_H_
+#define _PX_AST_EXPRESSION_H_
 
 #include <ast/AST.h>
 #include <Symbol.h>

@@ -1,6 +1,6 @@
 
-#ifndef DECLARATION_H_
-#define DECLARATION_H_
+#ifndef _PX_AST_DECLARATION_H_
+#define _PX_AST_DECLARATION_H_
 
 #include <ast/AST.h>
 #include <ast/Statement.h>

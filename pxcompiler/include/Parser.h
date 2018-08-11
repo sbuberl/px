@@ -1,6 +1,6 @@
 
-#ifndef PARSER_H_
-#define PARSER_H_
+#ifndef _PX_PARSER_H_
+#define _PX_PARSER_H_
 
 #include <iostream>
 #include <ast/AST.h>

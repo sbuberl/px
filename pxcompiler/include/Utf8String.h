@@ -1,6 +1,6 @@
 
-#ifndef UTF8STRING_H_
-#define UTF8STRING_H_
+#ifndef _PX_UTF8STRING_H_
+#define _PX_UTF8STRING_H_
 
 #include <unicode/utf8.h>
 #include <unicode/uiter.h>

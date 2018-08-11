@@ -1,6 +1,6 @@
 
-#ifndef SYMBOL_H_
-#define SYMBOL_H_
+#ifndef _PX_SYMBOL_H_
+#define _PX_SYMBOL_H_
 
 #include <memory>
 #include <unordered_map>

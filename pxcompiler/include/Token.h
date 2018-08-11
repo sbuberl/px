@@ -1,6 +1,6 @@
 
-#ifndef TOKEN_H_
-#define TOKEN_H_
+#ifndef _PX_TOKEN_H_
+#define _PX_TOKEN_H_
 
 #include "Symbol.h"
 #include "Utf8String.h"

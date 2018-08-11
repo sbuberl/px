@@ -1,6 +1,6 @@
 
-#ifndef SCANNER_H_
-#define SCANNER_H_
+#ifndef _PX_SCANNER_H_
+#define _PX_SCANNER_H_
 
 #include <string>
 #include <unordered_map>

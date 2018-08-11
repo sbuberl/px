@@ -1,5 +1,5 @@
-#ifndef SCOPE_H
-#define SCOPE_H
+#ifndef _PX_SCOPE_H_
+#define _PX_SCOPE_H_
 
 #include "Symbol.h"
 

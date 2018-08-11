@@ -1,6 +1,6 @@
 
-#ifndef CONTEXTANALYZER_H_
-#define CONTEXTANALYZER_H_
+#ifndef _PX_CONTEXTANALYZER_H_
+#define _PX_CONTEXTANALYZER_H_
 
 #include "ast/Visitor.h"
 #include "Error.h"
