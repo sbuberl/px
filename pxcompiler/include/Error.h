@@ -6,6 +6,7 @@
 
 #include <unicode/ustdio.h>
 #include <unicode/ustring.h>
+#include <memory>
 #include <vector>
 
 namespace px {
@@ -42,11 +43,11 @@ namespace px {
                 auto position = error.position;
                 Utf8String message = position.fileName + "(" + std::to_string(position.line) + ", " + std::to_string(position.lineColumn) + "): " + error.errorMsg;
                 int32_t length;
-                UErrorCode error = U_ZERO_ERROR;
-                u_strFromUTF8(NULL, 0, &length, message.c_str(), message.byteLength(), &error);
-                error = U_ZERO_ERROR;
+                UErrorCode errorCode = U_ZERO_ERROR;
+                u_strFromUTF8(NULL, 0, &length, message.c_str(), message.byteLength(), &errorCode);
+                errorCode = U_ZERO_ERROR;
                 std::unique_ptr<UChar[]> utf16Message(new UChar[length + 2]);
-                u_strFromUTF8(utf16Message.get(), length, &length, message.c_str(), message.byteLength(), &error);
+                u_strFromUTF8(utf16Message.get(), length, &length, message.c_str(), message.byteLength(), &errorCode);
                 utf16Message[length] = '\r';
                 utf16Message[length + 1] = '\n';
                 u_file_write(utf16Message.get(), length + 2, out);

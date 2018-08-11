@@ -5,7 +5,7 @@
 #include <unicode/utf8.h>
 #include <unicode/uiter.h>
 
-#include <iterator>
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -130,22 +130,22 @@ namespace px {
 
         bool operator==(const Utf8String& other) const
         {
-            return count == other.count && memcmp(bytes.data(), other.bytes.data(), count) == 0;
+            return count == other.count && std::memcmp(bytes.data(), other.bytes.data(), count) == 0;
         }
 
         bool operator!=(const Utf8String& other) const
         {
-            return count != other.count || memcmp(bytes.data(), other.bytes.data(), count) != 0;
+            return count != other.count || std::memcmp(bytes.data(), other.bytes.data(), count) != 0;
         }
 
         bool operator<(const Utf8String& other) const
         {
-            return memcmp(bytes.data(), other.bytes.data(), count) < 0;
+            return std::memcmp(bytes.data(), other.bytes.data(), count) < 0;
         }
 
         bool operator>(const Utf8String& other) const
         {
-            return memcmp(bytes.data(), other.bytes.data(), count) > 0;
+            return std::memcmp(bytes.data(), other.bytes.data(), count) > 0;
         }
 
         void clear()
