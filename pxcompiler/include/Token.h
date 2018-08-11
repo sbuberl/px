@@ -96,15 +96,21 @@ namespace px {
             integerBase = 10;
         }
 
-        static Utf8String &getTokenName(TokenType type)
+        static Utf8String &getTokenName(TokenType type);
+    };
+}
+
+namespace std
+{
+    template<>
+    struct hash< px::TokenType >
+    {
+        typedef px::TokenType argument_type;
+        typedef std::size_t result_type;
+        result_type operator()( const argument_type& arg ) const
         {
-            auto it = tokenNames.find(type);
-            if (it != tokenNames.end())
-            {
-                return it->second;
-            }
+            return static_cast<std::size_t>(arg);
         }
     };
-
 }
 #endif

@@ -74,5 +74,14 @@ namespace px
         { TokenType::OP_STAR, "*" },
         { TokenType::OP_SUB, "-" },
     };
+    
+    Utf8String &Token::getTokenName(TokenType type)
+    {
+        auto it = tokenNames.find(type);
+        if (it != tokenNames.end())
+        {
+            return it->second;
+        }
+    }
 
 }
