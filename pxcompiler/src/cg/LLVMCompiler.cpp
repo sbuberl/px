@@ -59,7 +59,7 @@ namespace px
     void LLVMCompiler::compile(ast::AST& ast)
     {
         ast.accept(*this);
-        moduleData.module->dump();
+        moduleData.module->print(llvm::errs(), nullptr);
       /*  std::string output;
         llvm::raw_string_ostream stringStream{ output };
         llvm::WriteBitcodeToFile(moduleData.module.get(), stringStream);
