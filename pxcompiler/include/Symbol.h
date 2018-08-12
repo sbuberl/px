@@ -131,7 +131,7 @@ namespace px
             return this == t || inherits(t);
         }
 
-        bool isBuiltin(int builtinFlag) const
+        bool isBuiltin(unsigned int builtinFlag) const
         {
             return (flags & builtinFlag) == builtinFlag;
         }

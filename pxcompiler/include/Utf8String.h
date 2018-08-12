@@ -186,7 +186,7 @@ namespace px {
             {
                 pointsStart.push_back(pos);
 
-                U8_NEXT(bytes.data(), pos, bytesSize, codePoint);
+                U8_NEXT(data, pos, bytesSize, codePoint);
                 count++;
 
                 if (codePoint < 0 && pos != bytesSize)
