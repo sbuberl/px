@@ -272,7 +272,7 @@ namespace px
         std::vector<Variable*> parameters;
 
         Function(const Utf8String &func, const std::vector<Variable*> &params, Type *retType)
-            : Symbol{ func, SymbolType::FUNCTION }, parameters{ params }, returnType {retType}
+            : Symbol{ func, SymbolType::FUNCTION }, returnType {retType}, parameters{ params }
         {
         }
     };

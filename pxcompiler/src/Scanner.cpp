@@ -42,7 +42,7 @@ namespace px {
         { "while", TokenType::KW_WHILE},
     };
 
-    Scanner::Scanner(const Utf8String &fileName, const Utf8String &code) : source{ code }, length { source.length() }, peekPos{ fileName }, currentPos{ fileName }, peekToken{ peekPos }
+    Scanner::Scanner(const Utf8String &fileName, const Utf8String &code) : source{ code }, length { source.length() }, currentPos{ fileName }, peekPos{ fileName }, peekToken{ peekPos }
     {
     }
 

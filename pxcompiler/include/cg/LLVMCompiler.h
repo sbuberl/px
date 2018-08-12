@@ -42,7 +42,7 @@ namespace px {
         class LLVMScope
         {
         public:
-            LLVMScope(px::Scope *s, LLVMScope *p) : scope{ s }, parent{ p }
+            LLVMScope(px::Scope *s, LLVMScope *p) : parent{ p }, scope{ s }
             {
             }
 

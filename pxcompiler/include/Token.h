@@ -87,7 +87,10 @@ namespace px {
 
         static std::unordered_map<TokenType, Utf8String> tokenNames;
         Token(const SourcePosition &pos) : position{ pos } { clear(); }
-        Token(const SourcePosition &pos, TokenType t, const Utf8String &s) : position{ pos }, type { t }, str{ s }, suffixType{ nullptr } {}
+        Token(const SourcePosition &pos, TokenType t, const Utf8String &s) : type { t }, str{ s }, suffixType{ nullptr }, integerBase{10}, position{ pos }
+        {
+        }
+
         void clear()
         {
             type = TokenType::BAD;

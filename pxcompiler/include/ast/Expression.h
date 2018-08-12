@@ -47,7 +47,7 @@ namespace px
             BinaryOperator op;
 
             BinaryOpExpression(const SourcePosition &pos, BinaryOperator op, std::unique_ptr<Expression> l, std::unique_ptr<Expression> r)
-                : Expression{ pos }, op{ op }, left{ std::move(l) }, right{ std::move(r) }
+                : Expression{ pos }, left{ std::move(l) }, right{ std::move(r) }, op{ op }
             {
             }
 
@@ -61,7 +61,7 @@ namespace px
             const Utf8String newTypeName;
 
             CastExpression(const SourcePosition &pos, const Utf8String &type, std::unique_ptr<Expression> exp)
-                : Expression{ pos }, newTypeName{ type }, expression{ std::move(exp) }
+                : Expression{ pos }, expression{ std::move(exp) }, newTypeName{ type }
             {
             }
 
@@ -126,7 +126,9 @@ namespace px
         public:
             const Utf8String variable;
 
-            VariableExpression(const SourcePosition &pos, const Utf8String &var) : Expression{ pos }, variable{ var } {}
+            VariableExpression(const SourcePosition &pos, const Utf8String &var) : Expression{ pos }, variable{ var }
+            {
+            }
 
             ~VariableExpression() {}
 

@@ -15,7 +15,7 @@
 namespace px
 {
 
-    LLVMCompiler::LLVMCompiler(ScopeTree *tree) : scopeTree{ tree }, moduleData{}, builder{ moduleData.context }, currentFunction{ nullptr }
+    LLVMCompiler::LLVMCompiler(ScopeTree *tree) : moduleData{}, builder{ moduleData.context }, currentFunction{ nullptr }, scopeTree{ tree }
     {
         currentScope = new LLVMScope{ tree->current(), nullptr };
     }
