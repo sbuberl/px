@@ -110,10 +110,12 @@ namespace px {
                 else
                     rewind();
             }
+            default:
+                // if none of the above, parse as expression
+                return parseExpressionStatement();
         }
 
-        // if none of the above, parse as expression
-        return parseExpressionStatement();
+
     }
 
     std::unique_ptr<ast::AssignmentStatement> Parser::parseAssignment()
@@ -269,8 +271,9 @@ namespace px {
             case TokenType::OP_LEFT_SHIFT:
             case TokenType::OP_RIGHT_SHIFT:
                 return 5;
+            default:
+                return 0;
         }
-        return 0;
     }
 
     BinaryOperator Parser::getBinaryOp(TokenType type)
@@ -313,8 +316,9 @@ namespace px {
                 return BinaryOperator::DIV;
             case TokenType::OP_MOD:
                 return BinaryOperator::MOD;
+            default:
+                return BinaryOperator::BAD;
         }
-        return BinaryOperator::BAD;
     }
 
     std::unique_ptr<Expression> Parser::parseExpression()
