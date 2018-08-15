@@ -8,6 +8,13 @@
 #include "llvm/Bitcode/BitcodeWriter.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/InstIterator.h"
+#include "llvm/Support/FileSystem.h"
+#include "llvm/IR/LegacyPassManager.h"
+#include <llvm/Target/TargetOptions.h>
+#include <llvm/Target/TargetMachine.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/TargetRegistry.h>
+#include <llvm/Transforms/Scalar.h>
 
 #include <functional>
 #include <iostream>
@@ -59,15 +66,40 @@ namespace px
     void LLVMCompiler::compile(ast::AST& ast)
     {
         ast.accept(*this);
-        moduleData.module->print(llvm::errs(), nullptr);
-      /*  std::string output;
-        llvm::raw_string_ostream stringStream{ output };
-        llvm::WriteBitcodeToFile(moduleData.module.get(), stringStream);
-        std::cout << stringStream.str(); */
-       /* std::string output;
-        llvm::raw_string_ostream stringStream{ output };
-        llvm::WriteBitcodeToFile(module.get(), stringStream);
-        std::cout << stringStream.str(); */
+
+        auto filename = "output.o";
+        auto triple = llvm::sys::getDefaultTargetTriple();
+        std::string targetErr;
+        llvm::Target const* target =
+                llvm::TargetRegistry::lookupTarget(triple, targetErr);
+        if (!target) {
+            throw targetErr;
+        }
+
+        llvm::TargetOptions options;
+        auto relocModel    = llvm::Optional<llvm::Reloc::Model>();
+        relocModel         = llvm::Reloc::Model::PIC_;
+        auto targetMachine = target->createTargetMachine(
+                triple, "generic", "", options, relocModel);
+
+        moduleData.module->setTargetTriple(triple);
+        moduleData.module->setDataLayout(targetMachine->createDataLayout());
+
+        llvm::legacy::PassManager pm;
+        pm.add(llvm::createPromoteMemoryToRegisterPass());
+        // opt pass end
+
+        std::error_code err;
+        llvm::raw_fd_ostream raw_stream(filename, err,
+                                        llvm::sys::fs::F_None);
+        auto fileType = llvm::TargetMachine::CGFT_ObjectFile;
+        if (targetMachine->addPassesToEmitFile(pm, raw_stream, fileType)) {
+            throw std::string("fail gen tartget machine");
+        }
+        pm.run(*(this->moduleData.module));
+        raw_stream.flush();
+
+        llvm::outs() << "Wrote " << filename << "\n";
     }
 
     void* LLVMCompiler::visit(ast::AssignmentStatement &a)

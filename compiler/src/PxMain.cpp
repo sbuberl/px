@@ -3,6 +3,9 @@
 #include "Error.h"
 #include "ContextAnalyzer.h"
 #include "cg/LLVMCompiler.h"
+#include <llvm/Target/TargetOptions.h>
+#include <llvm/Support/TargetSelect.h>
+#include <llvm/Support/TargetRegistry.h>
 #include <iostream>
 #include <fstream>
 using namespace px;
@@ -47,6 +50,12 @@ int main(int argc, char **argv)
         errors.output();
         return -2;
     }
+
+    llvm::InitializeAllTargetInfos();
+    llvm::InitializeAllTargets();
+    llvm::InitializeAllTargetMCs();
+    llvm::InitializeAllAsmParsers();
+    llvm::InitializeAllAsmPrinters();
 
     px::LLVMCompiler compiler{ &scopeTree };
     compiler.compile(*ast);
