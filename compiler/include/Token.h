@@ -85,7 +85,7 @@ namespace px {
         int integerBase;
         SourcePosition position;
 
-        static std::unordered_map<TokenType, Utf8String> tokenNames;
+        static std::unordered_map<TokenType, const Utf8String> tokenNames;
         Token(const SourcePosition &pos) : position{ pos } { clear(); }
         Token(const SourcePosition &pos, TokenType t, const Utf8String &s) : type { t }, str{ s }, suffixType{ nullptr }, integerBase{10}, position{ pos }
         {
@@ -99,7 +99,7 @@ namespace px {
             integerBase = 10;
         }
 
-        static Utf8String &getTokenName(TokenType type);
+        static const Utf8String &getTokenName(TokenType type);
     };
 }
 
