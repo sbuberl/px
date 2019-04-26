@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <iostream>
+#include <Token.h>
 
 namespace px
 {
@@ -69,38 +70,38 @@ namespace px
         Utf8String *expression = (Utf8String*) a.expression->accept(*this);
         auto symbolTable = currentScope->symbols();
         Variable *variable = symbolTable->getVariable(a.variableName);
-        return new Utf8String(variable->name + " = " + *expression + ";");
+        return new Utf8String{ variable->name + Token::getTokenName(TokenType::OP_ASSIGN) + *expression + Token::getTokenName(TokenType::OP_END_STATEMENT) };
     }
 
     void* CCompiler::visit(ast::BoolLiteral &b)
     {
-        return new Utf8String(b.literal);
+        return new Utf8String{ b.literal };
     }
 
     void* CCompiler::visit(ast::CharLiteral &c)
     {
-        return new Utf8String(Utf8String("u8'") + c.literal + Utf8String("'") );
+        return new Utf8String{Utf8String{"u8'"} + c.literal + Utf8String{"'"} };
     }
 
     void* CCompiler::visit(ast::ExpressionStatement &e)
     {
         Utf8String *expression = (Utf8String*) e.expression->accept(*this);
-        return new Utf8String(*expression + ";");
+        return new Utf8String{ *expression + Token::getTokenName(TokenType::OP_END_STATEMENT) };
     }
 
     void* CCompiler::visit(ast::FloatLiteral &f)
     {
-        return new Utf8String(f.literal);
+        return new Utf8String{ f.literal };
     }
 
     void* CCompiler::visit(ast::IntegerLiteral &i)
     {
-        return new Utf8String(i.literal);
+        return new Utf8String{ i.literal };
     }
 
     void* CCompiler::visit(ast::StringLiteral &s)
     {
-        return new Utf8String(Utf8String("u8\"") + s.literal + Utf8String("\"") );
+        return new Utf8String{ Utf8String{"u8\""} + s.literal + Utf8String{"\""} };
     }
 
     void* CCompiler::visit(ast::VariableDeclaration &v)
@@ -111,13 +112,13 @@ namespace px
         Utf8String declaration(cTypeName + " " + v.name);
         if (v.initialValue != nullptr) {
             Utf8String *value = (Utf8String *) v.initialValue->accept(*this);
-            declaration += Utf8String(" = ") + *value + Utf8String(" = ");
+            declaration += Token::getTokenName(TokenType::OP_ASSIGN) + *value + Token::getTokenName(TokenType::OP_END_STATEMENT);
         }
-        return new Utf8String(std::move(declaration));
+        return new Utf8String{ std::move(declaration) };
     }
 
     void* CCompiler::visit(ast::VariableExpression &v)
     {
-        return new Utf8String(v.variable);
+        return new Utf8String{ v.variable };
     }
 }
