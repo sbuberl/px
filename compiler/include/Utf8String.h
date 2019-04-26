@@ -95,7 +95,7 @@ namespace px {
             return *this;
         }
 
-        Utf8String operator+(const Utf8String &other)
+        Utf8String operator+(const Utf8String &other) const
         {
             Utf8String copy{ *this };
             size_t length = bytes.size();
@@ -117,6 +117,16 @@ namespace px {
             std::copy(buffer, buffer + offset, std::back_inserter(bytes));
 
             ++count;
+            return *this;
+        }
+
+        Utf8String operator+=(const Utf8String &other)
+        {
+            size_t length = bytes.size();
+            count += other.count;
+            bytes.insert(std::end(bytes), std::begin(other.bytes), std::end(other.bytes));
+            for (const uint32_t &start : other.pointsStart)
+                pointsStart.push_back(length + start);
             return *this;
         }
 
