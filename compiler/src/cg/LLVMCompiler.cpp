@@ -67,7 +67,9 @@ namespace px
     {
         ast.accept(*this);
 
-        auto filename = "output.o";
+        moduleData.module->print(llvm::errs(), nullptr);
+
+       /* auto filename = "output.o";
         auto triple = llvm::sys::getDefaultTargetTriple();
         std::string targetErr;
         llvm::Target const* target =
@@ -99,7 +101,7 @@ namespace px
         pm.run(*(this->moduleData.module));
         raw_stream.flush();
 
-        llvm::outs() << "Wrote " << filename << "\n";
+        llvm::outs() << "Wrote " << filename << "\n"; */
     }
 
     void* LLVMCompiler::visit(ast::AssignmentStatement &a)
