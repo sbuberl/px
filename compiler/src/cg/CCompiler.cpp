@@ -245,7 +245,7 @@ namespace px
         for (const Variable *arg : function->parameters) {
             Utf8String argType = pxTypeToCType(arg->type);
             argsText += argType + " " + arg->name;
-            if (a++ < end) {
+            if (++a < end) {
                 argsText += ", ";
             }
         }
@@ -269,7 +269,7 @@ namespace px
         {
             Utf8String *argValue = (Utf8String*) arg->accept(*this);
             argsText += *argValue;
-            if(a++ < end) {
+            if(++a < end) {
                 argsText += ", ";
             }
         }
@@ -288,7 +288,7 @@ namespace px
         {
             Utf8String argType = pxTypeToCType(arg->type);
             argsText += argType + " " + arg->name;
-            if(a++ < end) {
+            if(++a < end) {
                 argsText += ", ";
             }
         }
