@@ -161,8 +161,8 @@ namespace px
     void* CCompiler::visit(ast::BlockStatement &s)
     {
         auto current = currentScope;
-        auto newScope = scopeTree->enterScope();
-        std::vector<Variable*> locals = newScope->symbols()->getLocalVariables();
+        currentScope = scopeTree->enterScope();
+//        std::vector<Variable*> locals = currentScope->symbols()->getLocalVariables();
 //        for (auto variable : locals)
 //        {
 //            auto pxType = pxTypeToCType(variable->type);
