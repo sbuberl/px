@@ -324,7 +324,18 @@ namespace px
 
     void * CCompiler::visit(ast::Module & m)
     {
-        return m.block->accept(*this);
+        auto current = currentScope;
+        currentScope = scopeTree->enterScope();
+
+        Utf8String blockCode;
+        for (auto const& statement : m.statements)
+        {
+            blockCode += *(Utf8String *) statement->accept(*this);
+        }
+
+        scopeTree->endScope();
+        currentScope = current;
+        return new Utf8String{ blockCode };
     }
 
     void* CCompiler::visit(ast::ReturnStatement &s)

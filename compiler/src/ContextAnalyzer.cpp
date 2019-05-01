@@ -297,9 +297,16 @@ namespace px
         return nullptr;
     }
 
-    void * ContextAnalyzer::visit(ast::Module & m)
+    void* ContextAnalyzer::visit(ast::Module &m)
     {
-        m.block->accept(*this);
+        auto current = _currentScope;
+        auto newScope = new Scope(current);
+        _currentScope = newScope;
+        for (auto &statement : m.statements)
+        {
+            statement->accept(*this);
+        }
+        _currentScope = current;
         return nullptr;
     }
 

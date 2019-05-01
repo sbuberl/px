@@ -11,7 +11,7 @@ namespace px
     namespace ast
     {
         class Visitor;
-        class BlockStatement;
+        class Statement;
 
         class AST
         {
@@ -29,14 +29,20 @@ namespace px
         {
         public:
             const Utf8String &fileName;
-            std::unique_ptr<BlockStatement> block;
+            std::vector<std::unique_ptr<Statement>> statements;
 
-            Module(const SourcePosition &pos, const Utf8String &file, std::unique_ptr<BlockStatement> b)
-                : AST{ pos }, fileName{ fileName }, block{ std::move(b) }
+            Module(const SourcePosition &pos, const Utf8String &file)
+                : AST{ pos }, fileName{ fileName }
             {
             }
 
             void *accept(Visitor &visitor) override;
+
+            void addStatement(std::unique_ptr<Statement> statement)
+            {
+                statements.push_back(std::move(statement));
+            }
+
         };
     }
 }
