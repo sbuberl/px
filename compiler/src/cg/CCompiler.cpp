@@ -179,7 +179,7 @@ namespace px
 
         scopeTree->endScope();
         currentScope = current;
-        return new Utf8String{ Utf8String{"{\n"} + blockCode + "\n)\n" };
+        return new Utf8String{ Utf8String{"{\n"} + blockCode + "\n}\n" };
     }
 
     void* CCompiler::visit(ast::BoolLiteral &b)
@@ -190,7 +190,7 @@ namespace px
     void* CCompiler::visit(ast::CastExpression &e) {
         Utf8String *value = (Utf8String *) e.expression->accept(*this);
         Type *type = e.type, *origType = e.expression->type;
-        Utf8String newTypeName = type->name;
+        Utf8String newTypeName = pxTypeToCType(type);
         bool doCast = false;
 
         if (type->isInt()) {
@@ -225,7 +225,7 @@ namespace px
 
     void* CCompiler::visit(ast::CharLiteral &c)
     {
-        return new Utf8String{Utf8String{"u8'"} + c.literal + Utf8String{"'"} };
+        return new Utf8String{Utf8String{"'"} + c.literal + Utf8String{"'"} };
     }
 
     void* CCompiler::visit(ast::ExpressionStatement &e)
@@ -319,7 +319,7 @@ namespace px
 
     void* CCompiler::visit(ast::IntegerLiteral &i)
     {
-        return new Utf8String{ i.literal };
+        return new Utf8String{ std::to_string(i.value) };
     }
 
     void * CCompiler::visit(ast::Module & m)
@@ -327,15 +327,15 @@ namespace px
         auto current = currentScope;
         currentScope = scopeTree->enterScope();
 
-        Utf8String blockCode;
+        Utf8String moduleCode = generateIncludes();
         for (auto const& statement : m.statements)
         {
-            blockCode += *(Utf8String *) statement->accept(*this);
+            moduleCode += *(Utf8String *) statement->accept(*this);
         }
 
         scopeTree->endScope();
         currentScope = current;
-        return new Utf8String{ blockCode };
+        return new Utf8String{ moduleCode };
     }
 
     void* CCompiler::visit(ast::ReturnStatement &s)
@@ -414,5 +414,9 @@ namespace px
     void* CCompiler::visit(ast::VariableExpression &v)
     {
         return new Utf8String{ v.variable };
+    }
+
+    Utf8String CCompiler::generateIncludes() {
+        return "#include <stdint.h>\n#include <stdbool.h>\n\n";
     }
 }

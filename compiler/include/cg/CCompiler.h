@@ -37,7 +37,8 @@ namespace px {
         void *visit(ast::VariableExpression &v) override;
 
     private:
-        Utf8String pxTypeToCType(Type *type);
+        static Utf8String pxTypeToCType(Type *type);
+        Utf8String generateIncludes();
 
         std::unordered_map<ast::Statement*, Utf8String*> code;
         px::Function *currentFunction;
