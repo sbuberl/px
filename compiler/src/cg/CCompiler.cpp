@@ -331,6 +331,7 @@ namespace px
         currentScope = current;
 
         moduleCode += toPreDeclare;
+        moduleCode += generateStringDecl();
         moduleCode += statementCode;
         return new Utf8String{ moduleCode };
     }
@@ -349,7 +350,8 @@ namespace px
 
     void* CCompiler::visit(ast::StringLiteral &s)
     {
-        return new Utf8String{ Utf8String{"u8\""} + s.literal + Utf8String{"\""} };
+        Utf8String literal = s.literal;
+        return new Utf8String{ Utf8String{"{ "} + "u8\"" + literal + "\", " + std::to_string(literal.length())  + ", " +  std::to_string(literal.byteLength()) + " }"};
     }
 
     void* CCompiler::visit(ast::TernaryOpExpression &t)
@@ -431,5 +433,9 @@ namespace px
             }
         }
         return RT + " " + function->name + "(" + argsText + ");\n";
+    }
+
+    Utf8String CCompiler::generateStringDecl() {
+        return "typedef struct _PxString\n{int8_t *bytes;\nintptr_t length;\nintptr_t byteLength;\n} PxString;\n\n";
     }
 }

@@ -39,6 +39,7 @@ namespace px {
     private:
         static Utf8String pxTypeToCType(Type *type);
         Utf8String generateIncludes();
+        Utf8String generateStringDecl();
         Utf8String buildFunctionProto(Function *function);
 
         Utf8String toPreDeclare;
