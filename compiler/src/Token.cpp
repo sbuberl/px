@@ -4,7 +4,7 @@
 namespace px
 {
 
-    std::unordered_map<TokenType, Utf8String> Token::tokenNames = {
+    std::unordered_map<TokenType, const Utf8String> Token::tokenNames = {
         { TokenType::BAD, "bad token" },
         { TokenType::IDENTIFIER, "identifer" },
         { TokenType::INTEGER, "integer literal" },
@@ -76,7 +76,7 @@ namespace px
         { TokenType::OP_SUB, "-" },
     };
 
-    Utf8String &Token::getTokenName(TokenType type)
+    const Utf8String &Token::getTokenName(TokenType type)
     {
         auto it = tokenNames.find(type);
         if (it != tokenNames.end())

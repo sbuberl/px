@@ -421,9 +421,27 @@ namespace px
         return llvm::ConstantInt::get(pxTypeToLlvmType(i.type), i.value);
     }
 
-    void * LLVMCompiler::visit(ast::Module & m)
+    void * LLVMCompiler::visit(ast::Module &m)
     {
-        m.block->accept(*this);
+        auto current = currentScope;
+        auto llvmScope = new LLVMScope{ scopeTree->enterScope(), current };
+        auto pxScope = llvmScope->scope;
+//        std::vector<Variable*> locals = pxScope->symbols()->getLocalVariables();
+//        for (auto variable : locals)
+//        {
+//            auto pxType = pxTypeToLlvmType(variable->type);
+//            llvm::AllocaInst *varMemory = builder.CreateAlloca(pxType);
+//            varMemory->setName(variable->name.toString());
+//            llvmScope->variables[variable->name] = varMemory;
+//        }
+
+        currentScope = llvmScope;
+        for (auto const& statement : m.statements)
+        {
+            statement->accept(*this);
+        }
+        scopeTree->endScope();
+        currentScope = current;
         return nullptr;
     }
 

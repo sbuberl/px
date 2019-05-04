@@ -64,7 +64,7 @@ namespace px {
         currentToken.reset(new Token(scanner->nextToken()));
 
         auto startPosition = currentToken->position;
-        std::unique_ptr<BlockStatement> block{ new BlockStatement{ startPosition } };
+        std::unique_ptr<Module> module = std::make_unique<ast::Module>(startPosition, fileName);
 
         while (currentToken->type != TokenType::END_FILE && currentToken->type != TokenType::BAD)
         {
@@ -72,11 +72,11 @@ namespace px {
             std::unique_ptr<Statement> statement = parseStatement();
 
             //	std::cout << "Adding statement " << typeid(*statement).name() << std::endl;
-            block->addStatement(std::move(statement));
+            module->addStatement(std::move(statement));
         }
 
         //std::cout << "Statements :" << statements.size() << std::endl;;
-        return std::make_unique<ast::Module>(startPosition, fileName, std::move(block));
+        return module;
 
     }
 

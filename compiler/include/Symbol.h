@@ -192,6 +192,12 @@ namespace px
             }
         }
 
+        SymbolTable* getParent()
+        {
+            return _parent;
+        }
+
+
         void addSymbol(Symbol *symbol)
         {
             _symbols[symbol->name] = symbol;
@@ -270,9 +276,11 @@ namespace px
     public:
         Type * returnType;
         std::vector<Variable*> parameters;
+        bool declared;
+        bool isExtern;
 
-        Function(const Utf8String &func, const std::vector<Variable*> &params, Type *retType)
-            : Symbol{ func, SymbolType::FUNCTION }, returnType {retType}, parameters{ params }
+        Function(const Utf8String &func, const std::vector<Variable*> &params, Type *retType, bool ext)
+            : Symbol{ func, SymbolType::FUNCTION }, returnType {retType}, parameters{ params }, declared(false), isExtern{ext}
         {
         }
     };
