@@ -203,7 +203,7 @@ namespace px
             Variable *parameter = new Variable{ param.name, paramType };
             parameters.push_back(parameter);
         }
-        Function *function = new Function{ prototype.name, parameters, returnType };
+        Function *function = new Function{ prototype.name, parameters, returnType, true };
         e.function = function;
         currentSymbols->addSymbol(function);
         return nullptr;
@@ -220,22 +220,29 @@ namespace px
         Function *function = currentSymbols->template getSymbol<Function>(f.functionName, SymbolType::FUNCTION);
         if (function == nullptr)
         {
-            errors->addError(Error{ f.position, Utf8String{ "Function " } +f.functionName + " was not found" });
-            return nullptr;
+            function = new Function{ f.functionName, {}, Type::VOID, false };
+            f.function = function;
+            SymbolTable *moduleScope = currentSymbols->getParent();
+            while((moduleScope->getParent()) != nullptr)
+            {
+                moduleScope = moduleScope->getParent();
+            }
+            moduleScope->addSymbol(function);
         }
-        f.function = function;
-
-        if (function->parameters.size() != f.arguments.size())
+        else
         {
-            errors->addError(Error{ f.position, Utf8String{ "Invalid number of arguments given to function " } +f.functionName });
-        }
+            f.function = function;
 
-        for (auto &arg : f.arguments)
-        {
-            arg->accept(*this);
-        }
+            if (function->parameters.size() != f.arguments.size()) {
+                errors->addError(Error{f.position,
+                                       Utf8String{"Invalid number of arguments given to function "} + f.functionName});
+            }
 
-;
+            for (auto &arg : f.arguments) {
+                arg->accept(*this);
+            }
+
+        }
         return nullptr;
     }
 
@@ -260,10 +267,17 @@ namespace px
             Variable *parameter = new Variable{ param.name, paramType };
             parameters.push_back(parameter);
         }
-        Function *function = new Function{ prototype.name, parameters, returnType };
-        f.function = function;
-        currentSymbols->addSymbol(function);
 
+        Function *function = currentSymbols->template getSymbol<Function>(prototype.name, SymbolType::FUNCTION);
+        if(function != nullptr && function->declared == false) {
+            function->parameters = parameters;
+            function->returnType = returnType;
+        }
+        else {
+            function = new Function{prototype.name, parameters, returnType, false};
+            currentSymbols->addSymbol(function);
+        }
+        f.function = function;
         auto newScope = new Scope(current);
         _currentScope = newScope;
         auto newSymbols = newScope->symbols();

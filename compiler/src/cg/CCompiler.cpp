@@ -236,21 +236,9 @@ namespace px
 
     void* CCompiler::visit(ast::ExternFunctionDeclaration & e)
     {
-        Function *function = e.function;
+        Utf8String prototype = buildFunctionProto(e.function);
 
-        Utf8String RT = pxTypeToCType(function->returnType);
-        Utf8String argsText;
-        int a = 0, end = function->parameters.size();
-
-        for (const Variable *arg : function->parameters) {
-            Utf8String argType = pxTypeToCType(arg->type);
-            argsText += argType + " " + arg->name;
-            if (++a < end) {
-                argsText += ", ";
-            }
-        }
-
-        return new Utf8String{ Utf8String{"extern "} + RT + " " + function->name + "(" + argsText + ");\n" };;
+        return new Utf8String{ Utf8String{"extern "} + prototype};;
     }
 
     void* CCompiler::visit(ast::FloatLiteral &f)
@@ -264,6 +252,10 @@ namespace px
         Utf8String name = pxFunction->name;
         Utf8String argsText;
         int a = 0, end = f.arguments.size();
+
+        if (pxFunction->isExtern == false && pxFunction->declared == false) {
+            toPreDeclare += buildFunctionProto(pxFunction);
+        }
 
         for (auto &arg : f.arguments)
         {
@@ -328,13 +320,18 @@ namespace px
         currentScope = scopeTree->enterScope();
 
         Utf8String moduleCode = generateIncludes();
+
+        Utf8String statementCode;
         for (auto const& statement : m.statements)
         {
-            moduleCode += *(Utf8String *) statement->accept(*this);
+            statementCode += *(Utf8String *) statement->accept(*this);
         }
 
         scopeTree->endScope();
         currentScope = current;
+
+        moduleCode += toPreDeclare;
+        moduleCode += statementCode;
         return new Utf8String{ moduleCode };
     }
 
@@ -418,5 +415,21 @@ namespace px
 
     Utf8String CCompiler::generateIncludes() {
         return "#include <stdint.h>\n#include <stdbool.h>\n\n";
+    }
+
+    Utf8String CCompiler::buildFunctionProto(Function *function) {
+        Utf8String RT = pxTypeToCType(function->returnType);
+        Utf8String argsText;
+        int a = 0, end = function->parameters.size();
+        for (const Variable *arg : function->parameters)
+        {
+            Utf8String argType = pxTypeToCType(arg->type);
+            argsText += argType + " " + arg->name;
+            if(++a < end)
+            {
+                argsText += ", ";
+            }
+        }
+        return RT + " " + function->name + "(" + argsText + ");\n";
     }
 }

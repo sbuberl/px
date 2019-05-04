@@ -39,8 +39,9 @@ namespace px {
     private:
         static Utf8String pxTypeToCType(Type *type);
         Utf8String generateIncludes();
+        Utf8String buildFunctionProto(Function *function);
 
-        std::unordered_map<ast::Statement*, Utf8String*> code;
+        Utf8String toPreDeclare;
         px::Function *currentFunction;
         px::Scope *currentScope;
         px::ScopeTree * const scopeTree;
