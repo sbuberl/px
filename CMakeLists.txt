@@ -10,15 +10,15 @@ include_directories(compiler/include)
 include_directories(tests/include)
 
 add_executable(pxc
-        compiler/include/AST/AST.h
-        compiler/include/AST/Declaration.h
-        compiler/include/AST/Expression.h
-        compiler/include/AST/Literal.h
-        compiler/include/AST/Statement.h
-        compiler/include/AST/Visitor.h
-        compiler/include/CG/CCompiler.h
-        compiler/include/CG/ModuleData.h
-        compiler/include/CG/LLVMCompiler.h
+        compiler/include/ast/AST.h
+        compiler/include/ast/Declaration.h
+        compiler/include/ast/Expression.h
+        compiler/include/ast/Literal.h
+        compiler/include/ast/Statement.h
+        compiler/include/ast/Visitor.h
+        compiler/include/cg/CCompiler.h
+        compiler/include/cg/ModuleData.h
+        compiler/include/cg/LLVMCompiler.h
         compiler/include/ContextAnalyzer.h
         compiler/include/Error.h
         compiler/include/Parser.h
@@ -28,13 +28,13 @@ add_executable(pxc
         compiler/include/Symbol.h
         compiler/include/Token.h
         compiler/include/Utf8String.h
-        compiler/src/AST/Declaration.cpp
-        compiler/src/AST/Expression.cpp
-        compiler/src/AST/Literal.cpp
-        compiler/src/AST/Node.cpp
-        compiler/src/AST/Statement.cpp
-        compiler/src/CG/CCompiler.cpp
-        compiler/src/CG/LLVMCompiler.cpp
+        compiler/src/ast/Declaration.cpp
+        compiler/src/ast/Expression.cpp
+        compiler/src/ast/Literal.cpp
+        compiler/src/ast/Node.cpp
+        compiler/src/ast/Statement.cpp
+        compiler/src/cg/CCompiler.cpp
+        compiler/src/cg/LLVMCompiler.cpp
 
         compiler/src/ContextAnalyzer.cpp
         compiler/src/Parser.cpp
