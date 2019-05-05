@@ -182,33 +182,6 @@ namespace px
         return nullptr;
     }
 
-    void * ContextAnalyzer::visit(ast::ExternFunctionDeclaration & e)
-    {
-        auto current = _currentScope;
-        auto currentSymbols = current->symbols();
-        auto prototype = *e.prototype;
-        Type *returnType = currentSymbols->getType(prototype.returnTypeName);
-        if (returnType == nullptr)
-        {
-            errors->addError(Error{ e.position, Utf8String{ "Return type " } + prototype.returnTypeName + " was not found" });
-        }
-        std::vector<Variable *> parameters;
-        for (ast::Parameter param : prototype.parameters)
-        {
-            Type *paramType = currentSymbols->getType(param.typeName);
-            if (paramType == nullptr)
-            {
-                errors->addError(Error{ e.position, Utf8String{ "Function parameter type " } + param.typeName + " was not found" });
-            }
-            Variable *parameter = new Variable{ param.name, paramType };
-            parameters.push_back(parameter);
-        }
-        Function *function = new Function{ prototype.name, parameters, returnType, true };
-        e.function = function;
-        currentSymbols->addSymbol(function);
-        return nullptr;
-    }
-
     void* ContextAnalyzer::visit(ast::FloatLiteral &f)
     {
         return nullptr;
@@ -218,35 +191,26 @@ namespace px
     {
         auto currentSymbols = _currentScope->symbols();
         Function *function = currentSymbols->template getSymbol<Function>(f.functionName, SymbolType::FUNCTION);
-        if (function == nullptr)
-        {
-            function = new Function{ f.functionName, {}, Type::VOID, false };
-            f.function = function;
-            SymbolTable *moduleScope = currentSymbols->getParent();
-            while((moduleScope->getParent()) != nullptr)
-            {
-                moduleScope = moduleScope->getParent();
-            }
-            moduleScope->addSymbol(function);
+        if (function == nullptr) {
+            errors->addError(Error{f.position, Utf8String{"Function "} + f.functionName + " was not found"});
+            return nullptr;
         }
-        else
-        {
-            f.function = function;
 
-            if (function->parameters.size() != f.arguments.size()) {
-                errors->addError(Error{f.position,
-                                       Utf8String{"Invalid number of arguments given to function "} + f.functionName});
-            }
+        f.function = function;
 
-            for (auto &arg : f.arguments) {
-                arg->accept(*this);
-            }
-
+        if (function->parameters.size() != f.arguments.size()) {
+            errors->addError(Error{f.position,
+                                   Utf8String{"Invalid number of arguments given to function "} + f.functionName});
         }
+
+        for (auto &arg : f.arguments) {
+            arg->accept(*this);
+        }
+
         return nullptr;
     }
 
-    void* ContextAnalyzer::visit(ast::FunctionDeclaration &f)
+    void * ContextAnalyzer::visit(ast::FunctionDeclaration &f)
     {
         auto current = _currentScope;
         auto currentSymbols = current->symbols();
@@ -267,21 +231,54 @@ namespace px
             Variable *parameter = new Variable{ param.name, paramType };
             parameters.push_back(parameter);
         }
+        Function *function = new Function{ prototype.name, parameters, returnType, prototype.isExtern };
+        f.function = function;
+        currentSymbols->addSymbol(function);
+        return nullptr;
+    }
+
+    void* ContextAnalyzer::visit(ast::FunctionDefinition &f)
+    {
+        auto current = _currentScope;
+        auto currentSymbols = current->symbols();
+        auto prototype = *f.prototype;
 
         Function *function = currentSymbols->template getSymbol<Function>(prototype.name, SymbolType::FUNCTION);
-        if(function != nullptr && function->declared == false) {
-            function->parameters = parameters;
-            function->returnType = returnType;
-        }
-        else {
-            function = new Function{prototype.name, parameters, returnType, false};
+        if(function == nullptr) {
+            Type *returnType = currentSymbols->getType(prototype.returnTypeName);
+            if (returnType == nullptr) {
+                errors->addError(
+                        Error{f.position, Utf8String{"Return type "} + prototype.returnTypeName + " was not found"});
+            }
+            std::vector<Variable *> parameters;
+            for (ast::Parameter param : prototype.parameters) {
+                Type *paramType = currentSymbols->getType(param.typeName);
+                if (paramType == nullptr) {
+                    errors->addError(Error{f.position,
+                                           Utf8String{"Function parameter type "} + param.typeName + " was not found"});
+                }
+                Variable *parameter = new Variable{param.name, paramType};
+                parameters.push_back(parameter);
+            }
+
+            function = new Function{prototype.name, parameters, returnType, false, true};
             currentSymbols->addSymbol(function);
         }
+        else
+        {
+            function->declared = true;
+        }
+
+        if(function->returnType == Type::VOID) {
+            auto &lastStatement = f.block->getLastStatement();
+            f.block->addStatement(std::make_unique<ast::ReturnStatement>(lastStatement.position));
+        }
+
         f.function = function;
         auto newScope = new Scope(current);
         _currentScope = newScope;
         auto newSymbols = newScope->symbols();
-        for (auto &param : parameters)
+        for (auto &param : function->parameters)
             newSymbols->addSymbol(param);
         for(auto &statement : f.block->statements)
             statement->accept(*this);

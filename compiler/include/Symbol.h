@@ -279,8 +279,8 @@ namespace px
         bool declared;
         bool isExtern;
 
-        Function(const Utf8String &func, const std::vector<Variable*> &params, Type *retType, bool ext)
-            : Symbol{ func, SymbolType::FUNCTION }, returnType {retType}, parameters{ params }, declared(false), isExtern{ext}
+        Function(const Utf8String &func, const std::vector<Variable*> &params, Type *retType, bool ext, bool declare = false)
+            : Symbol{ func, SymbolType::FUNCTION }, returnType {retType}, parameters{ params }, declared(declare), isExtern{ext}
         {
         }
     };

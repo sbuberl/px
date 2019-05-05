@@ -27,35 +27,36 @@ namespace px
             const Utf8String name;
             const Utf8String returnTypeName;
             std::vector<Parameter> parameters;
+            bool isExtern;
 
-            FunctionPrototype(const Utf8String &fname, const Utf8String &retTypeName, const std::vector<Parameter> &params)
-                : name{ fname }, returnTypeName{ retTypeName }, parameters{ params }
+            FunctionPrototype(const Utf8String &fname, const Utf8String &retTypeName, const std::vector<Parameter> &params, bool ext)
+                : name{ fname }, returnTypeName{ retTypeName }, parameters{ params }, isExtern{ ext }
             {
             }
-        };
-
-        class ExternFunctionDeclaration : public Statement
-        {
-        public:
-            std::unique_ptr<FunctionPrototype> prototype;
-            Function *function;
-
-            ExternFunctionDeclaration(const SourcePosition &pos, std::unique_ptr<FunctionPrototype> proto)
-                : Statement{ pos }, prototype{ std::move(proto) }
-            {
-            }
-
-            void *accept(Visitor &visitor) override;
         };
 
         class FunctionDeclaration : public Statement
         {
         public:
             std::unique_ptr<FunctionPrototype> prototype;
+            Function *function;
+
+            FunctionDeclaration(const SourcePosition &pos, std::unique_ptr<FunctionPrototype> proto)
+               : Statement{ pos }, prototype{ std::move(proto) }
+            {
+            }
+
+            void *accept(Visitor &visitor) override;
+        };
+
+        class FunctionDefinition : public Statement
+        {
+        public:
+            std::unique_ptr<FunctionPrototype> prototype;
             std::unique_ptr<BlockStatement> block;
             Function *function;
 
-            FunctionDeclaration(const SourcePosition &pos, std::unique_ptr<FunctionPrototype> proto, std::unique_ptr<BlockStatement> stmts)
+            FunctionDefinition(const SourcePosition &pos, std::unique_ptr<FunctionPrototype> proto, std::unique_ptr<BlockStatement> stmts)
                 : Statement{ pos }, prototype{ std::move(proto) }, block{ std::move(stmts) }, function{ }
             {
             }
