@@ -1,5 +1,13 @@
 extern func printInt(i: int32) : void;
 
+func blah(x:int32, y:int32) : void;
+
+func main() : int32
+{
+	blah(123, 586);
+	return 27;
+}
+
 func blah(x:int32, y:int32) : void
 {
 	a: uint32 = 1024_u32;
@@ -18,10 +26,4 @@ func blah(x:int32, y:int32) : void
 	c: char  = 'A';
 	s: string = "こんにちは世界";
 	printInt(i);
-}
-
-func main() : int32
-{
-	blah(123, 586);
-	return 27;
 }

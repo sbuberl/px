@@ -2,6 +2,7 @@
 #include "Parser.h"
 #include "Error.h"
 #include "ContextAnalyzer.h"
+#include "cg/CCompiler.h"
 #include "cg/LLVMCompiler.h"
 #include <llvm/Target/TargetOptions.h>
 #include <llvm/Support/TargetSelect.h>
@@ -57,7 +58,7 @@ int main(int argc, char **argv)
     llvm::InitializeAllAsmParsers();
     llvm::InitializeAllAsmPrinters();
 
-    px::LLVMCompiler compiler{ &scopeTree };
+    px::CCompiler compiler{ &scopeTree };
     compiler.compile(*ast);
 
 

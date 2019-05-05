@@ -85,7 +85,6 @@ namespace px {
         switch (currentToken->type)
         {
             case TokenType::KW_EXTERN:
-                return parseExternFunction();
             case TokenType::KW_FUNC:
                 return parseFunctionDeclaration();
             case TokenType::KW_IF:
@@ -147,15 +146,6 @@ namespace px {
         return block;
     }
 
-    std::unique_ptr<ast::ExternFunctionDeclaration> Parser::parseExternFunction()
-    {
-        auto startPos = currentToken->position;
-        expect(TokenType::KW_EXTERN);
-        std::unique_ptr<ast::FunctionPrototype> prototype = parseFunctionPrototype();
-        expect(TokenType::OP_END_STATEMENT);
-        return std::make_unique<ExternFunctionDeclaration>(startPos, std::move(prototype));
-    }
-
     std::unique_ptr<ast::ExpressionStatement> Parser::parseExpressionStatement()
     {
         auto startPos = currentToken->position;
@@ -165,16 +155,25 @@ namespace px {
         return std::make_unique<ExpressionStatement>(startPos, std::move(expr));
     }
 
-    std::unique_ptr<ast::FunctionDeclaration> Parser::parseFunctionDeclaration()
+    std::unique_ptr<ast::Statement> Parser::parseFunctionDeclaration()
     {
         auto startPos = currentToken->position;
         std::unique_ptr<ast::FunctionPrototype> prototype = parseFunctionPrototype();
-        std::unique_ptr<ast::BlockStatement> block = parseBlockStatement();
-        return std::make_unique<FunctionDeclaration>(startPos, std::move(prototype), std::move(block));
+        if(accept(TokenType::OP_END_STATEMENT))
+        {
+            return std::make_unique<FunctionDeclaration>(startPos, std::move(prototype));
+        }
+        else
+        {
+            std::unique_ptr<ast::BlockStatement> block = parseBlockStatement();
+            return std::make_unique<FunctionDefinition>(startPos, std::move(prototype), std::move(block));
+        }
+
     }
 
     std::unique_ptr<ast::FunctionPrototype> Parser::parseFunctionPrototype()
     {
+        bool isExtern = accept(TokenType::KW_EXTERN);
         expect(TokenType::KW_FUNC);
         Utf8String functionName = currentToken->str;
         expect(TokenType::IDENTIFIER);
@@ -196,7 +195,7 @@ namespace px {
         expect(TokenType::OP_COLON);
         Utf8String returnType = currentToken->str;
         expect(TokenType::IDENTIFIER);
-        return std::make_unique<FunctionPrototype>(functionName, returnType, arguments);
+        return std::make_unique<FunctionPrototype>(functionName, returnType, arguments, isExtern);
     }
 
     std::unique_ptr<ast::IfStatement> Parser::parseIfStatement()

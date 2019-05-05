@@ -234,13 +234,6 @@ namespace px
         return new Utf8String{ *expression + Token::getTokenName(TokenType::OP_END_STATEMENT) + "\n" };
     }
 
-    void* CCompiler::visit(ast::ExternFunctionDeclaration & e)
-    {
-        Utf8String prototype = buildFunctionProto(e.function);
-
-        return new Utf8String{ Utf8String{"extern "} + prototype};;
-    }
-
     void* CCompiler::visit(ast::FloatLiteral &f)
     {
         return new Utf8String{ f.literal };
@@ -252,10 +245,6 @@ namespace px
         Utf8String name = pxFunction->name;
         Utf8String argsText;
         int a = 0, end = f.arguments.size();
-
-        if (pxFunction->isExtern == false && pxFunction->declared == false) {
-            toPreDeclare += buildFunctionProto(pxFunction);
-        }
 
         for (auto &arg : f.arguments)
         {
@@ -269,7 +258,14 @@ namespace px
         return new Utf8String{ name + "(" + argsText + ")"};
     }
 
-    void* CCompiler::visit(ast::FunctionDeclaration &f)
+    void* CCompiler::visit(ast::FunctionDeclaration & e)
+    {
+        Utf8String prototype = buildFunctionProto(e.function);
+        Utf8String flags;
+        return new Utf8String{ prototype };
+    }
+
+    void* CCompiler::visit(ast::FunctionDefinition &f)
     {
         Function *function = f.function;
 
@@ -292,7 +288,7 @@ namespace px
 
         currentFunction = prevFunction;
 
-        return new Utf8String{ RT + " " + function->name + "(" + argsText + ")" + "\n" + *blockCode };;
+        return new Utf8String{ RT + " " + function->name + "(" + argsText + ")" + "\n" + *blockCode };
     }
 
     void* CCompiler::visit(ast::IfStatement & i)
@@ -432,7 +428,12 @@ namespace px
                 argsText += ", ";
             }
         }
-        return RT + " " + function->name + "(" + argsText + ");\n";
+        Utf8String flags;
+        if(function->isExtern)
+        {
+            flags += "extern ";
+        }
+        return flags + RT + " " + function->name + "(" + argsText + ");\n";
     }
 
     Utf8String CCompiler::generateStringDecl() {

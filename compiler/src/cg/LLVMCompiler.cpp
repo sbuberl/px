@@ -301,26 +301,6 @@ namespace px
         return value;
     }
 
-    void * LLVMCompiler::visit(ast::ExternFunctionDeclaration & e)
-    {
-        Function *function = e.function;
-
-        llvm::Type *RT = pxTypeToLlvmType(function->returnType);
-
-        std::vector<llvm::Type*> argTypes;
-        for (const Variable *arg : function->parameters)
-        {
-            llvm::Type *argType = pxTypeToLlvmType(arg->type);
-            argTypes.push_back(argType);
-        }
-
-        llvm::FunctionType *funcType = llvm::FunctionType::get(RT, argTypes, false);
-        std::string functionName = e.prototype->name.toString();
-        llvm::Function *foundFunction = (llvm::Function*) moduleData.module->getOrInsertFunction(functionName, funcType);
-        function->data.reset(new LLVMFunctionData(foundFunction));
-        return nullptr;
-    }
-
     void* LLVMCompiler::visit(ast::FloatLiteral &f)
     {
         return llvm::ConstantFP::get(pxTypeToLlvmType(f.type), f.value);
@@ -349,6 +329,26 @@ namespace px
         Function *function = f.function;
 
         llvm::Type *RT = pxTypeToLlvmType(function->returnType);
+
+        std::vector<llvm::Type*> argTypes;
+        for (const Variable *arg : function->parameters)
+        {
+            llvm::Type *argType = pxTypeToLlvmType(arg->type);
+            argTypes.push_back(argType);
+        }
+
+        llvm::FunctionType *funcType = llvm::FunctionType::get(RT, argTypes, false);
+        std::string functionName = f.prototype->name.toString();
+        llvm::Function *foundFunction = (llvm::Function*) moduleData.module->getOrInsertFunction(functionName, funcType);
+        function->data.reset(new LLVMFunctionData(foundFunction));
+        return nullptr;
+    }
+
+    void* LLVMCompiler::visit(ast::FunctionDefinition &f)
+    {
+        Function *function = f.function;
+
+        llvm::Type *RT = pxTypeToLlvmType(function->returnType);
         std::vector<llvm::Type*> argTypes;
         for (const Variable *arg : function->parameters)
         {
@@ -358,7 +358,7 @@ namespace px
 
         llvm::FunctionType *FT = llvm::FunctionType::get(RT, argTypes, false);
         std::string functionName = f.prototype->name.toString();
-        llvm::Function *F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, functionName, moduleData.module.get());
+        llvm::Function *F = (llvm::Function*) moduleData.module->getOrInsertFunction(functionName, FT);
         llvm::BasicBlock *BB = llvm::BasicBlock::Create(moduleData.context, functionName + ".0", F);
         builder.SetInsertPoint(BB);
 

@@ -44,6 +44,11 @@ namespace px
                 statements.push_back(std::move(statement));
             }
 
+            Statement& getLastStatement()
+            {
+                return *statements.back();
+            }
+
             void *accept(Visitor &visitor) override;
         };
 
