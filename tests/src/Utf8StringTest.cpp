@@ -106,6 +106,15 @@ TEST_CASE("Ut8fString add assign codepoint") {
     text += 0x0000754C ;
     REQUIRE(text.toString() == expected);
 }
+
+TEST_CASE("Ut8fString add assign string") {
+    std::string hello = u8"こんにちは";
+    std::string helloWorld = u8"こんにちは世界";
+    px::Utf8String text{hello};
+    text += px::Utf8String{u8"世界"};
+    REQUIRE(text.toString() == helloWorld);
+}
+
 TEST_CASE("Ut8fString index codepoint") {
     std::string input = u8"こんにちは世界";
     px::Utf8String text{ input };
