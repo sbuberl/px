@@ -338,9 +338,10 @@ namespace px {
                 else
                 {
                     token += current;
-                    current = nextCharacter();
                 }
             }
+
+            nextCharacter();
 
             nextCharacter();
 
@@ -354,6 +355,7 @@ namespace px {
                 if (current == '\\')
                 {
                     scanCharEscape(token);
+                    current = nextCharacter();
                 }
                 else
                 {
