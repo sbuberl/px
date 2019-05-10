@@ -216,6 +216,8 @@ namespace px {
     public:
         Utf8Iterator(const Utf8String &str)
         {
+            length = str.length();
+            offset = 0;
             const char *stringBytes = reinterpret_cast<const char*>(str.data());
             uiter_setUTF8(&charIterator, stringBytes, str.byteLength());
             currentCodePoint = uiter_current32(&charIterator);
@@ -225,12 +227,19 @@ namespace px {
         {
             charIterator = rhs.charIterator;
             currentCodePoint = rhs.currentCodePoint;
+            length = rhs.length;
+            offset = rhs.offset;
             return *this;
         }
 
-        bool operator !()
+        bool hasPrevious()
         {
-            return !charIterator.hasNext(&charIterator);
+            return offset != 0;
+        }
+
+        bool hasNext()
+        {
+            return offset < (length - 1);
         }
 
         int32_t operator *() const
@@ -243,6 +252,8 @@ namespace px {
             uiter_next32(&charIterator);
 
             currentCodePoint = uiter_current32(&charIterator);
+
+            ++offset;
 
             return *this;
         }
@@ -260,6 +271,8 @@ namespace px {
 
             currentCodePoint = uiter_current32(&charIterator);
 
+            --offset;
+
             return *this;
         }
 
@@ -272,6 +285,8 @@ namespace px {
 
     private:
         int32_t currentCodePoint;
+        size_t length;
+        size_t offset;
         UCharIterator charIterator;
     };
 }
