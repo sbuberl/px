@@ -181,3 +181,30 @@ TEST_CASE("Ut8fString hash") {
     px::Utf8String text2{ input };
     REQUIRE(text1.hash() == text2.hash());
 }
+
+TEST_CASE("Utf8Iterator") {
+    std::string input = u8"こんにちは世界";
+    px::Utf8String text{ input };
+    px::Utf8Iterator iterator{ text };
+
+    REQUIRE(*iterator == 12371);
+    REQUIRE(iterator.hasNext());
+    size_t index = 1;
+    while(iterator.hasNext()) {
+        iterator++;
+        int32_t current = *iterator;
+        int32_t textChar = text[index];
+        REQUIRE(current == textChar);
+        index++;
+    }
+
+    index--;
+    while(iterator.hasPrevious()) {
+        iterator--;
+        index--;
+        int32_t current = *iterator;
+        int32_t textChar = text[index];
+        REQUIRE(current == textChar);
+    }
+
+}
