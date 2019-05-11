@@ -383,36 +383,29 @@ namespace px
         auto &context = moduleData.context;
         LLVMFunctionData *funcData = (LLVMFunctionData*) currentFunction->data.get();
         llvm::Function *function = funcData->function;
-        auto thenBlock = llvm::BasicBlock::Create(context, "", function);
-        llvm::BasicBlock *elseBlock = nullptr;
-        auto endBlock = llvm::BasicBlock::Create(context, "", function);
+        llvm::BasicBlock* mergeBlock = llvm::BasicBlock::Create(context, "merge");
+        llvm::BasicBlock* thenBlock = llvm::BasicBlock::Create(context, "then");
+        llvm::BasicBlock* elseBlock = i.elseStatement ? llvm::BasicBlock::Create(context, "else") : mergeBlock;
 
-        if (i.elseStatement)
-        {
-            elseBlock = llvm::BasicBlock::Create(context, "", function);
-            llvm::BranchInst::Create(thenBlock, elseBlock, condition, currentBlock);
-        }
-        else
-        {
-            llvm::BranchInst::Create(thenBlock, endBlock, condition, currentBlock);
-        }
+        llvm::BranchInst::Create(thenBlock, elseBlock, condition, currentBlock);
 
         currentBlock = thenBlock;
+        function->getBasicBlockList().push_back(thenBlock);
+        builder.SetInsertPoint(thenBlock);
         i.trueStatement->accept(*this);
-
-        if (!currentBlock->getTerminator())
-            builder.CreateBr(endBlock);
+        builder.CreateBr(mergeBlock);
 
         if (i.elseStatement) {
-            elseBlock->moveAfter(currentBlock);
             currentBlock = elseBlock;
+            function->getBasicBlockList().push_back(elseBlock);
+            builder.SetInsertPoint(elseBlock);
             i.elseStatement->accept(*this);
-            if (!currentBlock->getTerminator())
-                builder.CreateBr(endBlock);
-
-            endBlock->moveAfter(currentBlock);
-            currentBlock = endBlock;
+            builder.CreateBr(mergeBlock);
         }
+
+        function->getBasicBlockList().push_back(mergeBlock);
+        builder.SetInsertPoint(mergeBlock);
+        currentBlock = mergeBlock;
         return nullptr;
     }
 
