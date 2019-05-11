@@ -50,6 +50,9 @@ add_library(pxruntime STATIC compiler/src/runtime/PxRuntime.cpp)
 add_executable(tests
         tests/src/TestMain.cpp
         tests/src/SourcePositionTest.cpp
-        tests/src/Utf8StringTest.cpp)
+        tests/src/TokenTest.cpp
+        tests/src/Utf8StringTest.cpp
+
+        compiler/src/Token.cpp)
 
 target_link_libraries(tests LLVM ${ICU_LIBRARIES})
