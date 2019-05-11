@@ -36,6 +36,12 @@ namespace px {
             ++line;
             lineColumn = 1;
         }
+
+        bool operator==(const SourcePosition& other) const
+        {
+            return fileName == other.fileName && fileOffset == other.fileOffset && line == other.line && lineColumn == other.lineColumn;
+        }
+
     };
 
 }

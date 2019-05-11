@@ -12,7 +12,7 @@ namespace px
         { TokenType::CHAR, "char literal" },
         { TokenType::STRING, "string literal" },
         { TokenType::KW_ABSTRACT, "abstract" },
-        { TokenType::KW_ABSTRACT, "as" },
+        { TokenType::KW_AS, "as" },
         { TokenType::KW_BREAK, "break" },
         { TokenType::KW_CASE, "case" },
         { TokenType::KW_CONCEPT, "concept" },
