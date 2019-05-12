@@ -21,11 +21,13 @@ namespace px {
         bool accept(const Utf8String &token);
         void rewind();
         Token &nextToken();
-        TokenType scan();
+
         const SourcePosition &position();
 
     private:
+        TokenType scan();
         int32_t nextCharacter();
+        int32_t peekCharacter();
         void scanCharEscape(Utf8String & token);
         void scanCharCodePoint(Utf8String & token, unsigned int length);
 

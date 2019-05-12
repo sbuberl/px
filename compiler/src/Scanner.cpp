@@ -90,7 +90,20 @@ namespace px {
     int32_t Scanner::nextCharacter()
     {
         peekPos.advance();
-        return source[peekPos.fileOffset];
+        if(peekPos.fileOffset < length) {
+            return source[peekPos.fileOffset];
+        } else {
+            return 0;
+        }
+    }
+
+    int32_t Scanner::peekCharacter()
+    {
+        if(peekPos.fileOffset + 1 < length) {
+            return source[peekPos.fileOffset + 1];
+        } else {
+            return 0;
+        }
     }
 
     TokenType Scanner::scan()
@@ -98,19 +111,25 @@ namespace px {
         int32_t current;
         Utf8String &token = peekToken.str;
 
-        if (peekPos.fileOffset >= length - 1)
+        if (peekPos.fileOffset >= length)
             return TokenType::END_FILE;
 
         current = source[peekPos.fileOffset];
+
         while (u_isWhitespace(current))
         {
             if (current == '\n')
             {
                 peekPos.nextLine();
             }
-            if (peekPos.fileOffset >= length - 1)
+            if (peekPos.fileOffset >= length)
                 return TokenType::END_FILE;
             current = nextCharacter();
+        }
+
+        if(current == 0)
+        {
+            return TokenType::END_FILE;
         }
 
         peekToken.position = peekPos;
@@ -398,7 +417,7 @@ namespace px {
                 case 0x2228:    RETURN_OP(OP_OR, 1);                // ∨
                 case 0x2229:    RETURN_OP(OP_BIT_AND, 1);           // ∩
                 case 0x222A:    RETURN_OP(OP_BIT_OR, 1);            // ∪
-                case 0x2261:    RETURN_OP(OP_NOT_EQUAL, 1);         // ≠
+                case 0x2260:    RETURN_OP(OP_NOT_EQUAL, 1);         // ≠
                 case 0x2264:    RETURN_OP(OP_LESS_OR_EQUAL, 1);     // ≤
                 case 0x2265:    RETURN_OP(OP_GREATER_OR_EQUAL, 1);  // ≥
                 case 0x226A:    RETURN_OP(OP_LEFT_SHIFT, 1);        // ≪
@@ -406,7 +425,7 @@ namespace px {
 
                 case '=':
                 {
-                    uint32_t next = source[peekPos.fileOffset + 1];
+                    uint32_t next = peekCharacter();
                     if (next == '=')
                         RETURN_OP(OP_EQUALS, 2);
                     else
@@ -414,7 +433,7 @@ namespace px {
                 }
                 case '!':
                 {
-                    uint32_t next = source[peekPos.fileOffset + 1];
+                    uint32_t next = peekCharacter();
                     if (next == '=')
                         RETURN_OP(OP_NOT_EQUAL, 2);
                     else
@@ -422,7 +441,7 @@ namespace px {
                 }
                 case '<':
                 {
-                    uint32_t next = source[peekPos.fileOffset + 1];
+                    uint32_t next = peekCharacter();
                     if (next == '<')
                         RETURN_OP(OP_LEFT_SHIFT, 2);
                     else if (next == '=')
@@ -432,7 +451,7 @@ namespace px {
                 }
                 case '>':
                 {
-                    uint32_t next = source[peekPos.fileOffset + 1];
+                    uint32_t next = peekCharacter();
                     if (next == '>')
                         RETURN_OP(OP_RIGHT_SHIFT, 2);
                     else if (next == '=')
@@ -442,7 +461,7 @@ namespace px {
                 }
                 case '&':
                 {
-                    uint32_t next = source[peekPos.fileOffset + 1];
+                    uint32_t next = peekCharacter();
                     if (next == '&')
                         RETURN_OP(OP_AND, 2);
                     else
@@ -450,7 +469,7 @@ namespace px {
                 }
                 case '|':
                 {
-                    uint32_t next = source[peekPos.fileOffset + 1];
+                    uint32_t next = peekCharacter();
                     if (next == '|')
                         RETURN_OP(OP_OR, 2);
                     else
