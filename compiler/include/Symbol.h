@@ -43,8 +43,8 @@ namespace px
 
     protected:
 
-        Symbol(const Utf8String &name, SymbolType type)
-            : name(name), symbolType(type), data(nullptr)
+        Symbol(const Utf8String &n, SymbolType t)
+            : name(n), symbolType(t), data(nullptr)
         {
         }
 
@@ -87,6 +87,11 @@ namespace px
 
         Type(const Utf8String &n, Type *p, unsigned int s, unsigned int f)
             : Symbol{ n, SymbolType::TYPE }, parent{ p }, size{ s }, flags{ f }
+        {
+        }
+
+        Type(const Type &other)
+            : Type{ other.name, other.parent, other.size, other.flags }
         {
         }
 
@@ -197,7 +202,6 @@ namespace px
             return _parent;
         }
 
-
         void addSymbol(Symbol *symbol)
         {
             _symbols[symbol->name] = symbol;
@@ -236,6 +240,11 @@ namespace px
             return getSymbol<Variable>(name, SymbolType::VARIABLE, localsOnly);
         }
 
+        Function* getFunction(const Utf8String &name, bool localsOnly = false) const
+        {
+            return getSymbol<Function>(name, SymbolType::FUNCTION, localsOnly);
+        }
+
         std::vector<Variable*> getLocalVariables() const
         {
             std::vector<Variable*> variables;
@@ -249,21 +258,21 @@ namespace px
 
         void addGlobals()
         {
-            addSymbol(Type::OBJECT);
-            addSymbol(Type::VOID);
-            addSymbol(Type::BOOL);
-            addSymbol(Type::INT8);
-            addSymbol(Type::INT16);
-            addSymbol(Type::INT32);
-            addSymbol(Type::INT64);
-            addSymbol(Type::UINT8);
-            addSymbol(Type::UINT16);
-            addSymbol(Type::UINT32);
-            addSymbol(Type::UINT64);
-            addSymbol(Type::FLOAT32);
-            addSymbol(Type::FLOAT64);
-            addSymbol(Type::CHAR);
-            addSymbol(Type::STRING);
+            addSymbol(new Type{*Type::OBJECT});
+            addSymbol(new Type{*Type::VOID});
+            addSymbol(new Type{*Type::BOOL});
+            addSymbol(new Type{*Type::INT8});
+            addSymbol(new Type{*Type::INT16});
+            addSymbol(new Type{*Type::INT32});
+            addSymbol(new Type{*Type::INT64});
+            addSymbol(new Type{*Type::UINT8});
+            addSymbol(new Type{*Type::UINT16});
+            addSymbol(new Type{*Type::UINT32});
+            addSymbol(new Type{*Type::UINT64});
+            addSymbol(new Type{*Type::FLOAT32});
+            addSymbol(new Type{*Type::FLOAT64});
+            addSymbol(new Type{*Type::CHAR});
+            addSymbol(new Type{*Type::STRING});
         }
 
     private:
