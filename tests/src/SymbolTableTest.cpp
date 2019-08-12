@@ -3,7 +3,7 @@
 #include "catch.hpp"
 #include "Symbol.h"
 
-TEST_CASE("Scanner get parent") {
+TEST_CASE("SymbolTable get parent") {
     px::SymbolTable parent{};
     px::SymbolTable child{&parent};
 
@@ -11,7 +11,7 @@ TEST_CASE("Scanner get parent") {
     REQUIRE(child.getParent() == &parent);
 }
 
-TEST_CASE("Scanner get symbol") {
+TEST_CASE("SymbolTable get symbol") {
     px::SymbolTable table;
     auto variable = new px::Variable{"myFloat", px::Type::FLOAT32};
     auto function = new px::Function{"funcA", {}, px::Type::VOID, false};
@@ -25,7 +25,7 @@ TEST_CASE("Scanner get symbol") {
     REQUIRE(table.getSymbol("string") != nullptr);
 }
 
-TEST_CASE("Scanner get variable") {
+TEST_CASE("SymbolTable get variable") {
     px::SymbolTable table;
     auto variable = new px::Variable{"myFloat", px::Type::FLOAT32};
     auto function = new px::Function{"funcA", {}, px::Type::VOID, false};
@@ -39,7 +39,7 @@ TEST_CASE("Scanner get variable") {
     REQUIRE(table.getVariable("string") == nullptr);
 }
 
-TEST_CASE("Scanner get function") {
+TEST_CASE("SymbolTable get function") {
     px::SymbolTable table;
     auto variable = new px::Variable{"myFloat", px::Type::FLOAT32};
     auto function = new px::Function{"funcA", {}, px::Type::VOID, false};
@@ -53,7 +53,7 @@ TEST_CASE("Scanner get function") {
     REQUIRE(table.getFunction("string") == nullptr);
 }
 
-TEST_CASE("Scanner get type") {
+TEST_CASE("SymbolTable get type") {
     px::SymbolTable table;
     auto variable = new px::Variable{"myFloat", px::Type::FLOAT32};
     auto function = new px::Function{"funcA", {}, px::Type::VOID, false};
@@ -67,7 +67,7 @@ TEST_CASE("Scanner get type") {
     REQUIRE(table.getType("string") != nullptr);
 }
 
-TEST_CASE("Scanner get local variables") {
+TEST_CASE("SymbolTable get local variables") {
     px::SymbolTable table;
     auto myFloat = new px::Variable{"myFloat", px::Type::FLOAT32};
     auto myInt = new px::Variable{"myInt", px::Type::INT64};
