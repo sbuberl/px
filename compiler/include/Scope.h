@@ -21,10 +21,7 @@ namespace px {
 
         ~Scope()
         {
-            for (auto child : children_)
-            {
-                delete child;
-            }
+            symbols_.reset();
         }
 
         Scope * parent() const
