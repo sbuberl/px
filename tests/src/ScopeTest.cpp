@@ -5,10 +5,10 @@
 
 TEST_CASE("Scope parent") {
     px::Scope parent{};
-    px::Scope child{&parent};
+    px::Scope *child = new px::Scope{&parent};
 
     REQUIRE(parent.parent() == nullptr);
-    REQUIRE(child.parent() == &parent);
+    REQUIRE(child->parent() == &parent);
 }
 
 TEST_CASE("Scope get symbol table") {
@@ -20,14 +20,14 @@ TEST_CASE("Scope get symbol table") {
 
 TEST_CASE("Scope enter and leave scope") {
     px::Scope scope;
-    px::Scope child1{&scope};
-    px::Scope child2{&scope};
-    px::Scope child3{&scope};
+    px::Scope *child1 = new px::Scope{&scope};
+    px::Scope *child2 = new px::Scope{&scope};
+    px::Scope *child3 = new px::Scope{&scope};
     auto variable = new px::Variable{"myFloat", px::Type::FLOAT32};
     auto function = new px::Function{"funcA", {}, px::Type::VOID, false};
-    child1.symbols()->addSymbol(variable);
-    child2.symbols()->addSymbol(function);
-    child3.symbols()->addSymbol(new px::Type{*px::Type::STRING});
+    child1->symbols()->addSymbol(variable);
+    child2->symbols()->addSymbol(function);
+    child3->symbols()->addSymbol(new px::Type{*px::Type::STRING});
 
     px::Scope *current = scope.enterScope();
     auto currentSymbols = current->symbols();
