@@ -62,6 +62,11 @@ namespace px {
             root_ = current_ = new Scope();
         }
 
+        Scope *root() const
+        {
+            return root_;
+        }
+
         Scope *current() const
         {
             return current_;

@@ -51,6 +51,7 @@ add_executable(tests
         tests/src/TestMain.cpp
         tests/src/ScannerTest.cpp
         tests/src/ScopeTest.cpp
+        tests/src/ScopeTreeTest.cpp
         tests/src/SourcePositionTest.cpp
         tests/src/SymbolTableTest.cpp
         tests/src/TokenTest.cpp
