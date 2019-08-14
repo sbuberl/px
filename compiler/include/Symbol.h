@@ -141,6 +141,11 @@ namespace px
             return (flags & builtinFlag) == builtinFlag;
         }
 
+        bool isBuiltin() const
+        {
+            return (flags & BUILTIN) == BUILTIN;
+        }
+
         bool isVoid() const
         {
             return isBuiltin(BUILTIN_VOID);
@@ -193,6 +198,12 @@ namespace px
         {
             for (auto entry : _symbols)
             {
+                if(entry.second->symbolType == SymbolType::TYPE){
+                    Type *type = (Type*) entry.second;
+                    if(type->isBuiltin())  {
+                        continue;
+                    }
+                }
                 delete entry.second;
             }
         }
@@ -258,21 +269,21 @@ namespace px
 
         void addGlobals()
         {
-            addSymbol(new Type{*Type::OBJECT});
-            addSymbol(new Type{*Type::VOID});
-            addSymbol(new Type{*Type::BOOL});
-            addSymbol(new Type{*Type::INT8});
-            addSymbol(new Type{*Type::INT16});
-            addSymbol(new Type{*Type::INT32});
-            addSymbol(new Type{*Type::INT64});
-            addSymbol(new Type{*Type::UINT8});
-            addSymbol(new Type{*Type::UINT16});
-            addSymbol(new Type{*Type::UINT32});
-            addSymbol(new Type{*Type::UINT64});
-            addSymbol(new Type{*Type::FLOAT32});
-            addSymbol(new Type{*Type::FLOAT64});
-            addSymbol(new Type{*Type::CHAR});
-            addSymbol(new Type{*Type::STRING});
+            addSymbol(Type::OBJECT);
+            addSymbol(Type::VOID);
+            addSymbol(Type::BOOL);
+            addSymbol(Type::INT8);
+            addSymbol(Type::INT16);
+            addSymbol(Type::INT32);
+            addSymbol(Type::INT64);
+            addSymbol(Type::UINT8);
+            addSymbol(Type::UINT16);
+            addSymbol(Type::UINT32);
+            addSymbol(Type::UINT64);
+            addSymbol(Type::FLOAT32);
+            addSymbol(Type::FLOAT64);
+            addSymbol(Type::CHAR);
+            addSymbol(Type::STRING);
         }
 
     private:
