@@ -387,6 +387,17 @@ namespace px
                     return nullptr;
             }
         }
+        else if (e.type->isBool())
+        {
+            switch (e.op)
+            {
+                case ast::UnaryOperator::NOT:
+                    opToken = "!";
+                    break;
+                default:
+                    return nullptr;
+            }
+        }
         else {
             return nullptr;
         }

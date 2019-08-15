@@ -493,6 +493,16 @@ namespace px
                     return nullptr;
             }
         }
+        else if (e.type->isBool())
+        {
+            switch (e.op)
+            {
+                case ast::UnaryOperator::NOT:
+                    return builder.CreateNot(value);
+                default:
+                    return nullptr;
+            }
+        }
         else
             return nullptr;
     }
