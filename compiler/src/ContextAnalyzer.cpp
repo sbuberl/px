@@ -197,6 +197,7 @@ namespace px
         }
 
         f.function = function;
+        f.type = function->returnType;
 
         if (function->parameters.size() != f.arguments.size()) {
             errors->addError(Error{f.position,
@@ -345,13 +346,35 @@ namespace px
         t.trueExpr->accept(*this);
         t.falseExpr->accept(*this);
 
+        auto trueType = t.trueExpr->type;
+        auto falseType = t.falseExpr->type;
+        if(trueType == falseType) {
+            t.type = trueType;
+        }
+        else if( trueType->isImpiciltyCastableTo(falseType))
+        {
+            t.trueExpr = std::make_unique<ast::CastExpression>(t.trueExpr->position, falseType->name, std::move(t.trueExpr));
+        }
+        else if( falseType->isImpiciltyCastableTo(trueType))
+        {
+            t.falseExpr = std::make_unique<ast::CastExpression>(t.falseExpr->position, trueType->name, std::move(t.falseExpr));
+        }
+
         return nullptr;
     }
 
     void* ContextAnalyzer::visit(ast::UnaryOpExpression &e)
     {
         e.expression->accept(*this);
-        e.type = e.expression->type;
+        switch (e.op)
+        {
+            case ast::UnaryOperator::NEG:
+            case ast::UnaryOperator::CMPL:
+                e.type = e.expression->type;
+                break;
+            case ast::UnaryOperator::NOT:
+                e.type = Type::BOOL;
+        }
         return nullptr;
     }
 

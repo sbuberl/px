@@ -3,7 +3,7 @@
 
 namespace px
 {
-    Type * const Type::UNKNOWN{ new Type{ std::string{"<<unknown>>"}, nullptr, 0, Type::BUILTIN } };
+    Type * const Type::UNKNOWN{ new Type{ std::string{"<<unknown>>"}, nullptr, 0, Type::NONE } };
     Type * const Type::OBJECT{ new Type{ std::string{"object"}, nullptr, 4, Type::BUILTIN} };
     Type * const Type::VOID{ new Type{ std::string{"void"}, nullptr, 0, Type::BUILTIN_VOID | Type::SEALED} };
     Type * const Type::BOOL{ new Type{ std::string{"bool"}, Type::OBJECT, 1, Type::BUILTIN_BOOL | Type::SEALED} };
