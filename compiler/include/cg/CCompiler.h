@@ -38,10 +38,16 @@ namespace px {
 
     private:
         static Utf8String pxTypeToCType(Type *type);
+        void indent();
+        void unindent();
+        void newLine();
+        void add(const Utf8String &text);
         Utf8String generateIncludes();
         Utf8String generateStringDecl();
         Utf8String buildFunctionProto(Function *function);
 
+        Utf8String code;
+        unsigned int indentLevel;
         Utf8String toPreDeclare;
         px::Function *currentFunction;
         px::Scope *currentScope;

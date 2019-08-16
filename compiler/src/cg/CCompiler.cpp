@@ -67,16 +67,38 @@ namespace px
         return "";
     }
 
-    void CCompiler::compile(ast::AST& ast) {
-        Utf8String *code = (Utf8String*)ast.accept(*this);
+    void CCompiler::indent()
+    {
+        ++indentLevel;
+    }
+
+    void CCompiler::unindent()
+    {
+        --indentLevel;
+    }
+
+    void CCompiler::newLine()
+    {
+        code += "\n";
+        code += std::string(indentLevel * 4, ' ');
+    }
+
+    void CCompiler::add(const Utf8String &text)
+    {
+        code += text;
+    }
+
+    void CCompiler::compile(ast::AST& ast)
+    {
+        ast.accept(*this);
 
         UFILE *out = u_get_stdout();
         int32_t length;
         UErrorCode errorCode = U_ZERO_ERROR;
-        u_strFromUTF8(NULL, 0, &length, code->c_str(), code->byteLength(), &errorCode);
+        u_strFromUTF8(NULL, 0, &length, code.c_str(), code.byteLength(), &errorCode);
         errorCode = U_ZERO_ERROR;
         std::unique_ptr<UChar[]> utf16Message(new UChar[length + 2]);
-        u_strFromUTF8(utf16Message.get(), length, &length, code->c_str(), code->byteLength(), &errorCode);
+        u_strFromUTF8(utf16Message.get(), length, &length, code.c_str(), code.byteLength(), &errorCode);
         utf16Message[length] = '\r';
         utf16Message[length + 1] = '\n';
         u_file_write(utf16Message.get(), length + 2, out);
@@ -84,16 +106,15 @@ namespace px
 
     void* CCompiler::visit(ast::AssignmentStatement &a)
     {
-        Utf8String *expression = (Utf8String*) a.expression->accept(*this);
         auto symbolTable = currentScope->symbols();
         Variable *variable = symbolTable->getVariable(a.variableName);
-        return new Utf8String{ variable->name + Token::getTokenName(TokenType::OP_ASSIGN) + *expression + Token::getTokenName(TokenType::OP_END_STATEMENT) + "\n"};
+        add(Utf8String{ variable->name + Token::getTokenName(TokenType::OP_ASSIGN)});
+        a.expression->accept(*this);
+        add(Token::getTokenName(TokenType::OP_END_STATEMENT));
     }
 
     void* CCompiler::visit(ast::BinaryOpExpression &b)
     {
-        Utf8String *left = (Utf8String*) b.left->accept(*this);
-        Utf8String *right = (Utf8String*) b.right->accept(*this);
         px::Type *leftType = b.left->type;
         Utf8String opToken;
         if (leftType->isInt() || leftType->isUInt())
@@ -154,8 +175,12 @@ namespace px
             }
         }
 
-        return new Utf8String{ Utf8String{"("} + *left + " " + opToken + " " + *right + ")" };
-
+        add(Utf8String{"("});
+        b.left->accept(*this);
+        add( Utf8String{" "} + opToken + " ");
+        b.right->accept(*this);
+        add( Utf8String{")"});
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::BlockStatement &s)
@@ -170,25 +195,29 @@ namespace px
 //            varMemory->setName(variable->name.toString());
 //            llvmScope->variables[variable->name] = varMemory;
 //        }
-
-        Utf8String blockCode;
+        add(Utf8String{"{"} );
+        indent();
         for (auto const& statement : s.statements)
         {
-            blockCode += *(Utf8String *) statement->accept(*this);
-        }
+            newLine();
+            statement->accept(*this);
 
+        }
+        unindent();
+        newLine();
+        add(Utf8String{ "}" });
         scopeTree->endScope();
         currentScope = current;
-        return new Utf8String{ Utf8String{"{\n"} + blockCode + "\n}\n" };
+
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::BoolLiteral &b)
     {
-        return new Utf8String{ b.literal };
+        add( b.literal );
     }
 
     void* CCompiler::visit(ast::CastExpression &e) {
-        Utf8String *value = (Utf8String *) e.expression->accept(*this);
         Type *type = e.type, *origType = e.expression->type;
         Utf8String newTypeName = pxTypeToCType(type);
         bool doCast = false;
@@ -216,98 +245,104 @@ namespace px
             }
         }
 
+
         if (doCast) {
-            return new Utf8String{Utf8String{"("} + newTypeName + ")" + *value};
-        } else {
-            return value;
+            add(Utf8String{"("} + newTypeName + ") " );
+            e.expression->accept(*this);
         }
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::CharLiteral &c)
     {
-        return new Utf8String{Utf8String{"'"} + c.literal + Utf8String{"'"} };
+        add(Utf8String{"'"} + c.literal + "'" );
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::ExpressionStatement &e)
     {
-        Utf8String *expression = (Utf8String*) e.expression->accept(*this);
-        return new Utf8String{ *expression + Token::getTokenName(TokenType::OP_END_STATEMENT) + "\n" };
+        e.expression->accept(*this);
+        add(Token::getTokenName(TokenType::OP_END_STATEMENT) );
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::FloatLiteral &f)
     {
-        return new Utf8String{ f.literal };
+        add( f.literal );
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::FunctionCallExpression &f)
     {
         Function *pxFunction = f.function;
         Utf8String name = pxFunction->name;
-        Utf8String argsText;
         int a = 0, end = f.arguments.size();
 
+        add(Utf8String{ name + "("});
         for (auto &arg : f.arguments)
         {
-            Utf8String *argValue = (Utf8String*) arg->accept(*this);
-            argsText += *argValue;
+            arg->accept(*this);
             if(++a < end) {
-                argsText += ", ";
+                add(", ");
             }
         }
 
-        return new Utf8String{ name + "(" + argsText + ")"};
+        add(Utf8String{")"});
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::FunctionDeclaration & e)
     {
-        Utf8String prototype = buildFunctionProto(e.function);
-        Utf8String flags;
-        return new Utf8String{ prototype };
+        add(buildFunctionProto(e.function));
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::FunctionDefinition &f)
     {
         Function *function = f.function;
-
         Utf8String RT = pxTypeToCType(function->returnType);
-        Utf8String argsText;
         int a = 0, end = function->parameters.size();
+
+        add(Utf8String{ RT + " " + function->name + "("});
         for (const Variable *arg : function->parameters)
         {
             Utf8String argType = pxTypeToCType(arg->type);
-            argsText += argType + " " + arg->name;
+            add(argType + " " + arg->name);
             if(++a < end) {
-                argsText += ", ";
+                add(", ");
             }
         }
 
         Function *prevFunction = currentFunction;
         currentFunction = function;
 
-        Utf8String *blockCode = (Utf8String*) f.block->accept(*this);
+        newLine();
+        f.block->accept(*this);
 
         currentFunction = prevFunction;
-
-        return new Utf8String{ RT + " " + function->name + "(" + argsText + ")" + "\n" + *blockCode };
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::IfStatement & i)
     {
-        Utf8String *condition = (Utf8String*) i.condition->accept(*this);
+        add(Utf8String{"if ("} );
+        i.condition->accept(*this);
+        add(Utf8String{")"} );
+        newLine();
+        i.trueStatement->accept(*this);
 
-        Utf8String *trueCode = (Utf8String*) i.trueStatement->accept(*this);
-
-        Utf8String elseStmt;
         if (i.elseStatement) {
-            Utf8String *elseCode = (Utf8String*) i.elseStatement->accept(*this);
-            elseStmt = Utf8String{"else\n"} + *elseCode + "\n";
+            newLine();
+            add(Utf8String{"else"});
+            newLine();
+            i.elseStatement->accept(*this);
         }
-        return new Utf8String{ Utf8String{"if ("} + *condition + ")\n" + *trueCode + "\n" + elseStmt};
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::IntegerLiteral &i)
     {
-        return new Utf8String{ std::to_string(i.value) };
+        add(Utf8String{ std::to_string(i.value) });
     }
 
     void * CCompiler::visit(ast::Module & m)
@@ -315,52 +350,53 @@ namespace px
         auto current = currentScope;
         currentScope = scopeTree->enterScope();
 
-        Utf8String moduleCode = generateIncludes();
+        code = generateIncludes();
+        add(toPreDeclare);
+        add(generateStringDecl());
 
         Utf8String statementCode;
         for (auto const& statement : m.statements)
         {
-            statementCode += *(Utf8String *) statement->accept(*this);
+            statement->accept(*this);
+            newLine();
         }
 
         scopeTree->endScope();
         currentScope = current;
 
-        moduleCode += toPreDeclare;
-        moduleCode += generateStringDecl();
-        moduleCode += statementCode;
-        return new Utf8String{ moduleCode };
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::ReturnStatement &s)
     {
         if (s.returnValue != nullptr)
         {
-            Utf8String *result = (Utf8String*) s.returnValue->accept(*this);
-            return new Utf8String{ Utf8String{"return "} + *result + ";\n" };
+            add(Utf8String{"return "});
+            s.returnValue->accept(*this);
         }
         else
-            return new Utf8String{ "return;\n" };
+            add(Utf8String{ "return;"});
     }
-
 
     void* CCompiler::visit(ast::StringLiteral &s)
     {
         Utf8String literal = s.literal;
-        return new Utf8String{ Utf8String{"{ "} + "u8\"" + literal + "\", " + std::to_string(literal.length())  + ", " +  std::to_string(literal.byteLength()) + " }"};
+        add( Utf8String{"{ "} + "u8\"" + literal + "\", " + std::to_string(literal.length())  + ", " +  std::to_string(literal.byteLength()) + " }");
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::TernaryOpExpression &t)
     {
-        Utf8String *condition = (Utf8String*) t.condition->accept(*this);
+        t.condition->accept(*this);
+        add(Utf8String{" ? " });
         Utf8String *trueExpr = (Utf8String*) t.trueExpr->accept(*this);
+        add(Utf8String{" : " });
         Utf8String *falseExpr = (Utf8String*) t.falseExpr->accept(*this);
-        return new Utf8String{ *condition + " ? " + *trueExpr + " : " + *falseExpr };
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::UnaryOpExpression &e)
     {
-        Utf8String *value = (Utf8String*) e.expression->accept(*this);
         Utf8String opToken;
         if (e.type->isInt() || e.type->isUInt())
         {
@@ -401,7 +437,10 @@ namespace px
         else {
             return nullptr;
         }
-        return new Utf8String{ opToken + *value };
+
+        add( Utf8String{ opToken  });
+        e.expression->accept(*this);
+        return nullptr;
     }
 
     void* CCompiler::visit(ast::VariableDeclaration &v)
@@ -409,17 +448,17 @@ namespace px
         auto symbolTable = currentScope->symbols();
         auto pxType = symbolTable->getType(v.typeName);
         Utf8String cTypeName = pxTypeToCType(pxType);
-        Utf8String declaration(cTypeName + " " + v.name);
+        add(cTypeName + " " + v.name);
         if (v.initialValue != nullptr) {
-            Utf8String *value = (Utf8String *) v.initialValue->accept(*this);
-            declaration += Token::getTokenName(TokenType::OP_ASSIGN) + *value;
+            add(Token::getTokenName(TokenType::OP_ASSIGN));
+            v.initialValue->accept(*this);
         }
-        return new Utf8String{ declaration + Token::getTokenName(TokenType::OP_END_STATEMENT) + "\n" };
+        add(Token::getTokenName(TokenType::OP_END_STATEMENT));
     }
 
     void* CCompiler::visit(ast::VariableExpression &v)
     {
-        return new Utf8String{ v.variable };
+        add( v.variable );
     }
 
     Utf8String CCompiler::generateIncludes() {
