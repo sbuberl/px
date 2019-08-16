@@ -10,7 +10,7 @@
 namespace px
 {
 
-    CCompiler::CCompiler(ScopeTree *tree) : currentFunction{ nullptr }, scopeTree{ tree }
+    CCompiler::CCompiler(ScopeTree *tree) : currentFunction{ nullptr }, scopeTree{ tree }, indentLevel{}
     {
         currentScope = tree->current();
     }
