@@ -39,7 +39,9 @@ namespace px {
     private:
         static Utf8String pxTypeToCType(Type *type);
         void indent();
+        void indent(ast::AST *node);
         void unindent();
+        void unindent(ast::AST *node);
         void newLine();
         void add(const Utf8String &text);
         Utf8String generateIncludes();

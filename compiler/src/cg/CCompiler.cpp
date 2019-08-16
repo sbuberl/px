@@ -72,9 +72,25 @@ namespace px
         ++indentLevel;
     }
 
+    void CCompiler::indent(ast::AST *node)
+    {
+        if(dynamic_cast<ast::BlockStatement*>(node) == nullptr)
+        {
+            indent();
+        }
+    }
+
     void CCompiler::unindent()
     {
         --indentLevel;
+    }
+
+    void CCompiler::unindent(ast::AST *node)
+    {
+        if(dynamic_cast<ast::BlockStatement*>(node) == nullptr)
+        {
+            unindent();
+        }
     }
 
     void CCompiler::newLine()
@@ -187,14 +203,7 @@ namespace px
     {
         auto current = currentScope;
         currentScope = scopeTree->enterScope();
-//        std::vector<Variable*> locals = currentScope->symbols()->getLocalVariables();
-//        for (auto variable : locals)
-//        {
-//            auto pxType = pxTypeToCType(variable->type);
-//            llvm::AllocaInst *varMemory = builder.CreateAlloca(pxType);
-//            varMemory->setName(variable->name.toString());
-//            llvmScope->variables[variable->name] = varMemory;
-//        }
+
         add(Utf8String{"{"} );
         indent();
         for (auto const& statement : s.statements)
@@ -313,6 +322,7 @@ namespace px
             }
         }
 
+        add(Utf8String{ ")"});
         Function *prevFunction = currentFunction;
         currentFunction = function;
 
@@ -329,13 +339,20 @@ namespace px
         i.condition->accept(*this);
         add(Utf8String{")"} );
         newLine();
+
+        indent(i.trueStatement.get());
+
         i.trueStatement->accept(*this);
+
+        unindent(i.trueStatement.get());
 
         if (i.elseStatement) {
             newLine();
             add(Utf8String{"else"});
+            indent(i.elseStatement.get());
             newLine();
             i.elseStatement->accept(*this);
+            unindent(i.elseStatement.get());
         }
         return nullptr;
     }
@@ -375,7 +392,8 @@ namespace px
             s.returnValue->accept(*this);
         }
         else
-            add(Utf8String{ "return;"});
+            add(Utf8String{ "return"});
+        add(Token::getTokenName(TokenType::OP_END_STATEMENT) );
     }
 
     void* CCompiler::visit(ast::StringLiteral &s)
