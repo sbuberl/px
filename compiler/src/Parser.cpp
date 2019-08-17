@@ -6,6 +6,7 @@
 #include <ast/Literal.h>
 #include <ast/Statement.h>
 #include <ast/Declaration.h>
+#include <IO.h>
 
 using namespace std;
 using namespace px::ast;
@@ -56,9 +57,7 @@ namespace px {
 
     std::unique_ptr<ast::Module> Parser::parse(const Utf8String &fileName, std::istream &in)
     {
-        std::stringstream buffer;
-        buffer << in.rdbuf();
-        Utf8String source{buffer.str()};
+        Utf8String source = readFile(in);
 
         scanner.reset(new Scanner(fileName, source));
         currentToken.reset(new Token(scanner->nextToken()));

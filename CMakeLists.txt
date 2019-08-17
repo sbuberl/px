@@ -21,6 +21,7 @@ add_executable(pxc
         compiler/include/cg/LLVMCompiler.h
         compiler/include/ContextAnalyzer.h
         compiler/include/Error.h
+        compiler/include/IO.h
         compiler/include/Parser.h
         compiler/include/Scanner.h
         compiler/include/Scope.h

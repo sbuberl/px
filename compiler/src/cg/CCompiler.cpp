@@ -1,11 +1,9 @@
 #include "cg/CCompiler.h"
-
-#include <unicode/ustdio.h>
-#include <unicode/ustring.h>
+#include "IO.h"
+#include "Token.h"
 
 #include <functional>
 #include <iostream>
-#include <Token.h>
 
 namespace px
 {
@@ -109,15 +107,7 @@ namespace px
         ast.accept(*this);
 
         UFILE *out = u_get_stdout();
-        int32_t length;
-        UErrorCode errorCode = U_ZERO_ERROR;
-        u_strFromUTF8(NULL, 0, &length, code.c_str(), code.byteLength(), &errorCode);
-        errorCode = U_ZERO_ERROR;
-        std::unique_ptr<UChar[]> utf16Message(new UChar[length + 2]);
-        u_strFromUTF8(utf16Message.get(), length, &length, code.c_str(), code.byteLength(), &errorCode);
-        utf16Message[length] = '\r';
-        utf16Message[length + 1] = '\n';
-        u_file_write(utf16Message.get(), length + 2, out);
+        writeString(out, code);
     }
 
     void* CCompiler::visit(ast::AssignmentStatement &a)
