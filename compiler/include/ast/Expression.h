@@ -4,6 +4,7 @@
 
 #include <ast/AST.h>
 #include <Symbol.h>
+#include <Token.h>
 
 namespace px
 {
@@ -45,9 +46,10 @@ namespace px
             std::unique_ptr<Expression> left;
             std::unique_ptr<Expression> right;
             BinaryOperator op;
+            TokenType token;
 
-            BinaryOpExpression(const SourcePosition &pos, BinaryOperator op, std::unique_ptr<Expression> l, std::unique_ptr<Expression> r)
-                : Expression{ pos }, left{ std::move(l) }, right{ std::move(r) }, op{ op }
+            BinaryOpExpression(const SourcePosition &pos, BinaryOperator op, TokenType tokenType, std::unique_ptr<Expression> l, std::unique_ptr<Expression> r)
+                : Expression{ pos }, left{ std::move(l) }, right{ std::move(r) }, op{ op }, token {tokenType}
             {
             }
 
@@ -95,9 +97,10 @@ namespace px
         public:
             std::unique_ptr<Expression> expression;
             UnaryOperator op;
+            TokenType token;
 
-            UnaryOpExpression(const SourcePosition &pos, UnaryOperator op, std::unique_ptr<Expression> e)
-                : Expression{ pos }, expression{ std::move(e) }, op{ op }
+            UnaryOpExpression(const SourcePosition &pos, UnaryOperator op, TokenType tokenType, std::unique_ptr<Expression> e)
+                : Expression{ pos }, expression{ std::move(e) }, op{ op }, token{ tokenType }
             {
             }
 

@@ -352,7 +352,7 @@ namespace px {
 
                 BinaryOperator op = getBinaryOp(opType);
                 std::unique_ptr<ast::Expression> right = parseBinary(prec + 1);
-                expr.reset(new BinaryOpExpression{ start, op, std::move(expr), std::move(right) });
+                expr.reset(new BinaryOpExpression{ start, op, opType, std::move(expr), std::move(right) });
             }
         }
         return expr;
@@ -363,7 +363,8 @@ namespace px {
         SourcePosition start = currentToken->position;
         std::unique_ptr<Expression> result, right;
 
-        switch (currentToken->type)
+        TokenType opType = currentToken->type;
+        switch (opType)
         {
             case TokenType::OP_ADD:
                 accept();
@@ -372,16 +373,16 @@ namespace px {
             case TokenType::OP_SUB:
                 accept();
                 right = parseUnary();
-                result = std::make_unique<UnaryOpExpression>(start, UnaryOperator::NEG, std::move(right));
+                result = std::make_unique<UnaryOpExpression>(start, UnaryOperator::NEG, opType, std::move(right));
                 break;
             case TokenType::OP_NOT:
                 accept();
                 right = parseUnary();
-                result = std::make_unique<UnaryOpExpression>(start, UnaryOperator::NOT, std::move(right));
+                result = std::make_unique<UnaryOpExpression>(start, UnaryOperator::NOT, opType, std::move(right));
             case TokenType::OP_COMPL:
                 accept();
                 right = parseUnary();
-                result = std::make_unique<UnaryOpExpression>(start, UnaryOperator::CMPL, std::move(right));
+                result = std::make_unique<UnaryOpExpression>(start, UnaryOperator::CMPL, opType, std::move(right));
             case TokenType::LPAREN:
             {
                 accept();

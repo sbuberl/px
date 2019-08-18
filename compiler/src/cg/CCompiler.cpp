@@ -127,22 +127,24 @@ namespace px
         {
             switch (b.op)
             {
-                case ast::BinaryOperator::ADD:      opToken = "+"; break;
-                case ast::BinaryOperator::SUB:      opToken = "-"; break;
-                case ast::BinaryOperator::MUL:      opToken = "*"; break;
-                case ast::BinaryOperator::DIV:      opToken = "/"; break;
-                case ast::BinaryOperator::MOD:      opToken = "%"; break;
-                case ast::BinaryOperator::LSH:      opToken = "<<"; break;
-                case ast::BinaryOperator::RSH:      opToken = ">>"; break;
-                case ast::BinaryOperator::BIT_AND:  opToken = "&"; break;
-                case ast::BinaryOperator::BIT_OR:   opToken = "|"; break;
-                case ast::BinaryOperator::BIT_XOR:  opToken = "^"; break;
-                case ast::BinaryOperator::EQ:       opToken = "=="; break;
-                case ast::BinaryOperator::NE:       opToken = "!="; break;
-                case ast::BinaryOperator::LT:       opToken = "<"; break;
-                case ast::BinaryOperator::LTE:      opToken = "<="; break;
-                case ast::BinaryOperator::GT:       opToken = ">"; break;
-                case ast::BinaryOperator::GTE:      opToken = ">="; break;
+                case ast::BinaryOperator::ADD:
+                case ast::BinaryOperator::SUB:
+                case ast::BinaryOperator::MUL:
+                case ast::BinaryOperator::DIV:
+                case ast::BinaryOperator::MOD:
+                case ast::BinaryOperator::LSH:
+                case ast::BinaryOperator::RSH:
+                case ast::BinaryOperator::BIT_AND:
+                case ast::BinaryOperator::BIT_OR:
+                case ast::BinaryOperator::BIT_XOR:
+                case ast::BinaryOperator::EQ:
+                case ast::BinaryOperator::NE:
+                case ast::BinaryOperator::LT:
+                case ast::BinaryOperator::LTE:
+                case ast::BinaryOperator::GT:
+                case ast::BinaryOperator::GTE:
+                    opToken = Token::getTokenName(b.token);
+                    break;
                 default:	return nullptr;
             }
         }
@@ -150,17 +152,19 @@ namespace px
         {
             switch (b.op)
             {
-                case ast::BinaryOperator::ADD:      opToken = "+"; break;
-                case ast::BinaryOperator::SUB:      opToken = "-"; break;
-                case ast::BinaryOperator::MUL:      opToken = "*"; break;
-                case ast::BinaryOperator::DIV:      opToken = "/"; break;
+                case ast::BinaryOperator::ADD:
+                case ast::BinaryOperator::SUB:
+                case ast::BinaryOperator::MUL:
+                case ast::BinaryOperator::DIV:
                 //    case ast::BinaryOperator::MOD:      opToken = "%"; break;
-                case ast::BinaryOperator::EQ:       opToken = "=="; break;
-                case ast::BinaryOperator::NE:       opToken = "!="; break;
-                case ast::BinaryOperator::LT:       opToken = "<"; break;
-                case ast::BinaryOperator::LTE:      opToken = "<="; break;
-                case ast::BinaryOperator::GT:       opToken = ">"; break;
-                case ast::BinaryOperator::GTE:      opToken = ">="; break;
+                case ast::BinaryOperator::EQ:
+                case ast::BinaryOperator::NE:
+                case ast::BinaryOperator::LT:
+                case ast::BinaryOperator::LTE:
+                case ast::BinaryOperator::GT:
+                case ast::BinaryOperator::GTE:
+                    opToken = Token::getTokenName(b.token);
+                    break;
                 default:	return nullptr;
             }
         }
@@ -168,15 +172,17 @@ namespace px
         {
             switch (b.op)
             {
-                case ast::BinaryOperator::BIT_AND:  opToken = "&"; break;
-                case ast::BinaryOperator::BIT_OR:   opToken = "|"; break;
-                case ast::BinaryOperator::BIT_XOR:  opToken = "^"; break;
-                case ast::BinaryOperator::EQ:       opToken = "=="; break;
-                case ast::BinaryOperator::NE:       opToken = "!="; break;
-                case ast::BinaryOperator::LT:       opToken = "<"; break;
-                case ast::BinaryOperator::LTE:      opToken = "<="; break;
-                case ast::BinaryOperator::GT:       opToken = ">"; break;
-                case ast::BinaryOperator::GTE:      opToken = ">="; break;
+                case ast::BinaryOperator::BIT_AND:
+                case ast::BinaryOperator::BIT_OR:
+                case ast::BinaryOperator::BIT_XOR:
+                case ast::BinaryOperator::EQ:
+                case ast::BinaryOperator::NE:
+                case ast::BinaryOperator::LT:
+                case ast::BinaryOperator::LTE:
+                case ast::BinaryOperator::GT:
+                case ast::BinaryOperator::GTE:
+                    opToken = Token::getTokenName(b.token);
+                    break;
                 default:	return nullptr;
             }
         }
@@ -411,10 +417,8 @@ namespace px
             switch (e.op)
             {
                 case ast::UnaryOperator::NEG:
-                    opToken = "-";
-                    break;
                 case ast::UnaryOperator::CMPL:
-                    opToken = "~";
+                    opToken = Token::getTokenName(e.token);
                     break;
                 default:
                     return nullptr;
@@ -425,7 +429,7 @@ namespace px
             switch (e.op)
             {
                 case ast::UnaryOperator::NEG:
-                    opToken = "-";
+                    opToken = Token::getTokenName(e.token);
                     break;
                 default:
                     return nullptr;
@@ -436,7 +440,7 @@ namespace px
             switch (e.op)
             {
                 case ast::UnaryOperator::NOT:
-                    opToken = "!";
+                    opToken = Token::getTokenName(e.token);
                     break;
                 default:
                     return nullptr;

@@ -1,5 +1,6 @@
 
 #include "ContextAnalyzer.h"
+#include "Token.h"
 
 #include <iostream>
 #include <functional>
@@ -84,10 +85,11 @@ namespace px
         SourcePosition rightPosition = b.right->position;
 
         unsigned int combinedFlags = leftType->flags & leftType->flags;
+        TokenType opType = b.token;
 
         if (!leftType->isImpiciltyCastableTo(rightType) && !rightType->isImpiciltyCastableTo(leftType))
         {
-            errors->addError(Error{ leftPosition, Utf8String{ "Can not perform binary operators between '" }  + leftType->name + "' and '" + rightType->name + "'" });
+            errors->addError(Error{ leftPosition, Utf8String{ "Can not perform binary '"} + Token::getTokenName(opType) + "' between '"  + leftType->name + "' and '" + rightType->name + "'" });
         }
 
         if (b.op >= ast::BinaryOperator::OR && b.op <= ast::BinaryOperator::NE)
@@ -357,13 +359,25 @@ namespace px
     void* ContextAnalyzer::visit(ast::UnaryOpExpression &e)
     {
         e.expression->accept(*this);
+
+        TokenType opType = e.token;
         switch (e.op)
         {
             case ast::UnaryOperator::NEG:
             case ast::UnaryOperator::CMPL:
+                if (!e.expression->type->isInt() && !e.expression->type->isUInt() && !e.expression->type->isFloat())
+                {
+                    errors->addError(Error{ e.position, Utf8String{ "Unary operator '" } + Token::getTokenName(opType) + "' is only allowed with numeric expressions" } );
+                    return nullptr;
+                }
                 e.type = e.expression->type;
                 break;
             case ast::UnaryOperator::NOT:
+                if (!e.expression->type->isBool())
+                {
+                    errors->addError(Error{ e.position, Utf8String{ "Unary operator '" } + Token::getTokenName(opType) + "' is only allowed with boolean expressions" } );
+                    return nullptr;
+                }
                 e.type = Type::BOOL;
         }
         return nullptr;
