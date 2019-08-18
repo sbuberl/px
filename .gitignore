@@ -81,3 +81,4 @@ $RECYCLE.BIN/
 Debug/
 .vs/
 *.vc.db
+cmake-build*
