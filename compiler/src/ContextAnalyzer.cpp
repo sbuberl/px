@@ -17,55 +17,46 @@ namespace px
         ast.accept(*this);
     }
 
-    void ContextAnalyzer::checkAssignmentTypes(Variable *variable, std::unique_ptr<ast::Expression> &expression, const SourcePosition &start)
-    {
+    void ContextAnalyzer::checkAssignmentTypes(Variable *variable, std::unique_ptr<ast::Expression> &expression, const SourcePosition &start) {
         Type *varType = variable->type;
         Type *exprType = expression->type;
         if (varType == exprType)
             return;
 
-        if (!exprType->isImpiciltyCastableTo(varType) && exprType != Type::UNKNOWN && varType!= Type::UNKNOWN)
+        if (exprType->isVoid())
         {
-            errors->addError(Error{ start, Utf8String{ "Can not implicitly convert from '" } + exprType->name + "' to '" + varType->name + "'" });
+            errors->addError(Error{start, Utf8String{"A value of type 'void' can not be assigned to variable of type '"} + varType->name + "'" });
+        }
+        else if (!exprType->isImpiciltyCastableTo(varType) && exprType != Type::UNKNOWN && varType != Type::UNKNOWN) {
+            errors->addError(Error{start, Utf8String{"Can not implicitly convert from '"} + exprType->name + "' to '" +
+                                          varType->name + "'"});
         }
 
-        if (varType->isInt())
-        {
-            if (exprType->isInt())
-            {
-                if (varType->size > exprType->size)
-                {
+        if (varType->isInt()) {
+            if (exprType->isInt()) {
+                if (varType->size > exprType->size) {
+                    expression->type = varType;
+                    expression = std::make_unique<ast::CastExpression>(start, varType->name, std::move(expression));
+                    expression->accept(*this);
+                }
+            }
+        } else if (varType->isUInt()) {
+            if (exprType->isUInt()) {
+                if (varType->size > exprType->size) {
+                    expression->type = varType;
+                    expression = std::make_unique<ast::CastExpression>(start, varType->name, std::move(expression));
+                    expression->accept(*this);
+                }
+            }
+        } else if (varType->isFloat()) {
+            if (exprType->isFloat()) {
+                if (varType->size > exprType->size) {
                     expression->type = varType;
                     expression = std::make_unique<ast::CastExpression>(start, varType->name, std::move(expression));
                     expression->accept(*this);
                 }
             }
         }
-        else if (varType->isUInt())
-        {
-            if (exprType->isUInt())
-            {
-                if (varType->size > exprType->size)
-                {
-                    expression->type = varType;
-                    expression = std::make_unique<ast::CastExpression>(start, varType->name, std::move(expression));
-                    expression->accept(*this);
-                }
-            }
-        }
-        else if (varType->isFloat())
-        {
-            if (exprType->isFloat())
-            {
-                if (varType->size > exprType->size)
-                {
-                    expression->type = varType;
-                    expression = std::make_unique<ast::CastExpression>(start, varType->name, std::move(expression));
-                    expression->accept(*this);
-                }
-            }
-        }
-
     }
     void* ContextAnalyzer::visit(ast::AssignmentStatement &a)
     {

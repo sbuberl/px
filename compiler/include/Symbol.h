@@ -102,7 +102,7 @@ namespace px
 
         bool isCastableTo(Type *other) const
         {
-            if (this == other)
+            if (this == other && other != Type::VOID)
             {
                 return true;
             }
@@ -118,7 +118,7 @@ namespace px
 
         bool isImpiciltyCastableTo(Type *other) const
         {
-            if (this == other)
+            if (this == other && other != Type::VOID)
             {
                 return true;
             }
