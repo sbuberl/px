@@ -25,7 +25,7 @@ namespace px
             std::unique_ptr<Expression> expression;
 
             AssignmentStatement(const SourcePosition &pos, const Utf8String &n, std::unique_ptr<Expression> e)
-                : Statement{ pos }, variableName{ n }, expression{ std::move(e) }
+                : Statement{ NodeType::STMT_ASSIGN, pos }, variableName{ n }, expression{ std::move(e) }
             {
             }
 
@@ -35,9 +35,12 @@ namespace px
         class BlockStatement : public Statement
         {
         public:
-            using Statement::Statement;
-
             std::vector<std::unique_ptr<Statement>> statements;
+
+            BlockStatement(const SourcePosition &pos)
+                : Statement{ NodeType::STMT_BLOCK, pos }
+            {
+            }
 
             void addStatement(std::unique_ptr<Statement> statement)
             {
@@ -58,7 +61,7 @@ namespace px
             std::unique_ptr<Expression> expression;
 
             ExpressionStatement(const SourcePosition &pos, std::unique_ptr<Expression> expr)
-                : Statement{ pos }, expression{ std::move(expr) }
+                : Statement{ NodeType::STMT_EXP, pos }, expression{ std::move(expr) }
             {
             }
 
@@ -74,7 +77,7 @@ namespace px
             std::unique_ptr<Statement> elseStatement;
 
             IfStatement(const SourcePosition &pos, std::unique_ptr<Expression> cond, std::unique_ptr<Statement> trueMatch, std::unique_ptr<Statement> elseMatch)
-                : Statement{ pos }, condition{ std::move(cond) }, trueStatement{ std::move(trueMatch) }, elseStatement{ std::move(elseMatch) }
+                : Statement{ NodeType::STMT_IF, pos }, condition{ std::move(cond) }, trueStatement{ std::move(trueMatch) }, elseStatement{ std::move(elseMatch) }
             {
             }
 
@@ -90,7 +93,7 @@ namespace px
             ReturnStatement(const SourcePosition &pos) : ReturnStatement{ pos, nullptr } {}
 
             ReturnStatement(const SourcePosition &pos, std::unique_ptr<Expression> value)
-                : Statement{ pos }, returnValue{ std::move(value) }
+                : Statement{ NodeType::STMT_RETURN, pos }, returnValue{ std::move(value) }
             {
             }
 

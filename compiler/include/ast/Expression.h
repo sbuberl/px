@@ -16,11 +16,11 @@ namespace px
             Type *type;
 
         protected:
-            Expression(const SourcePosition &pos, Type *type) : AST{ pos }, type{ type }
+            Expression(NodeType nodeType, const SourcePosition &pos, Type *type) : AST{  nodeType, pos }, type{ type }
             {
             }
 
-            Expression(const SourcePosition &pos) : Expression{ pos , Type::UNKNOWN }
+            Expression(NodeType nodeType, const SourcePosition &pos) : Expression{ nodeType, pos , Type::UNKNOWN }
             {
             }
         };
@@ -49,7 +49,7 @@ namespace px
             TokenType token;
 
             BinaryOpExpression(const SourcePosition &pos, BinaryOperator op, TokenType tokenType, std::unique_ptr<Expression> l, std::unique_ptr<Expression> r)
-                : Expression{ pos }, left{ std::move(l) }, right{ std::move(r) }, op{ op }, token {tokenType}
+                : Expression{ NodeType::EXP_BINARY_OP, pos }, left{ std::move(l) }, right{ std::move(r) }, op{ op }, token {tokenType}
             {
             }
 
@@ -63,7 +63,7 @@ namespace px
             const Utf8String newTypeName;
 
             CastExpression(const SourcePosition &pos, const Utf8String &type, std::unique_ptr<Expression> exp)
-                : Expression{ pos }, expression{ std::move(exp) }, newTypeName{ type }
+                : Expression{ NodeType::EXP_CAST, pos }, expression{ std::move(exp) }, newTypeName{ type }
             {
             }
 
@@ -78,7 +78,7 @@ namespace px
             Function *function;
 
             FunctionCallExpression(const SourcePosition &pos, const Utf8String &name, std::vector<std::unique_ptr<Expression>> args)
-                : Expression{ pos }, functionName{ name }, arguments{ std::move(args) }, function{}
+                : Expression{ NodeType::EXP_FUNC_CALL, pos }, functionName{ name }, arguments{ std::move(args) }, function{}
             {
             }
 
@@ -100,7 +100,7 @@ namespace px
             TokenType token;
 
             UnaryOpExpression(const SourcePosition &pos, UnaryOperator op, TokenType tokenType, std::unique_ptr<Expression> e)
-                : Expression{ pos }, expression{ std::move(e) }, op{ op }, token{ tokenType }
+                : Expression{ NodeType::EXP_UNARY_OP, pos }, expression{ std::move(e) }, op{ op }, token{ tokenType }
             {
             }
 
@@ -115,7 +115,7 @@ namespace px
             std::unique_ptr<Expression> falseExpr;
 
             TernaryOpExpression(const SourcePosition &pos, std::unique_ptr<Expression> c, std::unique_ptr<Expression> t, std::unique_ptr<Expression> f)
-                : Expression{ pos }, condition{ std::move(c) }, trueExpr{ std::move(t) }, falseExpr{ std::move(f) }
+                : Expression{ NodeType::EXP_TERNARY_OP, pos }, condition{ std::move(c) }, trueExpr{ std::move(t) }, falseExpr{ std::move(f) }
             {
             }
 
@@ -129,7 +129,7 @@ namespace px
         public:
             const Utf8String variable;
 
-            VariableExpression(const SourcePosition &pos, const Utf8String &var) : Expression{ pos }, variable{ var }
+            VariableExpression(const SourcePosition &pos, const Utf8String &var) : Expression{ NodeType::EXP_VAR_LOAD, pos }, variable{ var }
             {
             }
 

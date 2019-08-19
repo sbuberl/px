@@ -42,7 +42,7 @@ namespace px
             Function *function;
 
             FunctionDeclaration(const SourcePosition &pos, std::unique_ptr<FunctionPrototype> proto)
-               : Statement{ pos }, prototype{ std::move(proto) }
+               : Statement{ NodeType::DECLARE_FUNC, pos }, prototype{ std::move(proto) }
             {
             }
 
@@ -57,7 +57,7 @@ namespace px
             Function *function;
 
             FunctionDefinition(const SourcePosition &pos, std::unique_ptr<FunctionPrototype> proto, std::unique_ptr<BlockStatement> stmts)
-                : Statement{ pos }, prototype{ std::move(proto) }, block{ std::move(stmts) }, function{ }
+                : Statement{ NodeType::DECLARE_FUNC_BODY, pos }, prototype{ std::move(proto) }, block{ std::move(stmts) }, function{ }
             {
             }
 
@@ -72,7 +72,7 @@ namespace px
             std::unique_ptr<Expression> initialValue;
 
             VariableDeclaration(const SourcePosition &pos, const Utf8String &t, const Utf8String &n, std::unique_ptr<Expression> value)
-                : Statement{ pos }, typeName{ t }, name{ n }, initialValue{ std::move(value) }
+                : Statement{ NodeType::DECLARE_VAR, pos }, typeName{ t }, name{ n }, initialValue{ std::move(value) }
             {
             }
 

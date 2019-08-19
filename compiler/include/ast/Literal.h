@@ -19,7 +19,7 @@ namespace px
             virtual ~Literal() = default;
 
         protected:
-            Literal(const SourcePosition &pos, Type *type, const Utf8String &l) : Expression{ pos, type }, literal{ l } {}
+            Literal(NodeType nodeType, const SourcePosition &pos, Type *type, const Utf8String &l) : Expression{ nodeType, pos, type }, literal{ l } {}
         };
 
         class BoolLiteral : public Literal
@@ -28,7 +28,7 @@ namespace px
             const bool value;
 
             BoolLiteral(const SourcePosition &pos, const Utf8String &l)
-                : Literal{ pos, Type::BOOL, l }, value{ l == Utf8String("true") }
+                : Literal{ NodeType::LITERAL_BOOL, pos, Type::BOOL, l }, value{ l == Utf8String("true") }
             {
             }
 
@@ -39,7 +39,7 @@ namespace px
         {
         public:
             CharLiteral(const SourcePosition &pos, const Utf8String &l)
-                : Literal{ pos, Type::CHAR, l }
+                : Literal{ NodeType::LITERAL_CHAR, pos, Type::CHAR, l }
             {
             }
 
@@ -52,7 +52,8 @@ namespace px
             const int64_t value;
 
             IntegerLiteral(const SourcePosition &pos, Type *type, const Utf8String &l, int64_t v)
-                : Literal{ pos, type != nullptr ? type : Type::INT32, l }, value{ v }
+                : Literal{ NodeType::LITERAL_INT, pos, type != nullptr ? type : Type::INT32, l }, value{ v }
+
             {
             }
 
@@ -65,7 +66,7 @@ namespace px
             const double value;
 
             FloatLiteral(const SourcePosition &pos, Type *type, const Utf8String &l)
-                : Literal{ pos, type != nullptr ? type : Type::FLOAT32, l }, value{ std::stod(l.toString()) }
+                : Literal{ NodeType::LITERAL_FLOAT, pos, type != nullptr ? type : Type::FLOAT32, l }, value{ std::stod(l.toString()) }
             {
             }
 
@@ -75,7 +76,7 @@ namespace px
         class StringLiteral : public Literal
         {
         public:
-            StringLiteral(const SourcePosition &pos, const Utf8String &l) : Literal{ pos, Type::STRING, l }
+            StringLiteral(const SourcePosition &pos, const Utf8String &l) : Literal{ NodeType::LITERAL_STRING, pos, Type::STRING, l }
             {
 
             }

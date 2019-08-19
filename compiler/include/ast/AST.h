@@ -13,12 +13,37 @@ namespace px
         class Visitor;
         class Statement;
 
+        enum class NodeType
+        {
+            UNKNOWN,
+            DECLARE_VAR,
+            DECLARE_FUNC,
+            DECLARE_FUNC_BODY,
+            EXP_CAST,
+            EXP_FUNC_CALL,
+            EXP_BINARY_OP,
+            EXP_TERNARY_OP,
+            EXP_UNARY_OP,
+            EXP_VAR_LOAD,
+            LITERAL_BOOL,
+            LITERAL_CHAR,
+            LITERAL_FLOAT,
+            LITERAL_INT,
+            LITERAL_STRING,
+            MODULE,
+            STMT_ASSIGN,
+            STMT_BLOCK,
+            STMT_EXP,
+            STMT_IF,
+            STMT_RETURN
+        };
         class AST
         {
         public:
+            const NodeType nodeType;
             const SourcePosition position;
 
-            AST(const SourcePosition &pos) : position{ pos }
+            AST(NodeType type, const SourcePosition &pos) : nodeType{type}, position{ pos }
             {
             }
             virtual ~AST() = default;
@@ -32,7 +57,7 @@ namespace px
             std::vector<std::unique_ptr<Statement>> statements;
 
             Module(const SourcePosition &pos, const Utf8String &file)
-                : AST{ pos }, fileName{ fileName }
+                : AST{ NodeType::MODULE, pos }, fileName{ file }
             {
             }
 

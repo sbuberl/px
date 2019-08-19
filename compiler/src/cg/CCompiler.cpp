@@ -72,7 +72,7 @@ namespace px
 
     void CCompiler::indent(ast::AST *node)
     {
-        if(dynamic_cast<ast::BlockStatement*>(node) == nullptr)
+        if(node->nodeType != ast::NodeType::STMT_BLOCK)
         {
             indent();
         }
@@ -85,7 +85,7 @@ namespace px
 
     void CCompiler::unindent(ast::AST *node)
     {
-        if(dynamic_cast<ast::BlockStatement*>(node) == nullptr)
+        if(node->nodeType != ast::NodeType::STMT_BLOCK)
         {
             unindent();
         }
