@@ -50,6 +50,7 @@ add_library(pxruntime STATIC compiler/src/runtime/PxRuntime.cpp)
 
 add_executable(tests
         tests/src/TestMain.cpp
+        tests/src/ParserTest.cpp
         tests/src/ScannerTest.cpp
         tests/src/ScopeTest.cpp
         tests/src/ScopeTreeTest.cpp
@@ -58,6 +59,12 @@ add_executable(tests
         tests/src/TokenTest.cpp
         tests/src/Utf8StringTest.cpp
 
+        compiler/src/ast/Declaration.cpp
+        compiler/src/ast/Expression.cpp
+        compiler/src/ast/Literal.cpp
+        compiler/src/ast/Node.cpp
+        compiler/src/ast/Statement.cpp
+        compiler/src/Parser.cpp
         compiler/src/Scanner.cpp
         compiler/src/Symbol.cpp
         compiler/src/Token.cpp)
