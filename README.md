@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/sbuberl/px.svg)](https://travis-ci.org/sbuberl/px)
 ![C++ Badge](https://camo.githubusercontent.com/5470b238fcbd1a4ed9f15c650df2472ece533eb5/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f7374642d632b2b31342d626c75652e737667)
 [![Open Source Helpers](https://www.codetriage.com/sbuberl/px/badges/users.svg)](https://www.codetriage.com/sbuberl/px)
 
