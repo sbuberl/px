@@ -8,27 +8,42 @@ It uses [LLVM](https://llvm.org/) for one backend and also can transcompile to C
 
 ### Code example of working features:
 ```
-func blah() : void
-{
-	a: uint32 = 1024_u32;
-	i: int32 = 7_i;
-	j: int32 = i ÷ 4.0 as int32;
-	0x10ADF + 0b10101001 + 0o15675;
-	i = j > 12 ? 256 : 384;
-	b: bool = true;
-	if( b == false )
-	{
-		q: int32 = j * i;
-		b = true;
-	}
-	else
-		b = false;
-	c: char  = 'A';
-	s: string = "こんにちは世界";
-}
+extern func printInt(i: int32) : void;
+
+func blah(x:int32, y:int32) : void;
 
 func main() : int32
 {
-	return 27;
+    blah(123, 586);
+    return 27;
+}
+
+func blah(x:int32, y:int32) : void
+{
+    a: uint32 = 1024_u32;
+    i: int32 = x + -y;
+    j: int32 = i ÷ 4.0 as int32;
+    0x10ADF + 0b10101001 + 0o15675;
+    i = j > 12 ? 256 : 384;
+    b: bool = true;
+    if( b == false )
+    {
+        q: int32 = j * i;
+        b = true;
+    }
+    else
+        b = false;
+
+    z: int32 = 0;
+    do {
+        z = z + 1;
+    } while ( x < 20 )
+
+    while ( z > 0 )
+        z = z - 1;
+
+    c: char  = '\u263A';
+    s: string = "こんにち\u263Aは世界";
+    printInt(i);
 }
 ```
