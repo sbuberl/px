@@ -4,7 +4,7 @@ project(px)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(LLVM 6.0.0 REQUIRED CONFIG)
-find_package(ICU 62.1 COMPONENTS io data test tu uc REQUIRED)
+find_package(ICU 60.2 COMPONENTS io data test tu uc REQUIRED)
 
 include_directories(compiler/include)
 include_directories(tests/include)
