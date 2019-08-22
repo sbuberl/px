@@ -264,6 +264,24 @@ namespace px
         return nullptr;
     }
 
+    void* CCompiler::visit(ast::DoWhileStatement &d)
+    {
+        add(Utf8String{"do"} );
+        indent(d.body.get());
+        newLine();
+
+        d.body->accept(*this);
+        unindent(d.body.get());
+        newLine();
+
+        add(Utf8String{"while ("} );
+        d.condition->accept(*this);
+        add(Utf8String{");"} );
+        newLine();
+
+        return nullptr;
+    }
+
     void* CCompiler::visit(ast::ExpressionStatement &e)
     {
         e.expression->accept(*this);
@@ -471,6 +489,20 @@ namespace px
     void* CCompiler::visit(ast::VariableExpression &v)
     {
         add( v.variable );
+    }
+
+    void* CCompiler::visit(ast::WhileStatement & w)
+    {
+        add(Utf8String{"while ("} );
+        w.condition->accept(*this);
+        add(Utf8String{")"} );
+
+        indent(w.body.get());
+        newLine();
+        w.body->accept(*this);
+        unindent(w.body.get());
+
+        return nullptr;
     }
 
     Utf8String CCompiler::generateIncludes() {

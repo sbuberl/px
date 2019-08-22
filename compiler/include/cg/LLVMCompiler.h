@@ -23,6 +23,7 @@ namespace px {
         void *visit(ast::BlockStatement &s) override;
         void *visit(ast::CharLiteral &c) override;
         void *visit(ast::CastExpression &f) override;
+        void *visit(ast::DoWhileStatement &d) override;
         void *visit(ast::ExpressionStatement &s) override;
         void *visit(ast::FloatLiteral &f) override;
         void *visit(ast::FunctionCallExpression &f) override;
@@ -37,6 +38,7 @@ namespace px {
         void *visit(ast::UnaryOpExpression &e) override;
         void *visit(ast::VariableDeclaration &d) override;
         void *visit(ast::VariableExpression &v) override;
+        void *visit(ast::WhileStatement &w) override;
 
     private:
         class LLVMScope

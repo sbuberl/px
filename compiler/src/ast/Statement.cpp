@@ -10,10 +10,14 @@ namespace px
 
         void *BlockStatement::accept(Visitor &visitor) { return visitor.visit(*this); }
 
+        void *DoWhileStatement::accept(Visitor &visitor) { return visitor.visit(*this); }
+
         void *IfStatement::accept(Visitor &visitor) { return visitor.visit(*this); }
 
         void *ExpressionStatement::accept(Visitor &visitor) { return visitor.visit(*this); }
 
         void *ReturnStatement::accept(Visitor &visitor) { return visitor.visit(*this); }
+
+        void *WhileStatement::accept(Visitor &visitor) { return visitor.visit(*this); }
     }
 }

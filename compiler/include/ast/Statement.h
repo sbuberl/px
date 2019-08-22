@@ -55,6 +55,21 @@ namespace px
             void *accept(Visitor &visitor) override;
         };
 
+        class DoWhileStatement : public Statement
+        {
+        public:
+            std::unique_ptr<Expression> condition;
+            std::unique_ptr<Statement> body;
+
+            DoWhileStatement(const SourcePosition &pos, std::unique_ptr<Expression> cond, std::unique_ptr<Statement> statement)
+                : Statement{ NodeType::STMT_WHILE, pos }, condition{ std::move(cond) }, body{ std::move(statement) }
+            {
+            }
+
+            void *accept(Visitor &visitor) override;
+
+        };
+
         class ExpressionStatement : public Statement
         {
         public:
@@ -94,6 +109,21 @@ namespace px
 
             ReturnStatement(const SourcePosition &pos, std::unique_ptr<Expression> value)
                 : Statement{ NodeType::STMT_RETURN, pos }, returnValue{ std::move(value) }
+            {
+            }
+
+            void *accept(Visitor &visitor) override;
+
+        };
+
+        class WhileStatement : public Statement
+        {
+        public:
+            std::unique_ptr<Expression> condition;
+            std::unique_ptr<Statement> body;
+
+            WhileStatement(const SourcePosition &pos, std::unique_ptr<Expression> cond, std::unique_ptr<Statement> statement)
+                    : Statement{ NodeType::STMT_WHILE, pos }, condition{ std::move(cond) }, body{ std::move(statement) }
             {
             }
 

@@ -295,6 +295,27 @@ namespace px
         return llvm::ConstantInt::get(builder.getInt32Ty(), c.literal[0]);
     }
 
+    void * LLVMCompiler::visit(ast::DoWhileStatement &d)
+    {
+        auto &context = moduleData.context;
+        LLVMFunctionData *funcData = (LLVMFunctionData*) currentFunction->data.get();
+        llvm::Function *function = funcData->function;
+
+        auto doBodyBB = llvm::BasicBlock::Create(context, "doWhileBody", function);
+        auto endDoWhileBB = llvm::BasicBlock::Create(context, "doWhileEnd", function);
+
+        builder.CreateBr(doBodyBB);
+
+        builder.SetInsertPoint(doBodyBB);
+        d.body->accept(*this);
+
+        llvm::Value *condition = (llvm::Value*) d.condition->accept(*this);
+
+        llvm::BranchInst::Create(doBodyBB, endDoWhileBB, condition, currentBlock);
+
+        builder.SetInsertPoint(endDoWhileBB);
+    }
+
     void* LLVMCompiler::visit(ast::ExpressionStatement &s)
     {
         llvm::Value *value = (llvm::Value*) s.expression->accept(*this);
@@ -524,5 +545,31 @@ namespace px
         auto varScope = currentScope->findVariable(v.variable);
         llvm::AllocaInst *memory = varScope->variables[v.variable];
         return builder.CreateLoad(memory);
+    }
+
+    void * LLVMCompiler::visit(ast::WhileStatement &w)
+    {
+        llvm::Value *condition = (llvm::Value*) w.condition->accept(*this);
+        auto &context = moduleData.context;
+        LLVMFunctionData *funcData = (LLVMFunctionData*) currentFunction->data.get();
+        llvm::Function *function = funcData->function;
+
+        llvm::BasicBlock* TestBB = llvm::BasicBlock::Create(context, "whileTest");
+        llvm::BasicBlock* BodyBB = llvm::BasicBlock::Create(context, "whileBody");
+        llvm::BasicBlock* MergeBB = llvm::BasicBlock::Create(context, "whileEnd");
+
+        builder.CreateBr(TestBB);
+        function->getBasicBlockList().push_back(TestBB);
+        builder.SetInsertPoint(TestBB);
+
+        builder.CreateCondBr(condition, BodyBB, MergeBB);
+
+        function->getBasicBlockList().push_back(BodyBB);
+        builder.SetInsertPoint(BodyBB);
+        w.body->accept(*this);
+        builder.CreateBr(TestBB);
+
+        function->getBasicBlockList().push_back(MergeBB);
+        builder.SetInsertPoint(MergeBB);
     }
 }

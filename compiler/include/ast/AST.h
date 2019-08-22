@@ -33,9 +33,11 @@ namespace px
             MODULE,
             STMT_ASSIGN,
             STMT_BLOCK,
+            STMT_DO_WHILE,
             STMT_EXP,
             STMT_IF,
-            STMT_RETURN
+            STMT_RETURN,
+            STMT_WHILE
         };
         class AST
         {

@@ -36,6 +36,7 @@ namespace px {
         std::unique_ptr<ast::Statement> parseStatement();
         std::unique_ptr<ast::AssignmentStatement> parseAssignment();
         std::unique_ptr<ast::BlockStatement> parseBlockStatement();
+        std::unique_ptr<ast::DoWhileStatement> parseDoWhileStatement();
         std::unique_ptr<ast::ExpressionStatement> parseExpressionStatement();
         std::unique_ptr<ast::Statement> parseFunctionDeclaration();
         std::unique_ptr<ast::FunctionPrototype> parseFunctionPrototype();
@@ -46,6 +47,7 @@ namespace px {
         std::unique_ptr<ast::Expression> parseBinary(int precedence = 1);
         std::unique_ptr<ast::Expression> parseUnary();
         std::unique_ptr<ast::Expression> parseValue();
+        std::unique_ptr<ast::WhileStatement> parseWhileStatement();
     };
 
 }

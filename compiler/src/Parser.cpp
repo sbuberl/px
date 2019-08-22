@@ -83,6 +83,8 @@ namespace px {
     {
         switch (currentToken->type)
         {
+            case TokenType::KW_DO:
+                return parseDoWhileStatement();
             case TokenType::KW_EXTERN:
             case TokenType::KW_FUNC:
                 return parseFunctionDeclaration();
@@ -90,6 +92,8 @@ namespace px {
                 return parseIfStatement();
             case TokenType::KW_RETURN:
                 return parseReturnStatement();
+            case TokenType::KW_WHILE:
+                return parseWhileStatement();
             case TokenType::LBRACKET:
                 return parseBlockStatement();
             case TokenType::IDENTIFIER:
@@ -112,8 +116,6 @@ namespace px {
                 // if none of the above, parse as expression
                 return parseExpressionStatement();
         }
-
-
     }
 
     std::unique_ptr<ast::AssignmentStatement> Parser::parseAssignment()
@@ -143,6 +145,18 @@ namespace px {
         }
         accept();
         return block;
+    }
+
+    std::unique_ptr<ast::DoWhileStatement> Parser::parseDoWhileStatement()
+    {
+        auto startPos = currentToken->position;
+        expect(TokenType::KW_DO);
+        std::unique_ptr<Statement> body = parseStatement();
+        expect(TokenType::KW_WHILE);
+        expect(TokenType::LPAREN);
+        std::unique_ptr<Expression> condition = parseExpression();
+        expect(TokenType::RPAREN);
+        return std::make_unique<DoWhileStatement>(startPos, std::move(condition), std::move(body));
     }
 
     std::unique_ptr<ast::ExpressionStatement> Parser::parseExpressionStatement()
@@ -223,6 +237,17 @@ namespace px {
 
         expect(TokenType::OP_END_STATEMENT);
         return std::make_unique<ReturnStatement>(startPos, std::move(retValue));
+    }
+
+    std::unique_ptr<ast::WhileStatement> Parser::parseWhileStatement()
+    {
+        auto startPos = currentToken->position;
+        expect(TokenType::KW_WHILE);
+        expect(TokenType::LPAREN);
+        std::unique_ptr<Expression> condition = parseExpression();
+        expect(TokenType::RPAREN);
+        std::unique_ptr<Statement> body = parseStatement();
+        return std::make_unique<WhileStatement>(startPos, std::move(condition), std::move(body));
     }
 
     std::unique_ptr<VariableDeclaration> Parser::parseVariableDeclaration()

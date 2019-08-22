@@ -169,6 +169,20 @@ namespace px
         return nullptr;
     }
 
+    void * ContextAnalyzer::visit(ast::DoWhileStatement &d)
+    {
+        d.condition->accept(*this);
+        if (!d.condition->type->isBool())
+        {
+            errors->addError(Error{ d.position, Utf8String{ "do..while condition must be of type bool" } });
+            return nullptr;
+        }
+
+        d.body->accept(*this);
+
+        return nullptr;
+    }
+
     void* ContextAnalyzer::visit(ast::ExpressionStatement &s)
     {
         s.expression->accept(*this);
@@ -417,6 +431,20 @@ namespace px
             return nullptr;
         }
         v.type = variable->type;
+        return nullptr;
+    }
+
+    void * ContextAnalyzer::visit(ast::WhileStatement &w)
+    {
+        w.condition->accept(*this);
+        if (!w.condition->type->isBool())
+        {
+            errors->addError(Error{ w.position, Utf8String{ "while condition must be of type bool" } });
+            return nullptr;
+        }
+
+        w.body->accept(*this);
+
         return nullptr;
     }
 
