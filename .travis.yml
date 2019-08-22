@@ -5,7 +5,7 @@
 
  before_install:
   - sudo apt-get update -qq
-  - sudo apt-get install -qq cmake llvm-7-dev libicu-dev
+  - sudo apt-get install -qq cmake llvm-dev libicu-dev
 
  before_script:
    - mkdir build
