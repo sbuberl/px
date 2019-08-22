@@ -1,5 +1,5 @@
  language: cpp
- distro: bionic
+ dist: bionic
 
  compiler: gcc
 
