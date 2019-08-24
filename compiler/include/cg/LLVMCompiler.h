@@ -77,6 +77,9 @@ namespace px {
         };
 
         llvm::Type *pxTypeToLlvmType(Type *type);
+        llvm::Value* codeGenAnd(ast::BinaryOpExpression &b);
+        llvm::Value* codeGenOr(ast::BinaryOpExpression &b);
+
 
         ModuleData moduleData;
         llvm::IRBuilder<> builder;

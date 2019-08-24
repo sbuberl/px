@@ -196,6 +196,8 @@ namespace px
             case ast::BinaryOperator::LTE:      return builder.CreateICmpSLE(left, right);
             case ast::BinaryOperator::GT:       return builder.CreateICmpSGT(left, right);
             case ast::BinaryOperator::GTE:      return builder.CreateICmpSGE(left, right);
+            case ast::BinaryOperator::AND:      return codeGenAnd(b);
+            case ast::BinaryOperator::OR:       return codeGenOr(b);
             default:	return nullptr;
             }
         }
@@ -572,4 +574,73 @@ namespace px
         function->getBasicBlockList().push_back(MergeBB);
         builder.SetInsertPoint(MergeBB);
     }
+
+    llvm::Value* LLVMCompiler::codeGenAnd(ast::BinaryOpExpression &b)
+    {
+        llvm::BasicBlock *originBB = builder.GetInsertBlock();
+        llvm::Function *function = originBB->getParent();
+        auto &context = moduleData.context;
+
+        llvm::BasicBlock *thenBB  = llvm::BasicBlock::Create(context, "andThen", function);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "andElse", function);
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "andMerge", function);
+
+        builder.SetInsertPoint(originBB);
+        llvm::Value *left = (llvm::Value*) b.left->accept(*this);
+        builder.CreateCondBr(left, thenBB, elseBB);
+
+        builder.SetInsertPoint(thenBB);
+        llvm::Value *right = (llvm::Value*) b.right->accept(*this);
+        llvm::BasicBlock *insertBB = builder.GetInsertBlock();
+        builder.CreateBr(mergeBB);
+
+        builder.SetInsertPoint(elseBB);
+        builder.CreateBr(mergeBB);
+
+        builder.SetInsertPoint(mergeBB);
+        llvm::PHINode *phiNode = builder.CreatePHI(llvm::Type::getInt1Ty(context), 2, "andPhiTemp");
+
+        phiNode->addIncoming(right, insertBB);
+
+        phiNode->addIncoming(
+                llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 0),
+                elseBB);
+
+        return phiNode;
+    }
+
+    llvm::Value* LLVMCompiler::codeGenOr(ast::BinaryOpExpression &b)
+    {
+        llvm::BasicBlock *originBB = builder.GetInsertBlock();
+        llvm::Function *function = originBB->getParent();
+        auto &context = moduleData.context;
+
+        llvm::BasicBlock *thenBB  = llvm::BasicBlock::Create(context, "orThen", function);
+        llvm::BasicBlock *elseBB = llvm::BasicBlock::Create(context, "orElse", function);
+        llvm::BasicBlock *mergeBB = llvm::BasicBlock::Create(context, "orMerge", function);
+
+        builder.SetInsertPoint(originBB);
+        llvm::Value *left = (llvm::Value*) b.left->accept(*this);
+        builder.CreateCondBr(left, thenBB, elseBB);
+
+        builder.SetInsertPoint(thenBB);
+        llvm::Value *right = (llvm::Value*) b.right->accept(*this);
+        llvm::BasicBlock *insertBB = builder.GetInsertBlock();
+        builder.CreateBr(mergeBB);
+
+        builder.SetInsertPoint(elseBB);
+        builder.CreateBr(mergeBB);
+
+        builder.SetInsertPoint(mergeBB);
+        llvm::PHINode *phiNode = builder.CreatePHI(llvm::Type::getInt1Ty(context), 2, "orPhiTemp");
+
+        phiNode->addIncoming(right, insertBB);
+
+        phiNode->addIncoming(
+                llvm::ConstantInt::get(llvm::Type::getInt1Ty(context), 1),
+                elseBB);
+
+        return phiNode;
+    }
 }
+

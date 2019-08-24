@@ -181,6 +181,8 @@ namespace px
                 case ast::BinaryOperator::LTE:
                 case ast::BinaryOperator::GT:
                 case ast::BinaryOperator::GTE:
+                case ast::BinaryOperator::AND:
+                case ast::BinaryOperator::OR:
                     opToken = Token::getTokenName(b.token);
                     break;
                 default:	return nullptr;

@@ -95,6 +95,16 @@ namespace px
         if (b.op >= ast::BinaryOperator::OR && b.op <= ast::BinaryOperator::NE)
         {
             b.type = Type::BOOL;
+            if(b.op == ast::BinaryOperator::OR || b.op == ast::BinaryOperator::AND) {
+                if( leftType != Type::BOOL )
+                {
+                    errors->addError(Error{ leftPosition, Utf8String{ "Left side of binary expression with '"} + Token::getTokenName(opType) + "' must be a bool" });
+                }
+                if( rightType != Type::BOOL )
+                {
+                    errors->addError(Error{ rightPosition, Utf8String{ "Right side of binary expression with '"} + Token::getTokenName(opType) + "' must be a bool" });
+                }
+            }
         }
         else if (combinedFlags & Type::BUILTIN)
         {
