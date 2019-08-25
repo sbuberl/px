@@ -365,10 +365,18 @@ namespace px
         if (i.elseStatement) {
             newLine();
             add(Utf8String{"else"});
-            indent(i.elseStatement.get());
-            newLine();
+            bool isIf = i.elseStatement->nodeType == ast::NodeType::STMT_IF;
+            if(!isIf) {
+                indent(i.elseStatement.get());
+                newLine();
+            } else {
+                add(Utf8String{" "});
+            }
+
             i.elseStatement->accept(*this);
-            unindent(i.elseStatement.get());
+            if(!isIf) {
+                unindent(i.elseStatement.get());
+            }
         }
         return nullptr;
     }

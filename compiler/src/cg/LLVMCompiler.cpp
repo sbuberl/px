@@ -406,9 +406,9 @@ namespace px
         auto &context = moduleData.context;
         LLVMFunctionData *funcData = (LLVMFunctionData*) currentFunction->data.get();
         llvm::Function *function = funcData->function;
-        llvm::BasicBlock* mergeBlock = llvm::BasicBlock::Create(context, "merge");
-        llvm::BasicBlock* thenBlock = llvm::BasicBlock::Create(context, "then");
-        llvm::BasicBlock* elseBlock = i.elseStatement ? llvm::BasicBlock::Create(context, "else") : mergeBlock;
+        llvm::BasicBlock* mergeBlock = llvm::BasicBlock::Create(context, "ifMerge");
+        llvm::BasicBlock* thenBlock = llvm::BasicBlock::Create(context, "ifThen");
+        llvm::BasicBlock* elseBlock = i.elseStatement ? llvm::BasicBlock::Create(context, "ifElse") : mergeBlock;
 
         llvm::BranchInst::Create(thenBlock, elseBlock, condition, currentBlock);
 
