@@ -114,7 +114,7 @@ namespace px
     {
         auto symbolTable = currentScope->symbols();
         Variable *variable = symbolTable->getVariable(a.variableName);
-        add(Utf8String{ variable->name + Token::getTokenName(TokenType::OP_ASSIGN)});
+        add(Utf8String{ variable->name + Token::getTokenName(a.opType)});
         a.expression->accept(*this);
         add(Token::getTokenName(TokenType::OP_END_STATEMENT));
     }

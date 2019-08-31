@@ -23,9 +23,11 @@ namespace px
         public:
             const Utf8String variableName;
             std::unique_ptr<Expression> expression;
+            TokenType opType;
+            Type *variableType;
 
-            AssignmentStatement(const SourcePosition &pos, const Utf8String &n, std::unique_ptr<Expression> e)
-                : Statement{ NodeType::STMT_ASSIGN, pos }, variableName{ n }, expression{ std::move(e) }
+            AssignmentStatement(const SourcePosition &pos, const Utf8String &n, TokenType op, std::unique_ptr<Expression> e)
+                : Statement{ NodeType::STMT_ASSIGN, pos }, variableName{ n }, opType{ op }, expression{ std::move(e) }, variableType{}
             {
             }
 

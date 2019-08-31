@@ -109,6 +109,67 @@ namespace px
         llvm::Value *expression = (llvm::Value*) a.expression->accept(*this);
         auto varScope = currentScope->findVariable(a.variableName);
         llvm::AllocaInst *memory = varScope->variables[a.variableName];
+        if(a.opType != TokenType::OP_ASSIGN) {
+            llvm::Value* currentValue = builder.CreateLoad(memory);
+            Type *variableType = a.variableType;
+            if ((variableType->isInt()))
+            {
+                switch (a.opType)
+                {
+                    case TokenType::OP_ASSIGN_ADD:      expression = builder.CreateAdd(currentValue, expression);   break;
+                    case TokenType::OP_ASSIGN_SUB:      expression =  builder.CreateSub(currentValue, expression);  break;
+                    case TokenType::OP_ASSIGN_STAR:      expression =  builder.CreateMul(currentValue, expression); break;
+                    case TokenType::OP_ASSIGN_DIV:      expression =  builder.CreateSDiv(currentValue, expression); break;
+                    case TokenType::OP_ASSIGN_MOD:      expression =  builder.CreateSRem(currentValue, expression); break;
+                    case TokenType::OP_ASSIGN_LEFT_SHIFT:      expression =  builder.CreateShl(currentValue, expression); break;
+                    case TokenType::OP_ASSIGN_RIGHT_SHIFT:      expression =  builder.CreateAShr(currentValue, expression); break;
+                    case TokenType::OP_ASSIGN_BIT_AND:  expression =  builder.CreateAnd(currentValue, expression);  break;
+                    case TokenType::OP_ASSIGN_BIT_OR:   expression =  builder.CreateOr(currentValue, expression);   break;
+                    case TokenType::OP_ASSIGN_BIT_XOR:  expression =  builder.CreateXor(currentValue, expression);  break;
+
+                    default:	return nullptr;
+                }
+            }
+            else if ((variableType->isUInt()))
+            {
+                switch (a.opType)
+                {
+                    case TokenType::OP_ASSIGN_ADD:      expression = builder.CreateAdd(currentValue, expression);   break;
+                    case TokenType::OP_ASSIGN_SUB:      expression =  builder.CreateSub(currentValue, expression);  break;
+                    case TokenType::OP_ASSIGN_STAR:      expression =  builder.CreateMul(currentValue, expression); break;
+                    case TokenType::OP_ASSIGN_DIV:      expression =  builder.CreateUDiv(currentValue, expression); break;
+                    case TokenType::OP_ASSIGN_MOD:      expression =  builder.CreateURem(currentValue, expression); break;
+                    case TokenType::OP_ASSIGN_LEFT_SHIFT:      expression =  builder.CreateShl(currentValue, expression); break;
+                    case TokenType::OP_ASSIGN_RIGHT_SHIFT:      expression =  builder.CreateLShr(currentValue, expression); break;
+                    case TokenType::OP_ASSIGN_BIT_AND:  expression =  builder.CreateAnd(currentValue, expression);  break;
+                    case TokenType::OP_ASSIGN_BIT_OR:   expression =  builder.CreateOr(currentValue, expression);   break;
+                    case TokenType::OP_ASSIGN_BIT_XOR:  expression =  builder.CreateXor(currentValue, expression);  break;
+                    default:	return nullptr;
+                }
+            }
+            else if ((variableType->isFloat()))
+            {
+                switch (a.opType)
+                {
+                    case TokenType::OP_ASSIGN_ADD:      expression = builder.CreateFAdd(currentValue, expression);   break;
+                    case TokenType::OP_ASSIGN_SUB:      expression =  builder.CreateFSub(currentValue, expression);  break;
+                    case TokenType::OP_ASSIGN_STAR:      expression =  builder.CreateFMul(currentValue, expression); break;
+                    case TokenType::OP_ASSIGN_DIV:      expression =  builder.CreateFDiv(currentValue, expression); break;
+                    case TokenType::OP_ASSIGN_MOD:      expression =  builder.CreateFRem(currentValue, expression); break;
+                    default:	return nullptr;
+                }
+            }
+            else if ((variableType->isBool()))
+            {
+                switch (a.opType)
+                {
+                    case TokenType::OP_ASSIGN_BIT_AND:  expression =  builder.CreateAnd(currentValue, expression);  break;
+                    case TokenType::OP_ASSIGN_BIT_OR:   expression =  builder.CreateOr(currentValue, expression);   break;
+                    case TokenType::OP_ASSIGN_BIT_XOR:  expression =  builder.CreateXor(currentValue, expression);  break;
+                    default:	return nullptr;
+                }
+            }
+        }
         builder.CreateStore(expression, memory);
         return nullptr;
     }

@@ -398,31 +398,64 @@ namespace px {
                 case ';':	    RETURN_OP(OP_END_STATEMENT, 1);
                 case ',':	    RETURN_OP(OP_COMMA, 1);
                 case '.':	    RETURN_OP(OP_DOT, 1);
-                case '+':	    RETURN_OP(OP_ADD, 1);
-                case '-':	    RETURN_OP(OP_SUB, 1);
-                case '*':	    RETURN_OP(OP_STAR, 1);
-                case '/':	    RETURN_OP(OP_DIV, 1);
-                case '%':	    RETURN_OP(OP_MOD, 1);
                 case '~':	    RETURN_OP(OP_COMPL, 1);
                 case '^':	    RETURN_OP(OP_BIT_XOR, 1);
                 case '?':	    RETURN_OP(OP_QUESTION, 1);
                 case ':':	    RETURN_OP(OP_COLON, 1);
                  // unicode operators
                 case 0x00AC:    RETURN_OP(OP_NOT, 1);               // ¬
-                case 0x00D7:	RETURN_OP(OP_STAR, 1);              // ×
-                case 0x00F7:    RETURN_OP(OP_DIV, 1);               // ÷
-                case 0x2044:    RETURN_OP(OP_DIV, 1);               // ⁄
-                case 0x2212:	RETURN_OP(OP_SUB, 1);               // −
-                case 0x2227:    RETURN_OP(OP_AND, 1);               // ∧
                 case 0x2228:    RETURN_OP(OP_OR, 1);                // ∨
-                case 0x2229:    RETURN_OP(OP_BIT_AND, 1);           // ∩
-                case 0x222A:    RETURN_OP(OP_BIT_OR, 1);            // ∪
                 case 0x2260:    RETURN_OP(OP_NOT_EQUAL, 1);         // ≠
                 case 0x2264:    RETURN_OP(OP_LESS_OR_EQUAL, 1);     // ≤
                 case 0x2265:    RETURN_OP(OP_GREATER_OR_EQUAL, 1);  // ≥
                 case 0x226A:    RETURN_OP(OP_LEFT_SHIFT, 1);        // ≪
                 case 0x226B:    RETURN_OP(OP_RIGHT_SHIFT, 1);       // ≫
 
+                case '+':
+                case 0x2227:                                                // ∧
+                {
+                    uint32_t next = peekCharacter();
+                    if (next == '=')
+                        RETURN_OP(OP_ASSIGN_ADD, 2);
+                    else
+                        RETURN_OP(OP_ADD, 1);
+                }
+                case '-':
+                case 0x2212:                                                // −
+                {
+                    uint32_t next = peekCharacter();
+                    if (next == '=')
+                        RETURN_OP(OP_ASSIGN_SUB, 2);
+                    else
+                        RETURN_OP(OP_SUB, 1);
+                }
+                case '*':
+                case 0x00D7:                                                // ×
+                {
+                    uint32_t next = peekCharacter();
+                    if (next == '=')
+                        RETURN_OP(OP_ASSIGN_STAR, 2);
+                    else
+                        RETURN_OP(OP_STAR, 1);
+                }
+                case '/':
+                case 0x00F7:                                                // ÷
+                case 0x2044:                                                // ⁄
+                {
+                    uint32_t next = peekCharacter();
+                    if (next == '=')
+                        RETURN_OP(OP_ASSIGN_DIV, 2);
+                    else
+                        RETURN_OP(OP_DIV, 1);
+                }
+                case '%':
+                {
+                    uint32_t next = peekCharacter();
+                    if (next == '=')
+                        RETURN_OP(OP_ASSIGN_MOD, 2);
+                    else
+                        RETURN_OP(OP_MOD, 1);
+                }
                 case '=':
                 {
                     uint32_t next = peekCharacter();
@@ -452,22 +485,30 @@ namespace px {
                 case '>':
                 {
                     uint32_t next = peekCharacter();
-                    if (next == '>')
-                        RETURN_OP(OP_RIGHT_SHIFT, 2);
-                    else if (next == '=')
+                    if (next == '>') {
+                        next = peekCharacter();
+                        if (next == '=')
+                            RETURN_OP(OP_ASSIGN_RIGHT_SHIFT, 3);
+                        else
+                            RETURN_OP(OP_RIGHT_SHIFT, 2);
+                    } else if (next == '=')
                         RETURN_OP(OP_GREATER_OR_EQUAL, 2);
                     else
                         RETURN_OP(OP_GREATER, 1);
                 }
                 case '&':
+                case 0x2229:                                            // ∩
                 {
                     uint32_t next = peekCharacter();
                     if (next == '&')
                         RETURN_OP(OP_AND, 2);
+                    else if (next == '=')
+                        RETURN_OP(OP_ASSIGN_BIT_AND, 2);
                     else
                         RETURN_OP(OP_BIT_AND, 1);
                 }
                 case '|':
+                case 0x222A:                                           // ∪
                 {
                     uint32_t next = peekCharacter();
                     if (next == '|')

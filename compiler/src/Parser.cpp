@@ -104,7 +104,7 @@ namespace px {
                     rewind();
                     return parseVariableDeclaration();
                 }
-                else if (next.type == TokenType::OP_ASSIGN)
+                else if (next.type >= TokenType::OP_ASSIGN && next.type <= TokenType::OP_ASSIGN_SUB)
                 {
                     rewind();
                     return parseAssignment();
@@ -124,12 +124,13 @@ namespace px {
         Utf8String variableName = currentToken->str;
         expect(TokenType::IDENTIFIER);
 
-        expect(TokenType::OP_ASSIGN);
+        TokenType opType = currentToken->type;
+        accept();
 
         std::unique_ptr<Expression> expression = parseExpression();
 
         expect(TokenType::OP_END_STATEMENT);
-        return std::make_unique<AssignmentStatement>(start, variableName, std::move(expression));
+        return std::make_unique<AssignmentStatement>(start, variableName, opType, std::move(expression));
     }
 
     std::unique_ptr<ast::BlockStatement> Parser::parseBlockStatement()

@@ -68,7 +68,39 @@ namespace px
             errors->addError(Error{ a.position, Utf8String{ "Variable " } + a.variableName + " is not declared in the current scope" });
             return nullptr;
         }
+
         a.expression->accept(*this);
+
+        TokenType opType = a.opType;
+        Type *variableType = variable->type;
+        Type *expressionType = a.expression->type;
+
+        a.variableType = variableType;
+
+        switch(opType)
+        {
+            case TokenType::OP_ADD:
+            case TokenType::OP_SUB:
+            case TokenType::OP_STAR:
+            case TokenType::OP_DIV:
+            case TokenType::OP_MOD:
+                if (!expressionType->isImpiciltyCastableTo(variableType))
+                {
+                    errors->addError(Error{ a.position, Utf8String{ "Can not perform assignment '"} + Token::getTokenName(opType) + "' between an expression of type '"  + expressionType->name + "' and a variable of type" + variableType->name + "'" });
+                }
+                break;
+            case TokenType::OP_ASSIGN_BIT_AND:
+            case TokenType::OP_ASSIGN_BIT_OR:
+            case TokenType::OP_ASSIGN_BIT_XOR:
+            case TokenType::OP_ASSIGN_LEFT_SHIFT:
+            case TokenType::OP_ASSIGN_RIGHT_SHIFT:
+                if( !variableType->isInt() && !variableType->isUInt())
+                    errors->addError(Error{ a.position, Utf8String{ "Can not perform assignment operator '"} + Token::getTokenName(a.opType) + "' on a variable of type '"  + variableType->name + "'" });
+                if( !expressionType->isInt() && !expressionType->isUInt())
+                    errors->addError(Error{ a.position, Utf8String{ "Can not perform assignment operator '"} + Token::getTokenName(a.opType) + "' with an expression of type '"  + expressionType->name + "'" });
+
+        }
+
         checkAssignmentTypes(variable, a.expression, a.position);
         return nullptr;
     }
