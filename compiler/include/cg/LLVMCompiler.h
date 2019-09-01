@@ -21,8 +21,10 @@ namespace px {
         void *visit(ast::BinaryOpExpression &e) override;
         void *visit(ast::BoolLiteral &b) override;
         void *visit(ast::BlockStatement &s) override;
-        void *visit(ast::CharLiteral &c) override;
+        void *visit(ast::BreakStatement &b) override;
         void *visit(ast::CastExpression &f) override;
+        void *visit(ast::CharLiteral &c) override;
+        void *visit(ast::ContinueStatement &c) override;
         void *visit(ast::DoWhileStatement &d) override;
         void *visit(ast::ExpressionStatement &s) override;
         void *visit(ast::FloatLiteral &f) override;
@@ -44,7 +46,7 @@ namespace px {
         class LLVMScope
         {
         public:
-            LLVMScope(px::Scope *s, LLVMScope *p) : parent{ p }, scope{ s }
+            LLVMScope(px::Scope *s, LLVMScope *p) : parent{ p }, scope{ s }, breakBlock{}, continueBlock{}
             {
             }
 
@@ -59,7 +61,25 @@ namespace px {
                     return nullptr;
             }
 
+            llvm::BasicBlock *findBreakBlock()
+            {
+                LLVMScope *findScope = this;
+                while(findScope->breakBlock == nullptr && findScope->parent != nullptr)   {
+                    findScope = findScope->parent;
+                }
+            }
+
+            llvm::BasicBlock *findContinueBlock()
+            {
+                LLVMScope *findScope = this;
+                while(findScope->continueBlock == nullptr && findScope->parent != nullptr)   {
+                    findScope = findScope->parent;
+                }
+            }
+
             std::unordered_map<Utf8String, llvm::AllocaInst*> variables;
+            llvm::BasicBlock *breakBlock;
+            llvm::BasicBlock *continueBlock;
             LLVMScope * const parent;
             px::Scope * const scope;
         };

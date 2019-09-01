@@ -296,6 +296,18 @@ namespace px
         return llvm::ConstantInt::get(builder.getInt1Ty(), i.value);
     }
 
+    void* LLVMCompiler::visit(ast::BreakStatement &b)
+    {
+        auto breakBB = currentScope->findBreakBlock();
+        builder.CreateBr(breakBB);
+    }
+
+    void* LLVMCompiler::visit(ast::ContinueStatement &c)
+    {
+        auto continueBB = currentScope->findContinueBlock();
+        builder.CreateBr(continueBB);
+    }
+
     void* LLVMCompiler::visit(ast::CastExpression &e)
     {
         llvm::Value *value = (llvm::Value*) e.expression->accept(*this);
@@ -365,13 +377,20 @@ namespace px
         llvm::Function *function = funcData->function;
 
         auto doBodyBB = llvm::BasicBlock::Create(context, "doWhileBody", function);
+        auto doTestBB = llvm::BasicBlock::Create(context, "doWhileTest", function);
         auto endDoWhileBB = llvm::BasicBlock::Create(context, "doWhileEnd", function);
+
+        currentScope->continueBlock = doTestBB;
+        currentScope->breakBlock = endDoWhileBB;
 
         builder.CreateBr(doBodyBB);
 
         builder.SetInsertPoint(doBodyBB);
         d.body->accept(*this);
 
+        builder.CreateBr(doTestBB);
+
+        builder.SetInsertPoint(doTestBB);
         llvm::Value *condition = (llvm::Value*) d.condition->accept(*this);
 
         llvm::BranchInst::Create(doBodyBB, endDoWhileBB, condition, currentBlock);
@@ -620,6 +639,9 @@ namespace px
         llvm::BasicBlock* TestBB = llvm::BasicBlock::Create(context, "whileTest");
         llvm::BasicBlock* BodyBB = llvm::BasicBlock::Create(context, "whileBody");
         llvm::BasicBlock* MergeBB = llvm::BasicBlock::Create(context, "whileEnd");
+
+        currentScope->continueBlock = TestBB;
+        currentScope->breakBlock = MergeBB;
 
         builder.CreateBr(TestBB);
         function->getBasicBlockList().push_back(TestBB);

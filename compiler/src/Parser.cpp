@@ -83,6 +83,10 @@ namespace px {
     {
         switch (currentToken->type)
         {
+            case TokenType::KW_BREAK:
+                return parseBreakStatement();
+            case TokenType::KW_CONTINUE:
+                return parseContinueStatement();
             case TokenType::KW_DO:
                 return parseDoWhileStatement();
             case TokenType::KW_EXTERN:
@@ -147,6 +151,25 @@ namespace px {
         accept();
         return block;
     }
+
+    std::unique_ptr<ast::BreakStatement> Parser::parseBreakStatement()
+    {
+        SourcePosition start = currentToken->position;
+        expect(TokenType::KW_BREAK);
+
+        expect(TokenType::OP_END_STATEMENT);
+        return std::make_unique<ast::BreakStatement>(start);
+    }
+
+    std::unique_ptr<ast::ContinueStatement> Parser::parseContinueStatement()
+    {
+        SourcePosition start = currentToken->position;
+        expect(TokenType::KW_CONTINUE);
+
+        expect(TokenType::OP_END_STATEMENT);
+        return std::make_unique<ast::ContinueStatement>(start);
+    }
+
 
     std::unique_ptr<ast::DoWhileStatement> Parser::parseDoWhileStatement()
     {

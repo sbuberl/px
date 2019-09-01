@@ -19,8 +19,10 @@ namespace px {
         void *visit(ast::BinaryOpExpression &e) override;
         void *visit(ast::BoolLiteral &b) override;
         void *visit(ast::BlockStatement &s) override;
-        void *visit(ast::CharLiteral &c) override;
+        void *visit(ast::BreakStatement &b) override;
         void *visit(ast::CastExpression &f) override;
+        void *visit(ast::CharLiteral &c) override;
+        void *visit(ast::ContinueStatement &c) override;
         void *visit(ast::DoWhileStatement &d) override;
         void *visit(ast::ExpressionStatement &s) override;
         void *visit(ast::FloatLiteral &f) override;

@@ -17,11 +17,13 @@ namespace px
         public:
             virtual ~Visitor() = default;
             virtual void *visit(AssignmentStatement &a) = 0;
-            virtual void *visit(BoolLiteral &b) = 0;
             virtual void *visit(BinaryOpExpression &f) = 0;
             virtual void *visit(BlockStatement &s) = 0;
+            virtual void *visit(BoolLiteral &b) = 0;
+            virtual void *visit(BreakStatement &b) = 0;
             virtual void *visit(CastExpression &f) = 0;
             virtual void *visit(CharLiteral &c) = 0;
+            virtual void *visit(ContinueStatement &c) = 0;
             virtual void *visit(DoWhileStatement &w) = 0;
             virtual void *visit(ExpressionStatement &s) = 0;
             virtual void *visit(FloatLiteral &i) = 0;

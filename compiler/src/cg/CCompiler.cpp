@@ -224,6 +224,18 @@ namespace px
         add( b.literal );
     }
 
+    void* CCompiler::visit(ast::BreakStatement &b)
+    {
+        add(Token::getTokenName(TokenType::KW_BREAK) );
+        add(Token::getTokenName(TokenType::OP_END_STATEMENT) );
+    }
+
+    void* CCompiler::visit(ast::ContinueStatement &c)
+    {
+        add(Token::getTokenName(TokenType::KW_CONTINUE) );
+        add(Token::getTokenName(TokenType::OP_END_STATEMENT) );
+    }
+
     void* CCompiler::visit(ast::CastExpression &e) {
         Type *type = e.type, *origType = e.expression->type;
         Utf8String newTypeName = pxTypeToCType(type);
@@ -354,9 +366,9 @@ namespace px
         add(Utf8String{"if ("} );
         i.condition->accept(*this);
         add(Utf8String{")"} );
-        newLine();
 
         indent(i.trueStatement.get());
+        newLine();
 
         i.trueStatement->accept(*this);
 

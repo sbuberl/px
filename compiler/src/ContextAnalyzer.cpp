@@ -8,7 +8,7 @@
 namespace px
 {
     ContextAnalyzer::ContextAnalyzer(Scope *rootScope, ErrorLog *log)
-        : _currentScope(rootScope), errors(log)
+        : _currentScope{rootScope}, errors{log}, loopDepth{}
     {
 
     }
@@ -183,6 +183,15 @@ namespace px
         return nullptr;
     }
 
+    void* ContextAnalyzer::visit(ast::BreakStatement &b)
+    {
+        if (loopDepth == 0)
+        {
+            errors->addError(Error{ b.position, "Can perform a break outside of a loop" });
+        }
+        return nullptr;
+    }
+
     void* ContextAnalyzer::visit(ast::CastExpression &c)
     {
         c.expression->accept(*this);
@@ -211,6 +220,15 @@ namespace px
         return nullptr;
     }
 
+    void* ContextAnalyzer::visit(ast::ContinueStatement &c)
+    {
+        if (loopDepth == 0)
+        {
+            errors->addError(Error{ c.position, "Can perform a continue outside of a loop" });
+        }
+        return nullptr;
+    }
+
     void * ContextAnalyzer::visit(ast::DoWhileStatement &d)
     {
         d.condition->accept(*this);
@@ -220,8 +238,9 @@ namespace px
             return nullptr;
         }
 
+        ++loopDepth;
         d.body->accept(*this);
-
+        --loopDepth;
         return nullptr;
     }
 
@@ -485,8 +504,9 @@ namespace px
             return nullptr;
         }
 
-        w.body->accept(*this);
-
+        ++loopDepth;
+        w.body->accept(*this);;
+        --loopDepth;
         return nullptr;
     }
 

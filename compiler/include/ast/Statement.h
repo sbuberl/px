@@ -57,6 +57,28 @@ namespace px
             void *accept(Visitor &visitor) override;
         };
 
+        class BreakStatement : public Statement
+        {
+        public:
+            BreakStatement(const SourcePosition &pos)
+                    : Statement{ NodeType::STMT_BREAK, pos }
+            {
+            }
+
+            void *accept(Visitor &visitor) override;
+        };
+
+        class ContinueStatement : public Statement
+        {
+        public:
+            ContinueStatement(const SourcePosition &pos)
+                    : Statement{ NodeType::STMT_CONTINUE, pos }
+            {
+            }
+
+            void *accept(Visitor &visitor) override;
+        };
+
         class DoWhileStatement : public Statement
         {
         public:

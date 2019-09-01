@@ -33,6 +33,8 @@ namespace px
             MODULE,
             STMT_ASSIGN,
             STMT_BLOCK,
+            STMT_BREAK,
+            STMT_CONTINUE,
             STMT_DO_WHILE,
             STMT_EXP,
             STMT_IF,
