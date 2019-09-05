@@ -277,18 +277,28 @@ namespace px {
     std::unique_ptr<VariableDeclaration> Parser::parseVariableDeclaration()
     {
         SourcePosition start = currentToken->position;
+        int64_t *arraySize = nullptr;
         std::unique_ptr<Expression> initializer = nullptr;
         Utf8String variableName = currentToken->str;
         expect(TokenType::IDENTIFIER);
         expect(TokenType::OP_COLON);
         Utf8String typeName = currentToken->str;
         expect(TokenType::IDENTIFIER);
+        if (accept(TokenType::LSQUARE_BRACKET))
+        {
+            if(currentToken->type == TokenType::INTEGER) {
+                std::string tokenString = currentToken->str.toString();
+                arraySize = new int64_t(std::stoll(tokenString, nullptr, currentToken->integerBase));
+                accept();
+            }
+            expect(TokenType::RSQUARE_BRACKET);
+        }
         if (accept(TokenType::OP_ASSIGN))
         {
             initializer = parseExpression();
         }
         expect(TokenType::OP_END_STATEMENT);
-        return std::make_unique<VariableDeclaration>(start, typeName, variableName, std::move(initializer));
+        return std::make_unique<VariableDeclaration>(start, typeName, variableName, std::move(initializer), arraySize);
     }
 
     int Parser::getPrecedence(TokenType type)
@@ -517,6 +527,18 @@ namespace px {
             case TokenType::KW_FALSE:
                 value.reset(new BoolLiteral{ start, currentToken->str });
                 break;
+            case TokenType::LSQUARE_BRACKET: {
+                std::unique_ptr<ArrayLiteral> elements{ new ArrayLiteral{start}};
+                accept(TokenType::LSQUARE_BRACKET);
+                while (currentToken->type != TokenType::RSQUARE_BRACKET) {
+                    auto element = parseExpression();
+                    elements->addValue( std::move(element) );
+                    accept(TokenType::OP_COMMA);
+                }
+                value = std::move(elements);
+                break;
+
+            }
             default:
                 Utf8String errorMesage = Utf8String{ "Unknown value: " } + Token::getTokenName(currentToken->type);
                 compilerError(currentToken->position, errorMesage);

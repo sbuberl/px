@@ -25,6 +25,7 @@ namespace px
             EXP_TERNARY_OP,
             EXP_UNARY_OP,
             EXP_VAR_LOAD,
+            LITERAL_ARRAY,
             LITERAL_BOOL,
             LITERAL_CHAR,
             LITERAL_FLOAT,

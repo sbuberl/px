@@ -42,6 +42,8 @@ namespace px {
         RPAREN,
         LBRACKET,
         RBRACKET,
+        LSQUARE_BRACKET,
+        RSQUARE_BRACKET,
         OP_ADD,
         OP_AND,
         OP_ASSIGN,

@@ -22,6 +22,29 @@ namespace px
             Literal(NodeType nodeType, const SourcePosition &pos, Type *type, const Utf8String &l) : Expression{ nodeType, pos, type }, literal{ l } {}
         };
 
+        class ArrayLiteral : public Literal
+        {
+        public:
+            std::vector<std::unique_ptr<Expression>> values;
+
+            ArrayLiteral(const SourcePosition &pos)
+                    : Literal{ NodeType::LITERAL_ARRAY, pos, nullptr, "" }
+            {
+            }
+
+            void addValue(std::unique_ptr<Expression> expression)
+            {
+                values.push_back(std::move(expression));
+            }
+
+            size_t count()
+            {
+                return values.size();
+            }
+
+            void *accept(Visitor &visitor) override;
+        };
+
         class BoolLiteral : public Literal
         {
         public:

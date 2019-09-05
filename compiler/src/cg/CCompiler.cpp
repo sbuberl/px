@@ -110,6 +110,21 @@ namespace px
         writeString(out, code);
     }
 
+    void* CCompiler::visit(ast::ArrayLiteral &a)
+    {
+        add(Utf8String{"{ "} );
+        int i = 0, end = a.values.size();
+        for (auto &value : a.values)
+        {
+            value->accept(*this);
+            if(++i < end) {
+                add(", ");
+            }
+        }
+
+        add(Utf8String{ " }" });
+    }
+
     void* CCompiler::visit(ast::AssignmentStatement &a)
     {
         auto symbolTable = currentScope->symbols();
@@ -500,7 +515,11 @@ namespace px
         auto symbolTable = currentScope->symbols();
         auto pxType = symbolTable->getType(v.typeName);
         Utf8String cTypeName = pxTypeToCType(pxType);
-        add(cTypeName + " " + v.name);
+        Utf8String arrayIndex;
+        if (v.arraySize != nullptr) {
+            arrayIndex = Utf8String("[") + std::to_string(*v.arraySize) + "]";
+        }
+        add(cTypeName + " " + v.name + arrayIndex);
         if (v.initialValue != nullptr) {
             add(Token::getTokenName(TokenType::OP_ASSIGN));
             v.initialValue->accept(*this);

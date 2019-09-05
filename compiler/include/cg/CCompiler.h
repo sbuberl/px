@@ -15,6 +15,7 @@ namespace px {
     public:
         CCompiler(ScopeTree * scopeTree);
         void compile(ast::AST &ast);
+        void *visit(ast::ArrayLiteral &a) override;
         void *visit(ast::AssignmentStatement &a) override;
         void *visit(ast::BinaryOpExpression &e) override;
         void *visit(ast::BoolLiteral &b) override;

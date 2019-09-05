@@ -59,6 +59,43 @@ namespace px
             }
         }
     }
+
+    void* ContextAnalyzer::visit(ast::ArrayLiteral &a)
+    {
+        for (auto &value : a.values)
+        {
+            value->accept(*this);
+        }
+
+        if (a.values.empty() == false) {
+            auto firstType = a.values[0]->type;
+            size_t elementCount = a.values.size();
+            for(size_t i = 1; i < elementCount; ++i)
+            {
+                auto currentType = a.values[i]->type;
+                if (!currentType->isImpiciltyCastableTo(firstType))
+                {
+                    errors->addError(Error{ a.position, Utf8String{ "Can not have an array literal with types '"} + firstType->name + "' and a variable of type" + currentType->name + "' without a cast" });
+                }
+            }
+            auto tempType = new ArrayType(firstType, elementCount);
+            Type *type = _currentScope->symbols()->getType(tempType->name);
+            if (type == nullptr) {
+                auto rootScope = _currentScope->root();
+                auto rootSymbols = rootScope->symbols();
+                rootSymbols->addSymbol(tempType);
+                a.type = tempType;
+            } else {
+                a.type = type;
+            }
+        }
+        else {
+            a.type = new ArrayType(Type::UNKNOWN, 0);
+        }
+
+        return nullptr;
+    }
+
     void* ContextAnalyzer::visit(ast::AssignmentStatement &a)
     {
         auto symbols = _currentScope->symbols();
@@ -458,14 +495,27 @@ namespace px
         return nullptr;
     }
 
-    void* ContextAnalyzer::visit(ast::VariableDeclaration &d)
-    {
+    void* ContextAnalyzer::visit(ast::VariableDeclaration &d) {
         auto symbols = _currentScope->symbols();
-        Type *type = symbols->getType(d.typeName);
-        if (type == nullptr)
-        {
-            errors->addError(Error{ d.position, Utf8String{ "Type " } + d.typeName + " was not found" });
-            return nullptr;
+
+        auto typeName = d.typeName;
+        Type *type;
+        if (d.arraySize) {
+            Type *baseType = symbols->getType(typeName);
+            typeName += Utf8String("[") + std::to_string(*d.arraySize) + "]";
+            type = symbols->getType(typeName);
+            if (type == nullptr) {
+                auto rootScope = _currentScope->root();
+                auto rootSymbols = rootScope->symbols();
+                type = new ArrayType(baseType, *d.arraySize);
+                rootSymbols->addSymbol(type);
+            }
+        } else {
+            type = symbols->getType(typeName);
+            if (type == nullptr) {
+                errors->addError(Error{d.position, Utf8String{"Type "} + typeName + " was not found"});
+                return nullptr;
+            }
         }
         if (symbols->getVariable(d.name, true) != nullptr)
         {

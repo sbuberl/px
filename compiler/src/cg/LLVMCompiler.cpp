@@ -59,6 +59,11 @@ namespace px
             return llvm::Type::getInt32Ty(context);
         else if (pxType->isString())
             return moduleData.getStruct("string");
+        else if (pxType->isArray()) {
+            px::ArrayType *arrayType = (px::ArrayType *) pxType;
+            llvm::Type *elementType = pxTypeToLlvmType(arrayType->elementType);
+            return llvm::ArrayType::get(elementType, arrayType->count);
+        }
 
         return nullptr;
     }
@@ -102,6 +107,21 @@ namespace px
         raw_stream.flush();
 
         llvm::outs() << "Wrote " << filename << "\n"; */
+    }
+
+    void* LLVMCompiler::visit(ast::ArrayLiteral &a)
+    {
+        auto llmType = pxTypeToLlvmType(a.type);
+        size_t count = a.count();
+        llvm::AllocaInst *pArr = builder.CreateAlloca(llmType, builder.getInt32(count));
+
+        int index = 0;
+        for (auto &value : a.values)
+        {
+            llvm::Value *pointer = builder.CreateGEP(pArr, builder.getInt32(index));
+            llvm::Value *element = (llvm::Value*) value->accept(*this);
+            builder.CreateStore(element, pointer);
+        }
     }
 
     void* LLVMCompiler::visit(ast::AssignmentStatement &a)

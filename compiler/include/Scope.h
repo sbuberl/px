@@ -13,10 +13,13 @@ namespace px {
             bool nullParent = parent == nullptr;
             SymbolTable *parentTable = !nullParent ? parent->symbols_.get() : nullptr;
             symbols_.reset(new SymbolTable{ parentTable });
-            if (nullParent)
+            if (nullParent) {
+                root_ = this;
                 symbols_->addGlobals();
-            else
+            } else {
+                root_ = parent->root_;
                 parent->children_.push_back(this);
+            }
         }
 
         ~Scope()
@@ -25,6 +28,11 @@ namespace px {
             {
                 delete child;
             }
+        }
+
+        Scope * root() const
+        {
+            return root_;
         }
 
         Scope * parent() const
@@ -50,6 +58,7 @@ namespace px {
     private:
         std::unique_ptr<SymbolTable> symbols_;
         Scope * const parent_;
+        Scope * root_;
         std::vector<Scope*> children_;
         size_t childIndex_;
     };
