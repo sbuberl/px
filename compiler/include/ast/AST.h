@@ -19,6 +19,7 @@ namespace px
             DECLARE_VAR,
             DECLARE_FUNC,
             DECLARE_FUNC_BODY,
+            EXP_ARRAY_ACCESS,
             EXP_CAST,
             EXP_FUNC_CALL,
             EXP_BINARY_OP,

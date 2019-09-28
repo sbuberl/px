@@ -25,6 +25,20 @@ namespace px
             }
         };
 
+        class ArrayIndexReference : public Expression
+        {
+        public:
+            std::unique_ptr<Expression> array;
+            std::unique_ptr<Expression> index;
+
+            ArrayIndexReference(const SourcePosition &pos, std::unique_ptr<Expression> arr, std::unique_ptr<Expression> ind)
+                    : Expression{ NodeType::EXP_ARRAY_ACCESS, pos }, array{ std::move(arr) }, index{ std::move(ind) }
+            {
+            }
+
+            void *accept(Visitor &visitor) override;
+        };
+
         enum class BinaryOperator
         {
             BAD,

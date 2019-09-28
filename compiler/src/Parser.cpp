@@ -483,31 +483,38 @@ namespace px {
         {
             case TokenType::IDENTIFIER:
             {
-                {
-                    Utf8String identifier = currentToken->str;
-                    Token &nextToken = scanner->nextToken();
-                    if (nextToken.type == TokenType::LPAREN)
-                    {
-                        accept();
-                        std::vector<std::unique_ptr<Expression>> arguments;
-                        if (currentToken->type != TokenType::RPAREN)
-                        {
-                            do
-                            {
-                                std::unique_ptr<Expression> argument = parseExpression();
-                                arguments.push_back(std::move(argument));
-                            } while (accept(TokenType::OP_COMMA));
+                Utf8String identifier = currentToken->str;
+                Token &nextToken = scanner->nextToken();
+                    switch (nextToken.type) {
+                        case TokenType::LPAREN: {
+                            accept();
+                            std::vector<std::unique_ptr<Expression>> arguments;
+                            if (currentToken->type != TokenType::RPAREN) {
+                                do {
+                                    std::unique_ptr<Expression> argument = parseExpression();
+                                    arguments.push_back(std::move(argument));
+                                } while (accept(TokenType::OP_COMMA));
+                            }
+                            expect(TokenType::RPAREN);
+                            value.reset(new FunctionCallExpression{start, identifier, std::move(arguments)});
+                            return value;
                         }
-                        expect(TokenType::RPAREN);
-                        value.reset(new FunctionCallExpression{ start, identifier, std::move(arguments) });
-                        return value;
+                        case TokenType::LSQUARE_BRACKET: {
+                            accept();
+
+                            std::unique_ptr<Expression> array(new VariableExpression{ start, identifier });
+                            std::unique_ptr<Expression> index = parseExpression();
+
+                            expect(TokenType::RSQUARE_BRACKET);
+
+                            value.reset(new ArrayIndexReference{start, std::move(array), std::move(index) });
+                            return value;
+                        }
+                        default:
+                            rewind();
+                            value.reset(new VariableExpression{ start, identifier });
+
                     }
-                    else
-                    {
-                        rewind();
-                        value.reset(new VariableExpression{ start, identifier });
-                    }
-                }
                 break;
             }
             case TokenType::INTEGER:

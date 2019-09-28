@@ -60,6 +60,14 @@ namespace px
         }
     }
 
+    void* ContextAnalyzer::visit(ast::ArrayIndexReference &a)
+    {
+        a.array->accept(*this);
+        a.index->accept(*this);
+
+        return nullptr;
+    }
+
     void* ContextAnalyzer::visit(ast::ArrayLiteral &a)
     {
         for (auto &value : a.values)

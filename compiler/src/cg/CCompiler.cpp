@@ -110,6 +110,16 @@ namespace px
         writeString(out, code);
     }
 
+    void* CCompiler::visit(ast::ArrayIndexReference &a)
+    {
+        a.array->accept(*this);
+        add(Utf8String{"["} );
+        a.index->accept(*this);
+        add(Utf8String{"]"} );
+
+        return nullptr;
+    }
+
     void* CCompiler::visit(ast::ArrayLiteral &a)
     {
         add(Utf8String{"{ "} );

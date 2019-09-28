@@ -15,36 +15,47 @@ func blah(x:int32, y:int32) : void;
 
 func main() : int32
 {
-    blah(123, 586);
-    return 27;
+	blah(123, 586);
+	return 27;
 }
 
 func blah(x:int32, y:int32) : void
 {
-    a: uint32 = 1024_u32;
-    i: int32 = x + -y;
-    j: int32 = i ÷ 4.0 as int32;
-    0x10ADF + 0b10101001 + 0o15675;
-    i = j > 12 ? 256 : 384;
-    b: bool = true;
-    if( b == false )
+	a: uint32 = 1024_u32;
+	i: int32 = x + -y;
+	j: int32 = i ÷ 4.0 as int32;
+	0x10ADF + 0b10101001 + 0o15675;
+	i = j > 12 ? 256 : 384;
+	b: bool = true;
+	if( b == false )
+	{
+		q: int32 = j * i;
+		b = true;
+	}
+    else if( i > 384 )
     {
-        q: int32 = j * i;
-        b = true;
+        w: char = 'M';
     }
-    else
-        b = false;
+	else
+		b = false;
 
-    z: int32 = 0;
-    do {
-        z = z + 1;
-    } while ( x < 20 )
+	z: int32 = 0;
+	do {
+        z += 1;
+        if( z == 12 )
+            break;
+    } while ( z > 0 && z < 20 )
 
-    while ( z > 0 )
-        z = z - 1;
+    while ( z > 0 || b == true ) {
+       z -= 1;
+       if( z == 5 )
+           continue;
+    }
 
-    c: char  = '\u263A';
-    s: string = "こんにち\u263Aは世界";
-    printInt(i);
+	c: char  = '\u263A';
+	s: string = "こんにち\u263Aは世界";
+	array: int64[5] = [1_i64, 3, 5, 7, 9];
+	third: int64 = array[3];
+	printInt(third);
 }
 ```

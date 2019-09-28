@@ -87,6 +87,22 @@ namespace px {
             return count;
         }
 
+        bool startsWith(const Utf8String &other) const
+        {
+            if( count >= other.count) {
+                return std::equal(bytes.begin(), bytes.end(), bytes.begin());
+            }
+            return false;
+        }
+
+        bool endsWith(const Utf8String &other) const
+        {
+            if( count >= other.count) {
+                return std::equal(bytes.rbegin(), bytes.rend(), bytes.rbegin());
+            }
+            return false;
+        }
+
         Utf8String &operator=(const Utf8String &other)
         {
             count = other.count;
