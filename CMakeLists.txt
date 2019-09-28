@@ -3,7 +3,6 @@ project(px)
 
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(LLVM 6.0.0 REQUIRED CONFIG)
 find_package(ICU 60.2 COMPONENTS io data test tu uc REQUIRED)
 
 include_directories(compiler/include)
@@ -17,8 +16,6 @@ add_executable(pxc
         compiler/include/ast/Statement.h
         compiler/include/ast/Visitor.h
         compiler/include/cg/CCompiler.h
-        compiler/include/cg/ModuleData.h
-        compiler/include/cg/LLVMCompiler.h
         compiler/include/ContextAnalyzer.h
         compiler/include/Error.h
         compiler/include/IO.h
@@ -35,7 +32,6 @@ add_executable(pxc
         compiler/src/ast/Node.cpp
         compiler/src/ast/Statement.cpp
         compiler/src/cg/CCompiler.cpp
-        compiler/src/cg/LLVMCompiler.cpp
 
         compiler/src/ContextAnalyzer.cpp
         compiler/src/Parser.cpp
@@ -44,7 +40,7 @@ add_executable(pxc
         compiler/src/Symbol.cpp
         compiler/src/Token.cpp)
 
-target_link_libraries(pxc LLVM ${ICU_LIBRARIES})
+target_link_libraries(pxc ${ICU_LIBRARIES})
 
 add_library(pxruntime STATIC compiler/src/runtime/PxRuntime.cpp)
 
@@ -69,4 +65,4 @@ add_executable(tests
         compiler/src/Symbol.cpp
         compiler/src/Token.cpp)
 
-target_link_libraries(tests LLVM ${ICU_LIBRARIES})
+target_link_libraries(tests ${ICU_LIBRARIES})
