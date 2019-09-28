@@ -5,7 +5,7 @@
 # px
 A work in progress programming language
 
-It uses [LLVM](https://llvm.org/) for one backend and also can transcompile to C.  It uses [ICU4C](http://site.icu-project.org/) for its unicode support apis.
+It transcompiles to C.  It uses [ICU4C](http://site.icu-project.org/) for its unicode support apis.
 
 ### Code example of working features:
 ```
