@@ -3,7 +3,7 @@ project(px)
 
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(ICU 60.2 COMPONENTS io data test tu uc REQUIRED)
+find_package(ICU 60.2 COMPONENTS io data tu uc REQUIRED)
 
 include_directories(compiler/include)
 include_directories(tests/include)
