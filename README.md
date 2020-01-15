@@ -56,6 +56,6 @@ func blah(x:int32, y:int32) : void
 	s: string = "こんにち\u263Aは世界";
 	array: int64[5] = [1_i64, 3, 5, 7, 9];
 	third: int64 = array[3];
+	array[4] = 128_i64;
 	printInt(third);
-}
 ```
