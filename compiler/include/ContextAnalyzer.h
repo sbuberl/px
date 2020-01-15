@@ -14,6 +14,9 @@ namespace px {
         ContextAnalyzer(Scope *rootScope, ErrorLog *errors);
 
         void analyze(ast::AST & ast);
+        void *visit(ast::ArrayIndexReference &a) override;
+        void *visit(ast::ArrayLiteral &a) override;
+        void *visit(ast::ArrayIndexAssignmentStatement &a) override;
         void *visit(ast::AssignmentStatement &a) override;
         void *visit(ast::BinaryOpExpression &e) override;
         void *visit(ast::BoolLiteral &b) override;

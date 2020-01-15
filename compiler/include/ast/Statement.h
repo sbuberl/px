@@ -27,7 +27,23 @@ namespace px
             Type *variableType;
 
             AssignmentStatement(const SourcePosition &pos, const Utf8String &n, TokenType op, std::unique_ptr<Expression> e)
-                : Statement{ NodeType::STMT_ASSIGN, pos }, variableName{ n }, opType{ op }, expression{ std::move(e) }, variableType{}
+                    : Statement{ NodeType::STMT_ASSIGN, pos }, variableName{ n }, opType{ op }, expression{ std::move(e) }, variableType{}
+            {
+            }
+
+            void *accept(Visitor &visitor) override;
+        };
+
+        class ArrayIndexAssignmentStatement : public Statement
+        {
+        public:
+            std::unique_ptr<Expression> reference;
+            std::unique_ptr<Expression> expression;
+            TokenType opType;
+            Type *variableType;
+
+            ArrayIndexAssignmentStatement(const SourcePosition &pos, std::unique_ptr<Expression> r, TokenType op, std::unique_ptr<Expression> e)
+                    : Statement{ NodeType::STMT_ARRAY_INDEX_ASSIGN, pos }, reference{ std::move(r) }, opType{ op }, expression{ std::move(e) }, variableType{}
             {
             }
 

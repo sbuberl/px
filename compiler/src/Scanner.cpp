@@ -395,6 +395,8 @@ namespace px {
                 case ')':	    RETURN_OP(RPAREN, 1);
                 case '{':	    RETURN_OP(LBRACKET, 1);
                 case '}':	    RETURN_OP(RBRACKET, 1);
+                case '[':	    RETURN_OP(LSQUARE_BRACKET, 1);
+                case ']':	    RETURN_OP(RSQUARE_BRACKET, 1);
                 case ';':	    RETURN_OP(OP_END_STATEMENT, 1);
                 case ',':	    RETURN_OP(OP_COMMA, 1);
                 case '.':	    RETURN_OP(OP_DOT, 1);

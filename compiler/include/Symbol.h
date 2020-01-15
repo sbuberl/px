@@ -81,11 +81,12 @@ namespace px
             BUILTIN_CHAR = 0x20 | BUILTIN,
             BUILTIN_STRING = 0x40 | BUILTIN,
             BUILTIN_VOID = 0x80 | BUILTIN,
+            BUILTIN_ARRAY = 0x100 | BUILTIN,
             ABSTRACT = 0x100,
             SEALED = 0x200,
         };
 
-        Type(const Utf8String &n, Type *p, unsigned int s, unsigned int f)
+        Type(const Utf8String &n, Type *p, size_t s, unsigned int f)
             : Symbol{ n, SymbolType::TYPE }, parent{ p }, size{ s }, flags{ f }
         {
         }
@@ -181,12 +182,34 @@ namespace px
             return isBuiltin(BUILTIN_STRING);
         }
 
+        bool isArray() const
+        {
+            return isBuiltin(BUILTIN_ARRAY);
+        }
+
         Type * const parent;
-        const unsigned int size;
+        const size_t size;
         const unsigned int flags;
 
     };
 
+    class ArrayType : public Type
+    {
+    public:
+        ArrayType(Type *element,  size_t length)
+                : Type{ element->name + "[" + std::to_string(length) + "]", nullptr, element->size * length, BUILTIN_ARRAY}, elementType{ element }, count{ length }
+        {
+        }
+
+        ArrayType(const ArrayType &other)
+                : ArrayType{other.elementType,  other.count}
+        {
+        }
+
+
+        Type * const elementType;
+        const size_t count;
+    };
     class SymbolTable
     {
     public:

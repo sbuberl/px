@@ -70,9 +70,10 @@ namespace px
             const Utf8String typeName;
             const Utf8String name;
             std::unique_ptr<Expression> initialValue;
+            int64_t *arraySize;
 
-            VariableDeclaration(const SourcePosition &pos, const Utf8String &t, const Utf8String &n, std::unique_ptr<Expression> value)
-                : Statement{ NodeType::DECLARE_VAR, pos }, typeName{ t }, name{ n }, initialValue{ std::move(value) }
+            VariableDeclaration(const SourcePosition &pos, const Utf8String &t, const Utf8String &n, std::unique_ptr<Expression> value,  int64_t *array)
+                : Statement{ NodeType::DECLARE_VAR, pos }, typeName{ t }, name{ n }, initialValue{ std::move(value) }, arraySize{ array }
             {
             }
 

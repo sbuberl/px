@@ -108,13 +108,27 @@ namespace px {
                     rewind();
                     return parseVariableDeclaration();
                 }
-                else if (next.type >= TokenType::OP_ASSIGN && next.type <= TokenType::OP_ASSIGN_SUB)
-                {
-                    rewind();
-                    return parseAssignment();
-                }
                 else
-                    rewind();
+                {
+                    bool hasArrayRef = false;
+                    if(next.type == TokenType::LSQUARE_BRACKET) {
+                        do {
+                            next = scanner->nextToken();
+                        } while(next.type != TokenType::RSQUARE_BRACKET);
+                        next = scanner->nextToken();
+                        hasArrayRef = true;
+                    }
+
+                    if (next.type >= TokenType::OP_ASSIGN && next.type <= TokenType::OP_ASSIGN_SUB) {
+                        rewind();
+                        if (hasArrayRef) {
+                            return parseArrayIndexAssignment();
+                        } else {
+                            return parseAssignment();
+                        }
+                    } else
+                        rewind();
+                }
             }
             default:
                 // if none of the above, parse as expression
@@ -122,12 +136,24 @@ namespace px {
         }
     }
 
-    std::unique_ptr<ast::AssignmentStatement> Parser::parseAssignment()
+    std::unique_ptr<ast::Statement> Parser::parseArrayIndexAssignment()
+    {
+        SourcePosition start = currentToken->position;
+        std::unique_ptr<Expression> arrayRef = parseValue();
+        TokenType opType = currentToken->type;
+        accept();
+
+        std::unique_ptr<Expression> expression = parseExpression();
+
+        expect(TokenType::OP_END_STATEMENT);
+        return std::make_unique<ArrayIndexAssignmentStatement>(start, std::move(arrayRef), opType, std::move(expression));
+    }
+
+    std::unique_ptr<ast::Statement> Parser::parseAssignment()
     {
         SourcePosition start = currentToken->position;
         Utf8String variableName = currentToken->str;
         expect(TokenType::IDENTIFIER);
-
         TokenType opType = currentToken->type;
         accept();
 
@@ -277,18 +303,28 @@ namespace px {
     std::unique_ptr<VariableDeclaration> Parser::parseVariableDeclaration()
     {
         SourcePosition start = currentToken->position;
+        int64_t *arraySize = nullptr;
         std::unique_ptr<Expression> initializer = nullptr;
         Utf8String variableName = currentToken->str;
         expect(TokenType::IDENTIFIER);
         expect(TokenType::OP_COLON);
         Utf8String typeName = currentToken->str;
         expect(TokenType::IDENTIFIER);
+        if (accept(TokenType::LSQUARE_BRACKET))
+        {
+            if(currentToken->type == TokenType::INTEGER) {
+                std::string tokenString = currentToken->str.toString();
+                arraySize = new int64_t(std::stoll(tokenString, nullptr, currentToken->integerBase));
+                accept();
+            }
+            expect(TokenType::RSQUARE_BRACKET);
+        }
         if (accept(TokenType::OP_ASSIGN))
         {
             initializer = parseExpression();
         }
         expect(TokenType::OP_END_STATEMENT);
-        return std::make_unique<VariableDeclaration>(start, typeName, variableName, std::move(initializer));
+        return std::make_unique<VariableDeclaration>(start, typeName, variableName, std::move(initializer), arraySize);
     }
 
     int Parser::getPrecedence(TokenType type)
@@ -473,31 +509,38 @@ namespace px {
         {
             case TokenType::IDENTIFIER:
             {
-                {
-                    Utf8String identifier = currentToken->str;
-                    Token &nextToken = scanner->nextToken();
-                    if (nextToken.type == TokenType::LPAREN)
-                    {
-                        accept();
-                        std::vector<std::unique_ptr<Expression>> arguments;
-                        if (currentToken->type != TokenType::RPAREN)
-                        {
-                            do
-                            {
-                                std::unique_ptr<Expression> argument = parseExpression();
-                                arguments.push_back(std::move(argument));
-                            } while (accept(TokenType::OP_COMMA));
+                Utf8String identifier = currentToken->str;
+                Token &nextToken = scanner->nextToken();
+                    switch (nextToken.type) {
+                        case TokenType::LPAREN: {
+                            accept();
+                            std::vector<std::unique_ptr<Expression>> arguments;
+                            if (currentToken->type != TokenType::RPAREN) {
+                                do {
+                                    std::unique_ptr<Expression> argument = parseExpression();
+                                    arguments.push_back(std::move(argument));
+                                } while (accept(TokenType::OP_COMMA));
+                            }
+                            expect(TokenType::RPAREN);
+                            value.reset(new FunctionCallExpression{start, identifier, std::move(arguments)});
+                            return value;
                         }
-                        expect(TokenType::RPAREN);
-                        value.reset(new FunctionCallExpression{ start, identifier, std::move(arguments) });
-                        return value;
+                        case TokenType::LSQUARE_BRACKET: {
+                            accept();
+
+                            std::unique_ptr<Expression> array(new VariableExpression{ start, identifier });
+                            std::unique_ptr<Expression> index = parseExpression();
+
+                            expect(TokenType::RSQUARE_BRACKET);
+
+                            value.reset(new ArrayIndexReference{start, std::move(array), std::move(index) });
+                            return value;
+                        }
+                        default:
+                            rewind();
+                            value.reset(new VariableExpression{ start, identifier });
+
                     }
-                    else
-                    {
-                        rewind();
-                        value.reset(new VariableExpression{ start, identifier });
-                    }
-                }
                 break;
             }
             case TokenType::INTEGER:
@@ -517,6 +560,18 @@ namespace px {
             case TokenType::KW_FALSE:
                 value.reset(new BoolLiteral{ start, currentToken->str });
                 break;
+            case TokenType::LSQUARE_BRACKET: {
+                std::unique_ptr<ArrayLiteral> elements{ new ArrayLiteral{start}};
+                accept(TokenType::LSQUARE_BRACKET);
+                while (currentToken->type != TokenType::RSQUARE_BRACKET) {
+                    auto element = parseExpression();
+                    elements->addValue( std::move(element) );
+                    accept(TokenType::OP_COMMA);
+                }
+                value = std::move(elements);
+                break;
+
+            }
             default:
                 Utf8String errorMesage = Utf8String{ "Unknown value: " } + Token::getTokenName(currentToken->type);
                 compilerError(currentToken->position, errorMesage);

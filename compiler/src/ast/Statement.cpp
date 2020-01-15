@@ -8,6 +8,8 @@ namespace px
     {
         void *AssignmentStatement::accept(Visitor &visitor) { return visitor.visit(*this); }
 
+        void *ArrayIndexAssignmentStatement::accept(Visitor &visitor) { return visitor.visit(*this); }
+
         void *BlockStatement::accept(Visitor &visitor) { return visitor.visit(*this); }
 
         void *BreakStatement::accept(Visitor &visitor) { return visitor.visit(*this); }

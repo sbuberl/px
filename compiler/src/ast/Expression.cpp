@@ -6,6 +6,8 @@ namespace px
 {
     namespace ast
     {
+        void *ArrayIndexReference::accept(Visitor &visitor) { return visitor.visit(*this); }
+
         void *BinaryOpExpression::accept(Visitor &visitor) { return visitor.visit(*this); }
 
         void *CastExpression::accept(Visitor &visitor) { return visitor.visit(*this); }
