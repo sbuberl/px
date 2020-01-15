@@ -110,6 +110,14 @@ namespace px
         writeString(out, code);
     }
 
+    void* CCompiler::visit(ast::ArrayIndexAssignmentStatement &a)
+    {
+        a.reference->accept(*this);
+        add(Token::getTokenName(a.opType));
+        a.expression->accept(*this);
+        add(Token::getTokenName(TokenType::OP_END_STATEMENT));
+    }
+
     void* CCompiler::visit(ast::ArrayIndexReference &a)
     {
         a.array->accept(*this);

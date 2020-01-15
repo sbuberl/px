@@ -33,6 +33,7 @@ namespace px
             LITERAL_INT,
             LITERAL_STRING,
             MODULE,
+            STMT_ARRAY_INDEX_ASSIGN,
             STMT_ASSIGN,
             STMT_BLOCK,
             STMT_BREAK,

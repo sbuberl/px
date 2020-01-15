@@ -36,6 +36,8 @@ namespace px
             {
             }
 
+            ArrayIndexReference(const ArrayIndexReference &other) = default;
+
             void *accept(Visitor &visitor) override;
         };
 

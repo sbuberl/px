@@ -104,6 +104,44 @@ namespace px
         return nullptr;
     }
 
+    void* ContextAnalyzer::visit(ast::ArrayIndexAssignmentStatement &a)
+    {
+        auto symbols = _currentScope->symbols();
+
+        a.reference->accept(*this);
+        ast::ArrayIndexReference *array = (ast::ArrayIndexReference*) a.reference.get();
+        ast::VariableExpression *var = (ast::VariableExpression*) array->array.get();
+
+        Variable *variable = symbols->getVariable(var->variable);
+        if (variable == nullptr)
+        {
+            errors->addError(Error{ a.position, Utf8String{ "Variable " } + var->variable + " is not declared in the current scope" });
+            return nullptr;
+        }
+
+        a.expression->accept(*this);
+
+        TokenType opType = a.opType;
+        Type *variableType = variable->type;
+        Type *expressionType = a.expression->type;
+
+        if(!variableType->isArray())
+        {
+            errors->addError(Error{ a.position, Utf8String{ "Variable " } + var->variable + " is not an array" });
+            return nullptr;
+        }
+
+        ArrayType *arrayType = (ArrayType *) variableType;
+        if (!expressionType->isImpiciltyCastableTo(arrayType->elementType))
+        {
+            errors->addError(Error{ a.position, Utf8String{ "Can not implicitly store an element of type '"} + expressionType->name + "' into a array of type " + variableType->name + "'" });
+        }
+
+        a.variableType = variableType;
+
+        return nullptr;
+    }
+
     void* ContextAnalyzer::visit(ast::AssignmentStatement &a)
     {
         auto symbols = _currentScope->symbols();

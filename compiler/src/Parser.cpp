@@ -108,13 +108,27 @@ namespace px {
                     rewind();
                     return parseVariableDeclaration();
                 }
-                else if (next.type >= TokenType::OP_ASSIGN && next.type <= TokenType::OP_ASSIGN_SUB)
-                {
-                    rewind();
-                    return parseAssignment();
-                }
                 else
-                    rewind();
+                {
+                    bool hasArrayRef = false;
+                    if(next.type == TokenType::LSQUARE_BRACKET) {
+                        do {
+                            next = scanner->nextToken();
+                        } while(next.type != TokenType::RSQUARE_BRACKET);
+                        next = scanner->nextToken();
+                        hasArrayRef = true;
+                    }
+
+                    if (next.type >= TokenType::OP_ASSIGN && next.type <= TokenType::OP_ASSIGN_SUB) {
+                        rewind();
+                        if (hasArrayRef) {
+                            return parseArrayIndexAssignment();
+                        } else {
+                            return parseAssignment();
+                        }
+                    } else
+                        rewind();
+                }
             }
             default:
                 // if none of the above, parse as expression
@@ -122,12 +136,24 @@ namespace px {
         }
     }
 
-    std::unique_ptr<ast::AssignmentStatement> Parser::parseAssignment()
+    std::unique_ptr<ast::Statement> Parser::parseArrayIndexAssignment()
+    {
+        SourcePosition start = currentToken->position;
+        std::unique_ptr<Expression> arrayRef = parseValue();
+        TokenType opType = currentToken->type;
+        accept();
+
+        std::unique_ptr<Expression> expression = parseExpression();
+
+        expect(TokenType::OP_END_STATEMENT);
+        return std::make_unique<ArrayIndexAssignmentStatement>(start, std::move(arrayRef), opType, std::move(expression));
+    }
+
+    std::unique_ptr<ast::Statement> Parser::parseAssignment()
     {
         SourcePosition start = currentToken->position;
         Utf8String variableName = currentToken->str;
         expect(TokenType::IDENTIFIER);
-
         TokenType opType = currentToken->type;
         accept();
 

@@ -34,7 +34,8 @@ namespace px {
         ast::BinaryOperator getBinaryOp(TokenType type);
 
         std::unique_ptr<ast::Statement> parseStatement();
-        std::unique_ptr<ast::AssignmentStatement> parseAssignment();
+        std::unique_ptr<ast::Statement> parseArrayIndexAssignment();
+        std::unique_ptr<ast::Statement> parseAssignment();
         std::unique_ptr<ast::BlockStatement> parseBlockStatement();
         std::unique_ptr<ast::BreakStatement> parseBreakStatement();
         std::unique_ptr<ast::ContinueStatement> parseContinueStatement();
