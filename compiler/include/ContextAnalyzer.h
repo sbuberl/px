@@ -46,6 +46,7 @@ namespace px {
         void checkAssignmentTypes(Variable * variable, std::unique_ptr<ast::Expression>& expression, const SourcePosition & start);
 
         Scope *_currentScope;
+        px::Function *currentFunction;
         size_t loopDepth;
         ErrorLog * const errors;
     };

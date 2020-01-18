@@ -8,7 +8,7 @@
 namespace px
 {
     ContextAnalyzer::ContextAnalyzer(Scope *rootScope, ErrorLog *log)
-        : _currentScope{rootScope}, errors{log}, loopDepth{}
+        : _currentScope{rootScope}, currentFunction{}, errors{log}, loopDepth{}
     {
 
     }
@@ -392,6 +392,7 @@ namespace px
     void* ContextAnalyzer::visit(ast::FunctionDefinition &f)
     {
         auto current = _currentScope;
+        auto currentFunc = currentFunction;
         auto currentSymbols = current->symbols();
         auto prototype = *f.prototype;
 
@@ -427,6 +428,7 @@ namespace px
         }
 
         f.function = function;
+        currentFunction = function;
         auto newScope = new Scope(current);
         _currentScope = newScope;
         auto newSymbols = newScope->symbols();
@@ -435,6 +437,7 @@ namespace px
         for(auto &statement : f.block->statements)
             statement->accept(*this);
         _currentScope = current;
+        currentFunction = currentFunc;
         
         return nullptr;
     }
@@ -475,8 +478,31 @@ namespace px
 
     void* ContextAnalyzer::visit(ast::ReturnStatement &s)
     {
+        auto returnType = currentFunction->returnType;
         if (s.returnValue != nullptr)
-            s.returnValue->accept(*this);
+        {
+            if(!returnType->isVoid())
+            {
+                s.returnValue->accept(*this);
+                auto expType = currentFunction->returnType;
+                if( !expType->isImpiciltyCastableTo(returnType))
+                {
+                    errors->addError(Error{s.position, Utf8String{"Can not implicitly convert from '"} + expType->name + "' to '" +
+                            returnType->name + "'"});
+                    return nullptr;
+                }
+            }
+            else
+            {
+                errors->addError(Error{ s.position, Utf8String{ "Can not return a value on a void function" } });
+                return nullptr;
+            }
+        }
+        else if(!returnType->isVoid())
+        {
+            errors->addError(Error{ s.position, Utf8String{ "Expected a return a value on a non-void function" } });
+            return nullptr;
+        }
         return nullptr;
     }
 
