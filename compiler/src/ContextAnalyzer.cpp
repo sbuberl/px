@@ -162,11 +162,11 @@ namespace px
 
         switch(opType)
         {
-            case TokenType::OP_ADD:
-            case TokenType::OP_SUB:
-            case TokenType::OP_STAR:
-            case TokenType::OP_DIV:
-            case TokenType::OP_MOD:
+            case TokenType::OP_ASSIGN_ADD:
+            case TokenType::OP_ASSIGN_SUB:
+            case TokenType::OP_ASSIGN_STAR:
+            case TokenType::OP_ASSIGN_DIV:
+            case TokenType::OP_ASSIGN_MOD:
                 if (!expressionType->isImpiciltyCastableTo(variableType))
                 {
                     errors->addError(Error{ a.position, Utf8String{ "Can not perform assignment '"} + Token::getTokenName(opType) + "' between an expression of type '"  + expressionType->name + "' and a variable of type" + variableType->name + "'" });
@@ -505,10 +505,17 @@ namespace px
         else if( trueType->isImpiciltyCastableTo(falseType))
         {
             t.trueExpr = std::make_unique<ast::CastExpression>(t.trueExpr->position, falseType->name, std::move(t.trueExpr));
+            t.type = falseType;
         }
         else if( falseType->isImpiciltyCastableTo(trueType))
         {
             t.falseExpr = std::make_unique<ast::CastExpression>(t.falseExpr->position, trueType->name, std::move(t.falseExpr));
+            t.type = trueType;
+        }
+        else
+        {
+            errors->addError(Error{ t.position, Utf8String{ "Can not implicitly convert between the expressions in ternary" } } );
+            return nullptr;
         }
 
         return nullptr;
