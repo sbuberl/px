@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(ICU 60.2 COMPONENTS io data tu uc REQUIRED)
 
 include_directories(compiler/include)
+include_directories(runtime/include)
 include_directories(tests/include)
 
 add_executable(pxc
@@ -42,7 +43,7 @@ add_executable(pxc
 
 target_link_libraries(pxc ${ICU_LIBRARIES})
 
-add_library(pxruntime STATIC compiler/src/runtime/PxRuntime.cpp)
+add_library(pxruntime STATIC runtime/src/PxRuntime.cpp)
 
 add_executable(tests
         tests/src/TestMain.cpp

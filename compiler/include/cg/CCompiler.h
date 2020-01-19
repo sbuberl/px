@@ -51,8 +51,6 @@ namespace px {
         void unindent(ast::AST *node);
         void newLine();
         void add(const Utf8String &text);
-        Utf8String generateIncludes();
-        Utf8String generateStringDecl();
         Utf8String buildFunctionProto(Function *function);
 
         Utf8String code;

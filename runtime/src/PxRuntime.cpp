@@ -1,3 +1,6 @@
+extern "C" {
+    #include "PxRuntime.h"
+}
 
 #include <stdio.h>
 

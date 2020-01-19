@@ -436,9 +436,8 @@ namespace px
         auto current = currentScope;
         currentScope = scopeTree->enterScope();
 
-        code = generateIncludes();
+        code = "#include <PxRuntime.h>\n\n";
         add(toPreDeclare);
-        add(generateStringDecl());
 
         Utf8String statementCode;
         for (auto const& statement : m.statements)
@@ -564,10 +563,6 @@ namespace px
         return nullptr;
     }
 
-    Utf8String CCompiler::generateIncludes() {
-        return "#include <stdint.h>\n#include <stdbool.h>\n\n";
-    }
-
     Utf8String CCompiler::buildFunctionProto(Function *function) {
         Utf8String RT = pxTypeToCType(function->returnType);
         Utf8String argsText;
@@ -587,9 +582,5 @@ namespace px
             flags += "extern ";
         }
         return flags + RT + " " + function->name + "(" + argsText + ");\n";
-    }
-
-    Utf8String CCompiler::generateStringDecl() {
-        return "typedef struct _PxString\n{int8_t *bytes;\nintptr_t length;\nintptr_t byteLength;\n} PxString;\n\n";
     }
 }
