@@ -28,6 +28,18 @@ namespace px {
             count = 1;
         }
 
+        Utf8String(int32_t c) : Utf8String{}
+        {
+            uint8_t buffer[4] = { 0 };
+            int offset = 0;
+            UBool isError = 0;
+            size_t size = sizeof(buffer);
+            U8_APPEND(buffer, offset, size, c, isError);
+            std::copy(buffer, buffer + size, std::back_inserter(bytes));
+            pointsStart = { 0 };
+            count = 1;
+        }
+
         Utf8String(const char *text) : Utf8String{ std::string{text} }
         {
         }
@@ -152,6 +164,31 @@ namespace px {
             uint32_t offset = pointsStart[index];
             U8_GET(bytes.data(), 0, offset, bytes.size(), codePoint);
             return codePoint;
+        }
+
+        void setCharAt(uint32_t index, int32_t codePoint)
+        {
+            int32_t oldCodePoint = 0;
+            uint32_t offset = pointsStart[index];
+            U8_GET(bytes.data(), 0, offset, bytes.size(), oldCodePoint);
+            int32_t oldLength = U8_LENGTH(oldCodePoint);
+            int32_t newLength = U8_LENGTH(codePoint);
+            Utf8String stringSection{ codePoint };
+            if(oldLength == newLength)
+            {
+                std::copy(bytes.begin(), bytes.end(), stringSection.bytes.begin());
+            }
+            else
+            {
+                bytes.erase(bytes.begin() + offset, bytes.begin() + offset + oldLength);
+                bytes.insert(bytes.begin() + offset, stringSection.bytes.begin(), stringSection.bytes.begin() + newLength);
+                int32_t delta = newLength - oldLength;
+                size_t pointsStartLength = pointsStart.size();
+                for(uint32_t start = index + 1; start < pointsStartLength; start++)
+                {
+                    pointsStart[start] = delta;
+                }
+            }
         }
 
         bool operator==(const Utf8String& other) const

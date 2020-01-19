@@ -122,6 +122,15 @@ TEST_CASE("Ut8fString index codepoint") {
     REQUIRE(point == 0x00003061);
 }
 
+TEST_CASE("Ut8fString set char at") {
+    std::string input = u8"こんにちは世界";
+    std::string expected = u8"こんAちは世界";
+    px::Utf8String text{ input };
+    px::Utf8String output{ expected };
+    text.setCharAt(2, 'A');
+    REQUIRE(text == output);
+}
+
 TEST_CASE("Ut8fString equals") {
     std::string input1 = u8"こんにちは世界";
     std::string input2 = u8"こんにちは世界";
