@@ -210,6 +210,30 @@ namespace px
         Type * const elementType;
         const size_t count;
     };
+
+    class Function : public Symbol
+    {
+    public:
+        Type * returnType;
+        std::vector<Variable*> parameters;
+        bool declared;
+        bool isExtern;
+
+        Function(const Utf8String &func, const std::vector<Variable*> &params, Type *retType, bool ext, bool declare = false)
+            : Symbol{ func, SymbolType::FUNCTION }, returnType {retType}, parameters{ params }, declared(declare), isExtern{ext}
+        {
+        }
+    };
+
+    class Variable : public Symbol
+    {
+    public:
+        Type * type;
+        Variable(const Utf8String &var, Type *t)
+            : Symbol{ var, SymbolType::VARIABLE }, type{ t }
+        {
+        }
+    };
     class SymbolTable
     {
     public:
@@ -307,35 +331,13 @@ namespace px
             addSymbol(Type::FLOAT64);
             addSymbol(Type::CHAR);
             addSymbol(Type::STRING);
+            addSymbol(new Function{"printInt", {new Variable{"i", Type::INT32}}, Type::VOID, true });
+            addSymbol(new Function{"printFloat", {new Variable{"f", Type::FLOAT32}}, Type::VOID, true });
         }
 
     private:
         std::unordered_map<Utf8String, Symbol*> _symbols;
         SymbolTable * const _parent;
-    };
-
-    class Function : public Symbol
-    {
-    public:
-        Type * returnType;
-        std::vector<Variable*> parameters;
-        bool declared;
-        bool isExtern;
-
-        Function(const Utf8String &func, const std::vector<Variable*> &params, Type *retType, bool ext, bool declare = false)
-            : Symbol{ func, SymbolType::FUNCTION }, returnType {retType}, parameters{ params }, declared(declare), isExtern{ext}
-        {
-        }
-    };
-
-    class Variable : public Symbol
-    {
-    public:
-        Type * type;
-        Variable(const Utf8String &var, Type *t)
-            : Symbol{ var, SymbolType::VARIABLE }, type{ t }
-        {
-        }
     };
 }
 
