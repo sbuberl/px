@@ -27,6 +27,7 @@ namespace px
         { TokenType::KW_IF , "if" },
         { TokenType::KW_IMPLEMENTATION, "implementation" },
         { TokenType::KW_INTERFACE, "interface" },
+        { TokenType::KW_MODULE, "module" },
         { TokenType::KW_NEW , "new" },
         { TokenType::KW_PRIVATE, "private" },
         { TokenType::KW_PROTECTED, "protected" },

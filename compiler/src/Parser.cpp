@@ -37,7 +37,7 @@ namespace px {
     {
         if (!accept(type))
         {
-            Utf8String errorMesage = Utf8String{ "Expected a " } + Token::getTokenName(type) + Utf8String{ "but found a " } + Token::getTokenName(currentToken->type);
+            Utf8String errorMesage = Utf8String{ "Expected a " } + Token::getTokenName(type) + Utf8String{ " but found a " } + Token::getTokenName(currentToken->type);
             compilerError(currentToken->position, errorMesage);
         }
     }
@@ -63,7 +63,12 @@ namespace px {
         currentToken.reset(new Token(scanner->nextToken()));
 
         auto startPosition = currentToken->position;
-        std::unique_ptr<Module> module = std::make_unique<ast::Module>(startPosition, fileName);
+        expect(TokenType::KW_MODULE);
+        Utf8String moduleName = currentToken->str;
+        expect(TokenType::IDENTIFIER);
+        expect(TokenType::OP_END_STATEMENT);
+
+        std::unique_ptr<Module> module = std::make_unique<ast::Module>(startPosition, moduleName, fileName);
 
         while (currentToken->type != TokenType::END_FILE && currentToken->type != TokenType::BAD)
         {

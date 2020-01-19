@@ -60,11 +60,12 @@ namespace px
         class Module : public AST
         {
         public:
+            const Utf8String &moduleName;
             const Utf8String &fileName;
             std::vector<std::unique_ptr<Statement>> statements;
 
-            Module(const SourcePosition &pos, const Utf8String &file)
-                : AST{ NodeType::MODULE, pos }, fileName{ file }
+            Module(const SourcePosition &pos, const Utf8String &module, const Utf8String &file)
+                : AST{ NodeType::MODULE, pos }, moduleName{ module }, fileName{ file }
             {
             }
 

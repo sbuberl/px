@@ -27,6 +27,7 @@ namespace px {
         KW_IF,
         KW_IMPLEMENTATION,
         KW_INTERFACE,
+        KW_MODULE,
         KW_NEW,
         KW_PRIVATE,
         KW_PROTECTED,

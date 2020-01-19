@@ -29,6 +29,7 @@ namespace px {
         { "if", TokenType::KW_IF},
         { "implementation", TokenType::KW_IMPLEMENTATION},
         { "interface", TokenType::KW_INTERFACE},
+        { "module", TokenType::KW_MODULE},
         { "new", TokenType::KW_NEW},
         { "private", TokenType::KW_PRIVATE},
         { "protected", TokenType::KW_PROTECTED},
