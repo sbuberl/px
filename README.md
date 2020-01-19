@@ -9,7 +9,7 @@ It transcompiles to C.  It uses [ICU4C](http://site.icu-project.org/) for its un
 
 ### Code example of working features:
 ```
-extern func printInt(i: int32) : void;
+module test;
 
 func blah(x:int32, y:int32) : void;
 
