@@ -406,7 +406,10 @@ namespace px {
                 case ':':	    RETURN_OP(OP_COLON, 1);
                  // unicode operators
                 case 0x00AC:    RETURN_OP(OP_NOT, 1);               // ¬
+                case 0x2227:    RETURN_OP(OP_AND, 1);               // ∧
                 case 0x2228:    RETURN_OP(OP_OR, 1);                // ∨
+                case 0x2229:    RETURN_OP(OP_BIT_AND, 1);           // ∩
+                case 0x222A:    RETURN_OP(OP_BIT_OR, 1);           // ∪
                 case 0x2260:    RETURN_OP(OP_NOT_EQUAL, 1);         // ≠
                 case 0x2264:    RETURN_OP(OP_LESS_OR_EQUAL, 1);     // ≤
                 case 0x2265:    RETURN_OP(OP_GREATER_OR_EQUAL, 1);  // ≥
@@ -414,7 +417,6 @@ namespace px {
                 case 0x226B:    RETURN_OP(OP_RIGHT_SHIFT, 1);       // ≫
 
                 case '+':
-                case 0x2227:                                                // ∧
                 {
                     uint32_t next = peekCharacter();
                     if (next == '=')
@@ -499,7 +501,6 @@ namespace px {
                         RETURN_OP(OP_GREATER, 1);
                 }
                 case '&':
-                case 0x2229:                                            // ∩
                 {
                     uint32_t next = peekCharacter();
                     if (next == '&')
@@ -510,7 +511,6 @@ namespace px {
                         RETURN_OP(OP_BIT_AND, 1);
                 }
                 case '|':
-                case 0x222A:                                           // ∪
                 {
                     uint32_t next = peekCharacter();
                     if (next == '|')
