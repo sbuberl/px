@@ -13,5 +13,6 @@ typedef struct _PxString
 
 void printInt(int32_t i);
 void printFloat(float f);
+void printString(PxString str);
 
 #endif //PX_PXRUNTIME_H

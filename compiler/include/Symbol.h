@@ -333,6 +333,7 @@ namespace px
             addSymbol(Type::STRING);
             addSymbol(new Function{"printInt", {new Variable{"i", Type::INT32}}, Type::VOID, true });
             addSymbol(new Function{"printFloat", {new Variable{"f", Type::FLOAT32}}, Type::VOID, true });
+            addSymbol(new Function{"printString", {new Variable{"str", Type::STRING}}, Type::VOID, true });
         }
 
     private:

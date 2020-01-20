@@ -13,3 +13,8 @@ extern "C" void printInt(int i)
 {
     printf("%d", i);
 }
+
+extern "C" void printString(PxString str)
+{
+    printf("%s", str);
+}
