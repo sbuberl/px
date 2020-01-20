@@ -105,9 +105,6 @@ namespace px
     void CCompiler::compile(ast::AST& ast)
     {
         ast.accept(*this);
-
-        UFILE *out = u_get_stdout();
-        writeString(out, code);
     }
 
     void* CCompiler::visit(ast::ArrayIndexAssignmentStatement &a)
@@ -449,6 +446,10 @@ namespace px
         scopeTree->endScope();
         currentScope = current;
 
+        Utf8String outputName = m.fileName + ".c";
+        UFILE *out = u_fopen(outputName.toString().c_str(), "w", NULL, NULL);
+        writeString(out, code);
+        u_fclose(out);
         return nullptr;
     }
 
