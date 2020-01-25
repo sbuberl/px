@@ -468,7 +468,7 @@ namespace px
     void* CCompiler::visit(ast::StringLiteral &s)
     {
         Utf8String literal = s.literal;
-        add( Utf8String{"{ "} + "u8\"" + literal + "\", " + std::to_string(literal.length())  + ", " +  std::to_string(literal.byteLength()) + " }");
+        add( Utf8String{"(PxString) { "} + "u8\"" + literal + "\", " + std::to_string(literal.length())  + ", " +  std::to_string(literal.byteLength()) + " }");
         return nullptr;
     }
 
