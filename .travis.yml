@@ -2,19 +2,32 @@
  dist: bionic
 
  compiler: gcc
+  
+ cache: # see https://docs.travis-ci.com/user/caching/
+- directories:
+  - $HOME/.cache
+
+addons:
+  apt:
+    packages: lcov
+
 
  before_install:
   - sudo apt-get update -qq
   - sudo apt-get install -qq cmake libicu-dev lcov
+  
+ install:
+# (fake) install dependencies (usually involves wget, configure, make, ...)
+# install into cache folder (build binaries+headers only, no sources and do NOT build there)
+- mkdir -p $HOME/.cache
+- touch $HOME/.cache/mydependency.so
 
- before_script:
+ script:
    - mkdir build
    - cd build
    - cmake -DCODE_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug ..
    - cmake --build . --config Debug -- -j $(nproc)
    - ctest -j $(nproc) --output-on-failure
-
- script: make
  
  after_success:
    - cd build
