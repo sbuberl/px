@@ -9,12 +9,10 @@
 
 addons:
   apt:
-    packages: lcov
-
-
- before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq cmake libicu-dev lcov
+    packages:
+     - lcov
+     - cmake
+     - libicu-dev
   
  install:
 # (fake) install dependencies (usually involves wget, configure, make, ...)
