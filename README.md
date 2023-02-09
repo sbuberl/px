@@ -3,11 +3,117 @@
 [![Open Source Helpers](https://www.codetriage.com/sbuberl/px/badges/users.svg)](https://www.codetriage.com/sbuberl/px)
 
 # px
+
 A work in progress programming language
 
-It transcompiles to C.  It uses [ICU4C](http://site.icu-project.org/) for its unicode support apis.
+It transcompiles to C. It uses [ICU4C](http://site.icu-project.org/) for its unicode support apis.
 
-### Code example of working features:
+## Installation
+
+Before trying to compile and run the program, you will need a compiler for c++
+[mingw](https://www.mingw-w64.org/) will suffice.
+
+Once the repository is cloned:
+
+### On visual studio code
+
+1. Install [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+2. Install [C/C++ Extension Pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-extension-pack)
+
+### Continued
+
+Install [ICU](https://icu.unicode.org/download)
+
+```bash
+build.sh
+cd compiler/src
+```
+
+Run **PxMain.cpp** with a filename fed to compile
+
+## Documentation
+
+### Variables
+
+Variable declaration follows the format below
+
+```
+Variable_Name: Data_type = value;
+```
+
+Data Types
+
+- int8/16/32/64
+- uint8/16/32/64
+- float32/64
+- string
+- char
+- bool
+- void
+- object
+- array (data_type[size])
+
+### Conditionals
+
+If statements follow the format below
+
+```
+if(conditional_statement){}
+else if(conditional_statement){}
+else{}
+```
+
+For single if statements, brackets are not required. Break and continue are supported.
+
+While statements follow the format below
+
+```
+while(conditional_statement){}
+```
+
+### Functions
+
+Functions should generally be declared prior to the main function and then defined after
+
+```
+func function_name(passed_variable_name:data_type) : ret_data_type {}
+```
+
+Void-returning functions are supported
+
+### Keywords
+
+- abstract
+- as
+- break
+- case
+- concept
+- continue
+- default
+- do
+- else
+- extern
+- false
+- for
+- func
+- if
+- implementation
+- interface
+- module
+- new
+- private
+- protected
+- public
+- ref
+- return
+- state
+- switch
+- true
+- value
+- while
+
+### Example
+
 ```
 module test;
 
@@ -59,3 +165,11 @@ func blah(x:int32, y:int32) : void
 	array[4] = 128_i64;
 	printInt(third);
 ```
+
+## Contributions
+
+For contributing to the project, refer to [first-time contribution guide](https://github.com/firstcontributions/first-contributions) for guidance.
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
